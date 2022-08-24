@@ -6,6 +6,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once "db.php";
+require "mail.php";
 
 define("ROLE_STUDENT", 0);
 define("ROLE_PANELIST", 1);
@@ -58,7 +59,7 @@ function signup_user($data)
         $insert_stm = $con->prepare($query);
         $insert_stm->execute($arr);
 
-        $_SESSION['result'] = "
+        $_SESSION['result_popup'] = "
                     <script type=\"text/javascript\">
                         swal({
                             title: \"Successfully Registered!\",
@@ -79,6 +80,7 @@ function signup_user($data)
         $_SESSION['logged_in'] = true;
         $_SESSION['profilepic'] = 'default_profile.jpg'; 
         $_SESSION['role'] = 0;
+        $_SESSION['sent_verification'] = false;
     }
 
     return $errors;
@@ -106,6 +108,7 @@ function login_user($data)
         {
             $_SESSION['user'] = $row;
             $_SESSION['logged_in'] = true;
+            $_SESSION['sent_verification'] = false;
 
             if($row['email'] != $row['email_verified'] || is_null($row['email_verified'])) {
                 $_SESSION['result'] =
@@ -121,6 +124,8 @@ function login_user($data)
                                     });
                             </script>                        
                         ";
+
+                sendVerificationCode();
                 header("Location: verify.php");
             } else {
                 header("Location: dashboard.php");
@@ -134,6 +139,62 @@ function login_user($data)
     else 
     {
         $errors['all'] = "That username or email doesn't exist!";
+    }
+    return $errors;
+}
+
+function sendVerificationCode()
+{
+    global $con;
+
+    $errors = array();
+    $now = time();
+
+    $vars = array();
+
+    $vars['code'] = rand(pow(10, 5-1), pow(10, 5)-1);
+    $vars['email'] = $_SESSION['user']['email'];
+
+    $query = "SELECT * FROM verified WHERE email = :email";
+    $select_stm = $con->prepare($query);
+    $select_stm->bindValue(':email', $vars['email']);
+    $select_stm->execute();
+
+    if($select_stm->rowCount() > 0)
+    {
+        $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+
+        if($row['expiry'] < $now)
+        {
+            $vars['expiry'] = time() + (60 * 5); // 5 minutes expiration
+
+            $query = "UPDATE verified SET code = :code, expiry = :expiry, email = :email WHERE email = :email";
+            $insert_stm = $con->prepare($query);
+            $insert_stm->execute($vars);
+
+            unset($_SESSION['message_error']);
+            $_SESSION['message'] = "A code was sent to your email address. Check your <strong>inbox</strong> or the <strong>spam folder</strong>.";
+            $message = "Your verification code is: ". $vars['code'];
+            send_mail($vars['email'], "Verify your account! - Verification Code", $message);                  
+        }
+        else 
+        {
+            unset($_SESSION['message']);
+            $timeLapse = ($row['expiry'] - $now) / 60 % 60;
+            $_SESSION['message_error'] = "A code was already sent to your email. Please wait for <strong>" .$timeLapse. " minutes</strong> before requesting for a new code.";
+        }
+    }
+    else
+    {
+        $vars['expiry'] = time() + (60 * 1); // 5 minutes expiration
+
+        $query = "INSERT INTO verified (code, expiry, email) VALUES(:code, :expiry, :email)";
+        $insert_stm = $con->prepare($query);
+        $insert_stm->execute($vars);
+
+        $_SESSION['message'] = "A code was sent to your email address. Check your <strong>inbox</strong> or the <strong>spam folder</strong>.";
+        $message = "Your verification code is: ". $vars['code'];
+        send_mail($vars['email'], "Verify your account! - Verification Code", $message);  
     }
     return $errors;
 }

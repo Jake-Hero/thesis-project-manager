@@ -1,5 +1,6 @@
 <?php
-    require "mail.php";
+    $errors = array();
+
     require "functions.php";
     is_user_login();
 
@@ -9,10 +10,12 @@
         die;
     }
 
-    $errors = array();
-
     if($_SERVER['REQUEST_METHOD'] == "POST")
     {
+        if(isset($_POST['resend']))
+        {
+            $errors = sendVerificationCode();
+        }
         if(isset($_POST['submit']))
         {
             if(is_user_verified())
@@ -33,15 +36,19 @@
                 if($select_stm->rowCount() > 0)
                 {
                     $row = $select_stm->fetch(PDO::FETCH_ASSOC);
-                    $cur_time = time();
 
-                    if($row['expiry'] > $cur_time)
+                    if(time() > $row['expiry'])
                     {
                         $query = "UPDATE users SET email_verified = :email WHERE id = :id";
                         $insert_stm = $con->prepare($query);
                         $insert_stm->bindValue(':email', $vars['email']);
                         $insert_stm->bindValue(':id', $_SESSION['user']['id']);
                         $insert_stm->execute();
+
+                        $query = "DELETE FROM verified WHERE code = :code";
+                        $delStm = $con->prepare($query);
+                        $delStm->bindValue(':code', $vars['code']);
+                        $delStm->execute();
 
                         header("Location: dashboard.php");
                     }
@@ -63,35 +70,6 @@
         }
     }
 
-    if($_SERVER['REQUEST_METHOD'] == "GET" && !is_user_verified())
-    {
-        $vars = array();
-
-        $vars['code'] = rand(pow(10, 5-1), pow(10, 5)-1);
-        $vars['expiry'] = time() + (60 * 5); // 5 minutes expiration
-        $vars['email'] = $_SESSION['user']['email'];
-
-        $query = "SELECT * FROM verified WHERE email = :email";
-        $select_stm = $con->prepare($query);
-        $select_stm->bindValue(':email', $vars['email']);
-        $select_stm->execute();
-
-        if($select_stm->rowCount() > 0)
-        {
-            $query = "UPDATE verified SET code = :code, expiry = :expiry, email = :email WHERE email = :email";
-            $insert_stm = $con->prepare($query);
-            $insert_stm->execute($vars);
-        }
-        else
-        {
-            $query = "INSERT INTO verified (code, expiry, email) VALUES(:code, :expiry, :email)";
-            $insert_stm = $con->prepare($query);
-            $insert_stm->execute($vars);
-        }
-
-        send_mail($vars['email'], "Test Subject", "Test Message");
-    }
-
     require('header.php');
 ?>
 
@@ -104,16 +82,16 @@
 
     <body>  
         <div class="wrapper">
-        <div class="container h-100">
+            <div class="container h-100">
                 <div class="row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center h-100">
                     <div class="col-md-6">
                         <form method="post" enctype="multipart/form-data" class="profile-form px-4 py-3 border border-dark">
                             <h1>Verification Code</h1>
                             <?php 
-                                if(isset($_SESSION['result']))
-                                    echo $_SESSION['result'];
+                                if(isset($_SESSION['result_popup']))
+                                    echo $_SESSION['result_popup'];
 
-                                unset($_SESSION['result']);
+                                unset($_SESSION['result_popup']);
                             ?>
 
                             <?php if(!empty($errors['fail'])): ?>
@@ -126,11 +104,22 @@
                                 </div>
                             <?php endif; ?>
 
-                            <div class="alert alert-success d-flex align-items-center fade show">
-                                <div class ="mx-3">
-                                    A code was sent to your email address. Check your <strong>inbox</strong> or the <strong>spam folder</strong>.
+                            <?php if(!empty($_SESSION['message'])): ?>
+                                <div class="alert alert-success d-flex align-items-center fade show">
+                                    <div class ="mx-3">
+                                        <?php echo $_SESSION['message']; ?>
+                                    </div>
                                 </div>
-                            </div>
+                            <?php endif; ?>
+
+                            <?php if(!empty($_SESSION['message_error'])): ?>
+                                <div class="alert alert-danger d-flex align-items-center fade show">
+                                    <i class='fas fa-exclamation-triangle'></i>
+                                    <div class ="mx-3">
+                                        <?php echo $_SESSION['message_error'];?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
 
                             <div class="col">
                                 <label for="" class="col col-form-label">Please put code here</label>
@@ -138,7 +127,8 @@
                             </div>
 
                             <div class="row mt-5 mx-auto">
-                                    <input type="submit" name="submit" value="Verify" class="rounded-pill btn btn-warning border border-light btn-lg">
+                                <input type="submit" name="resend" value="Resend Code" class="rounded-pill btn btn-warning border border-light btn-lg">
+                                <input type="submit" name="submit" value="Verify" class="rounded-pill btn btn-warning border border-light btn-lg">
                             </div>
                         </form>
                     </div>

@@ -80,7 +80,6 @@ function signup_user($data)
         $_SESSION['logged_in'] = true;
         $_SESSION['profilepic'] = 'default_profile.jpg'; 
         $_SESSION['role'] = 0;
-        $_SESSION['sent_verification'] = false;
     }
 
     return $errors;
@@ -108,10 +107,9 @@ function login_user($data)
         {
             $_SESSION['user'] = $row;
             $_SESSION['logged_in'] = true;
-            $_SESSION['sent_verification'] = false;
 
             if($row['email'] != $row['email_verified'] || is_null($row['email_verified'])) {
-                $_SESSION['result'] =
+                $_SESSION['result_popup'] =
                         "
                             <script type=\"text/javascript\">
                                 swal({
@@ -186,7 +184,7 @@ function sendVerificationCode()
     }
     else
     {
-        $vars['expiry'] = time() + (60 * 1); // 5 minutes expiration
+        $vars['expiry'] = time() + (60 * 5); // 5 minutes expiration
 
         $query = "INSERT INTO verified (code, expiry, email) VALUES(:code, :expiry, :email)";
         $insert_stm = $con->prepare($query);

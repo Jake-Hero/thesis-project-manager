@@ -37,7 +37,7 @@
                 {
                     $row = $select_stm->fetch(PDO::FETCH_ASSOC);
 
-                    if(time() > $row['expiry'])
+                    if($row['expiry'] > time())
                     {
                         $query = "UPDATE users SET email_verified = :email WHERE id = :id";
                         $insert_stm = $con->prepare($query);
@@ -49,6 +49,20 @@
                         $delStm = $con->prepare($query);
                         $delStm->bindValue(':code', $vars['code']);
                         $delStm->execute();
+
+                        $_SESSION['result_popup'] =
+                        "
+                            <script type=\"text/javascript\">
+                                swal({
+                                    title: \"Verification\",
+                                    type: \"success\",
+                                    text: \"You have successfully verified your account!\",
+                                    allowOutsideClick: false,
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK'
+                                    });
+                            </script>                        
+                        ";
 
                         header("Location: dashboard.php");
                     }
@@ -91,7 +105,7 @@
                                 if(isset($_SESSION['result_popup']))
                                     echo $_SESSION['result_popup'];
 
-                                unset($_SESSION['result_popup']);
+                                //unset($_SESSION['result_popup']);
                             ?>
 
                             <?php if(!empty($errors['fail'])): ?>

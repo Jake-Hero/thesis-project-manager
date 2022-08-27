@@ -26,8 +26,5 @@
     </head>
 
     <body>  
-        <div class="wrapper">
-            <?php echo "Your IP Address is: " .getIPAddress(); ?>
-        </div>
     </body>
 </html>

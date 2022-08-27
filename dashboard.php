@@ -26,14 +26,14 @@
             unset($_SESSION['result_popup']);
         ?>
 
-        <div class ="wrapper">
-            <div class="container h-100">
-                <div class="row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center row justify-content-between h-100"> 
-                    <div class="profile-form px-4 py-3 border border-dark">
-                        test
+        <div class ="blank-wrapper">
+            <div class="container pt-5">
+                <div class="row d-flex justify-content-center pt-5">
+                    <div class="col-md-3 offset-sm-2">
+                        i love u
                     </div>
-                    <div class="profile-form px-4 py-3 border border-dark">
-                        test
+                    <div class="col-md-3 offset-sm-2">
+                        i love u
                     </div>
                 </div>
             </div>

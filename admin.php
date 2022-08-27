@@ -15,6 +15,7 @@
     }
 
     require('header.php');
+    require('adminmenu.php');
 ?>
 
 <!DOCTYPE html>
@@ -26,6 +27,7 @@
 
     <body>  
         <div class="wrapper">
+            <?php echo "Your IP Address is: " .getIPAddress(); ?>
         </div>
     </body>
 </html>

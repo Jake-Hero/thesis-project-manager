@@ -13,6 +13,19 @@ define("ROLE_PANELIST", 1);
 define("ROLE_ADVISOR", 2);
 define("ROLE_ADMIN", 3);
 
+function getIPAddress() {  
+    if(!empty($_SERVER['HTTP_CLIENT_IP'])) {  
+        $ip = $_SERVER['HTTP_CLIENT_IP'];  
+    }  
+    elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {  
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];  
+    }  
+    else{  
+        $ip = $_SERVER['REMOTE_ADDR'];  
+    }  
+    return $ip;  
+}  
+
 function signup_user($data)
 {
     global $con;
@@ -52,29 +65,30 @@ function signup_user($data)
     if(count($errors) == 0)
     {
         $arr['fullname'] = $data['fullname'];
+        $arr['ip'] = getIPAddress();
         $arr['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         $arr['date'] = date("Y-m-d H:i:s");       
 
-        $query = "INSERT INTO users (date, fullname, username, email, password) VALUES(:date, :fullname, :username, :email, :password)";
+        $query = "INSERT INTO users (date, ip_addr, fullname, username, email, password) VALUES(:date, :ip, :fullname, :username, :email, :password)";
         $insert_stm = $con->prepare($query);
         $insert_stm->execute($arr);
 
-        $_SESSION['result_popup'] = "
-                    <script type=\"text/javascript\">
-                        swal({
-                            title: \"Successfully Registered!\",
-                            type: \"success\",
-                            text: \"A verification code is sent to your email! You have been registered in the system.\",
-                            allowOutsideClick: false,
-                            showConfirmButton: true,
-                            confirmButtonText: 'Redirect'
-                            }).then(function() {
-                                window.location.href = \"login.php\";
-                            });
-                    </script>
-                ";
-        
+        $_SESSION['result_popup'] =
+        "
+            <script type=\"text/javascript\">
+                swal({
+                    title: \"Registered\",
+                    type: \"success\",
+                    text: \"You are registered, Please login.success\",
+                    allowOutsideClick: false,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK'
+                    });
+            </script>                        
+        ";
 
+        header("Location: login.php");
+        
         $_SESSION['username'] = $arr['username'];
         $_SESSION['userid'] = $con->lastInsertId();
         $_SESSION['logged_in'] = true;
@@ -107,6 +121,11 @@ function login_user($data)
         {
             $_SESSION['user'] = $row;
             $_SESSION['logged_in'] = true;
+
+            $arr['ip'] = getIPAddress();
+            $query = "UPDATE users SET ip_addr = :ip WHERE username = :username OR email = :username limit 1;";
+            $update_stm = $con->prepare($query);
+            $update_stm->execute($arr);
 
             if($row['email'] != $row['email_verified'] || is_null($row['email_verified'])) {
                 $_SESSION['result_popup'] =
@@ -239,7 +258,7 @@ function profileSave()
 
     $errors = array();
 
-    $username = $_SESSION['username'];
+    $username = $_SESSION['user']['username'];
     $password = $_POST['verifypassword'];        
 
     $query = "SELECT password FROM users WHERE username = :username limit 1;";
@@ -272,14 +291,15 @@ function profileSave()
 
 function uploadImages()
 {
+    global $con;
     $arr = array();
 
-    $arr['id'] = $_SESSION['userid'];
-    $name = $_SESSION['username'];
+    $arr['id'] = $_SESSION['user']['id'];
+    $name = $_SESSION['user']['username'];
 
-    $imgName = $_FILES['name'];
-    $imgSize = $_FILES['size'];
-    $tmpName = $_FILES['tmp_name'];
+    $imgName = $_FILES['image']['name'];
+    $imgSize = $_FILES['image']['size'];
+    $tmpName = $_FILES['image']['tmp_name'];
 
     $validExt = ['jpg', 'jpeg', 'png'];
     $imgExt = explode('.', $imgName);

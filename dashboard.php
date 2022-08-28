@@ -30,10 +30,8 @@
             <div class="container pt-5">
                 <div class="row d-flex justify-content-center pt-5">
                     <div class="col-md-3 offset-sm-2">
-                        i love u
                     </div>
                     <div class="col-md-3 offset-sm-2">
-                        i love u
                     </div>
                 </div>
             </div>

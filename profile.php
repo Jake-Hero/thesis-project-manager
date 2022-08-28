@@ -1,4 +1,5 @@
 <?php
+    $count = 0;
     require "functions.php";
     is_user_login();
 
@@ -9,14 +10,12 @@
     }
 
     require('header.php');
-    
-    $errors = array();
 
     if($_SERVER['REQUEST_METHOD'] == 'POST')
     {
         if(isset($_POST['save']))
         {
-            $errors = profileSave();
+            profileSave();
         }
     }
 ?>
@@ -45,26 +44,26 @@
                             <div class="row">
                                 <div class="col mt-5">
                                     <div id="preview">
-                                        <img src="<?php echo 'profile_pictures/' .$_SESSION['user']['image'] ?>" class="border border-dark" style="width: 150px; height: 150px;" alt="Avatar" />
+                                        <img src="<?php echo 'profile_pictures/' .$_SESSION['user']['image'] ?>" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
                                     </div>
                                     <label for="" class="col col-form-label px-4 text-white">Preview Profile Picture</label>
                                 </div>
                                 <div class="col">
-                                    <?php if(!empty($errors['success'])):?>
+                                    <?php if(!empty($_SESSION['success_message'])):?>
                                         <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
                                         <i class="fas fa-check-circle"></i>
                                             <div class ="mx-3">
-                                                <?php echo $errors['success'];?>
+                                                <?php echo $_SESSION['success_message']; ?>
                                             </div>
                                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                         </div>
                                     <?php endif; ?>
 
-                                    <?php if(!empty($errors['all'])):?>
+                                    <?php if(!empty($_SESSION['error_message'])):?>
                                         <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
                                             <i class='fas fa-exclamation-triangle'></i>
                                             <div class ="mx-3">
-                                                <?php echo $errors['all'];?>
+                                                <?php echo $_SESSION['error_message']; ?>
                                             </div>
                                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                         </div>

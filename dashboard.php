@@ -8,6 +8,9 @@
         die;
     }
 
+    // Visit Detection
+    recordUserVisit();
+
     require('header.php');
 ?>
 

@@ -6,6 +6,9 @@
         header("Location: dashboard.php");
         die;
     }
+
+    // Visit Detection
+    recordUserVisit();
 ?>
 
 <!DOCTYPE html>

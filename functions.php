@@ -6,12 +6,38 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once "db.php";
+require "mobile_detection.php";
+require "browser_detection.php";
 require "mail.php";
 
 define("ROLE_STUDENT", 0);
 define("ROLE_PANELIST", 1);
 define("ROLE_ADVISOR", 2);
 define("ROLE_ADMIN", 3);
+
+function getUserRole($role) {
+    $roleString = array();
+
+    switch($role)
+    {
+        case ROLE_STUDENT:
+            $roleString = "Student";
+            break;
+        case ROLE_PANELIST:
+            $roleString = "Panelist";
+            break;
+        case ROLE_ADVISOR:
+            $roleString = "Subject Advisor";
+            break;
+        case ROLE_ADMIN:
+            $roleString = "Site Admin";
+            break;
+        default:
+            $roleString = "Unknown";
+            break;
+    }
+    return $roleString;
+}
 
 function getIPAddress() {  
     if(!empty($_SERVER['HTTP_CLIENT_IP'])) {  
@@ -25,6 +51,45 @@ function getIPAddress() {
     }  
     return $ip;  
 }  
+
+function recordUserVisit()
+{
+    global $con;
+    $browser=new Wolfcast\BrowserDetection;
+
+    $visitData['browser_name']=$browser->getName();
+    $visitData['browser_version']=$browser->getVersion();
+
+    $detect=new Mobile_Detect();
+
+    if($detect->isMobile()){
+        $visitData['device_type']='Mobile';
+    }elseif($detect->isTablet()){
+        $visitData['device_type']='Tablet';
+    }else{
+        $visitData['device_type']='PC';
+    }
+
+    if($detect->isiOS()){
+        $visitData['device_os']='IOS';
+    }elseif($detect->isAndroidOS()){
+        $visitData['device_os']='Android';
+    }else{
+        $visitData['device_os']='Window';
+    }
+
+    $visitData['http_url']=(isset($_SERVER['HTTPS'])) ? "https":"http";
+    $visitData['http_url'].="//$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    $visitData['http_ref']='';
+    if(isset($_SERVER['HTTP_REFERER'])){
+        $visitData['http_ref']=$_SERVER['HTTP_REFERER'];
+    }
+
+    $query = "INSERT INTO visitor_data (browser_name, browser_version, device_type, device_os, url, ref) VALUES(:browser_name, :browser_version, :device_type, :device_os, :http_url, :http_ref)";
+    $insertStm = $con->prepare($query);
+    $insertStm->execute($visitData);
+    return true;
+}
 
 function signup_user($data)
 {

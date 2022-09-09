@@ -24,10 +24,8 @@
                         <img src="<?php echo 'profile_pictures/' .$_SESSION['user']['image'] ?>" class="rounded-circle border border-light btn-lg" height="30" alt="Avatar" />
                     </a>        
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <?php if(is_user_verified()): ?>
-                            <a class="dropdown-item" href="profile.php">Edit My Profile</a>
-                        <?php endif; ?>
-                        
+                        <a class="dropdown-item" href="profile.php">Edit My Profile</a>
+
                         <?php if($_SESSION['user']['role'] >= ROLE_ADVISOR): ?>
                             <a class="dropdown-item" href="admin.php">Administrative Panel</a>
                         <?php endif; ?>

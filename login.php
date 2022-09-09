@@ -27,16 +27,22 @@
 
     <body>
         <div class="wrapper">
-            <div class="container h-100 px-4">
-                <div class="row align-items-center h-100">
-                    <div class="col-lg-4 col-xs-2">
-                        <h1 style="font-size: 50px; font-family: 'Lemon/Milk', sans-serif; color: white;">THESIS AND CAPSTONE MANAGER</h1>
-                        <h5 style="font-size: 14px; color: white;">A website for managing your thesis and capstone</h5>
-                    </div>
+            <section class="vh-100">
+                <?php 
+                    if(isset($_SESSION['result_popup'])) 
+                        echo $_SESSION['result_popup']; 
+                ?>
 
-                    <div class="col">
-                        <div class="d-flex justify-content-end">
-                            <form method="post" class="reg-log-form border border-dark px-5 py-4">
+                <div class="container-fluid h-100">
+                    <div class="row d-flex justify-content-center align-items-center h-100">
+                        
+                        <div class="col-lg-4 col-xs-2">
+                            <h1 style="font-size: 50px; font-family: 'Lemon/Milk', sans-serif; color: white;">THESIS AND CAPSTONE MANAGER</h1>
+                            <h5 style="font-size: 14px; color: white;">A website for managing your thesis and capstone</h5>
+                        </div>
+
+                        <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+                            <form method="post" class="bg-white border border-dark px-5 py-4" style="--bs-bg-opacity: .5;">
                                 <div class="form-group">
                                     <?php if(!empty($errors['all'])):?>
                                         <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
@@ -50,7 +56,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="" class="col col-form-label">Username/Email</label>
+                                    <label for="" class="col col-form-label">Username or Email</label>
                                     <?php if(!empty($errors['username'])):?>
                                         <strong class="text-danger">
                                             <?php echo '<label for="" class="col col-form-label">' .$errors['username']. '</label>';?>
@@ -76,11 +82,17 @@
                                 <div class="row mt-5 mx-auto">
                                     <input type="submit" name="login" value="Login" class="rounded-pill btn btn-warning border border-light btn-lg">
                                 </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="mt-3">
+                                        <a href="signup.php" class="text-danger"><strong>Don't have an account?</strong></a>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     </body>
 </html>

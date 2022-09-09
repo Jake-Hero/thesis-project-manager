@@ -5,6 +5,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+date_default_timezone_set('Asia/Manila');
+
 require_once "db.php";
 require "mobile_detection.php";
 require "browser_detection.php";
@@ -199,7 +201,7 @@ function login_user($data)
                                 swal({
                                     title: \"Verification\",
                                     type: \"warning\",
-                                    text: \"You are not verified yet, Please verify your account. Check your inbox or your spam folder.\",
+                                    text: \"You are not verified yet, Please verify your account via 'Edit My Profile'. Check your inbox or your spam folder.\",
                                     allowOutsideClick: false,
                                     showConfirmButton: true,
                                     confirmButtonText: 'OK'
@@ -208,7 +210,7 @@ function login_user($data)
                         ";
 
                 sendVerificationCode();
-                header("Location: verify.php");
+                header("Location: dashboard.php");
             } else {
                 header("Location: dashboard.php");
             }

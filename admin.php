@@ -26,7 +26,7 @@
     <body> 
         <div class="mt-4 container">
             <div class="card container-fluid">
-                <div class="card-header">Dashboard</div>
+                <div class="card-header">Administrative Panel - Dashboard</div>
                 <div class="card-body">
                     The date and time is <?php echo date("F j, Y, g:i a"); ?>
                     <div class="row">

@@ -29,8 +29,11 @@
         <div class="wrapper">
             <section class="vh-100">
                 <?php 
-                    if(isset($_SESSION['result_popup'])) 
-                        echo $_SESSION['result_popup']; 
+                    if(isset($_SESSION['result_popup']))
+                    {
+                        echo $_SESSION['result_popup'];
+                        unset($_SESSION['result_popup']);
+                    }
                 ?>
 
                 <div class="container-fluid h-100">

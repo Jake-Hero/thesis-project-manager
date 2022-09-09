@@ -19,7 +19,10 @@
         <div class ="blank-wrapper">
             <?php 
                 if(isset($_SESSION['result_popup']))
+                {
                     echo $_SESSION['result_popup'];
+                    unset($_SESSION['result_popup']);
+                }
             ?>
 
             <div class="container pt-5">

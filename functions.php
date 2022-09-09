@@ -209,7 +209,7 @@ function login_user($data)
                             </script>                        
                         ";
 
-                sendVerificationCode();
+                sendVerificationCode($row['email']);
                 header("Location: dashboard.php");
             } else {
                 header("Location: dashboard.php");
@@ -227,7 +227,7 @@ function login_user($data)
     return $errors;
 }
 
-function sendVerificationCode()
+function sendVerificationCode($email)
 {
     global $con;
 
@@ -237,7 +237,7 @@ function sendVerificationCode()
     $vars = array();
 
     $vars['code'] = rand(pow(10, 5-1), pow(10, 5)-1);
-    $vars['email'] = $_SESSION['user']['email'];
+    $vars['email'] = $email;
 
     $query = "SELECT * FROM verified WHERE email = :email";
     $select_stm = $con->prepare($query);
@@ -283,13 +283,16 @@ function sendVerificationCode()
     return $errors;
 }
 
-function is_user_verified()
+function is_user_verified($id = NULL)
 {
     global $con;
+
+    if(!isset($id))
+        $id = $_SESSION['user']['id'];
+
     $query = "SELECT * FROM users WHERE id = :id limit 1;";
     $select_stm = $con->prepare($query);
-    $select_stm->bindValue(':id', $_SESSION['user']['id']);
-    $select_stm->execute();
+    $select_stm->execute(['id' => $id]);
 
     if($select_stm->rowCount() > 0)
     {
@@ -326,32 +329,80 @@ function profileSave()
     $username = $_SESSION['user']['username'];
     $password = $_POST['verifypassword'];        
 
-    $query = "SELECT password FROM users WHERE username = :username limit 1;";
+    $query = "SELECT id, email, password FROM users WHERE username = :username limit 1;";
     $select_stm = $con->prepare($query);
-    $select_stm->bindParam(':username', $username, PDO::PARAM_STR);
-    $select_stm->execute();
+    $select_stm->execute(['username' => $username]);
     $row = $select_stm->fetch(PDO::FETCH_ASSOC);
 
     if(password_verify($password, $row['password']))
     { // if verify password matches the password
         // if a user uploaded a profile picture
-        if(!password_verify($_POST['password'], $row['password']))
+        if(isset($_POST['email']) && strlen($_POST['email']) > 0 && $_POST['email'] == $row['email'])
         {
-            if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
-                uploadImages();
-
-            $_SESSION['success_message'] = "Changes to your profile has been saved!";
+            $_SESSION['error_message'] = "Your new email cannot be the same as your old one!";
+        }        
+        else if(isset($_POST['password']) && strlen($_POST['password']) > 0 && password_verify($_POST['password'], $row['password']))
+        {
+            $_SESSION['error_message'] = "Your new password cannot be the same as your old one!";
         }
         else 
         {
-            $_SESSION['error_message'] = "Your new password cannot be the same as your old one!";
+            if(isset($_POST['email']) && strlen($_POST['email']) > 0)
+            {
+                $query = "SELECT COUNT(*) FROM users WHERE email = :email limit 1;";
+                $countStm = $con->prepare($query);
+                $countStm->execute(['email' => $_POST['email']]);
+                $existing_email = $countStm->fetchColumn();
+            }
+
+            if($existing_email)
+            {
+                $_SESSION['error_message'] = "Choose another email, A user is already using that email!";
+            }
+            else 
+            {
+                if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
+                    uploadImages();
+
+                if(isset($_POST['email']) && strlen($_POST['email']) > 0)
+                {
+                    $query = "UPDATE users SET email = :email WHERE id = :id";
+                    $updateStmt = $con->prepare($query);
+                    $updateStmt->execute(['email' => $_POST['email'], 'id' => $row['id']]);
+
+                    $_SESSION['result_popup'] =
+                            "
+                                <script type=\"text/javascript\">
+                                    swal({
+                                        title: \"Verification\",
+                                        type: \"warning\",
+                                        text: \"You are not verified yet, Please verify your account via 'Edit My Profile'. Check your inbox or your spam folder.\",
+                                        allowOutsideClick: false,
+                                        showConfirmButton: true,
+                                        confirmButtonText: 'OK'
+                                        });
+                                </script>                        
+                            ";     
+                            
+                    sendVerificationCode($_POST['email']);
+                }
+                if(isset($_POST['password']) && strlen($_POST['password']) > 0)
+                {
+                    $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                    $query = "UPDATE users SET password = :password WHERE id = :id";
+                    $updateStmt = $con->prepare($query);
+                    $updateStmt->execute(['password' => $hashed_password, 'id' => $row['id']]);
+                }
+
+                $_SESSION['success_message'] = "Changes to your profile has been saved!";
+            }
         }
     }
     else 
     {
         $_SESSION['error_message'] = "Verify Password does not match with the User's Password!";
     }
-    return $count;
+    return true;
 }
 
 function uploadImages()

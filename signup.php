@@ -30,10 +30,11 @@
                         
                         <div class="col-lg-4 col-xs-2 px-5">
                             <?php 
-                                if(isset($_SESSION['result_popup'])) 
-                                    echo $_SESSION['result_popup']; 
-                            
-                                unset($_SESSION['result_popup']);
+                                if(isset($_SESSION['result_popup']))
+                                {
+                                    echo $_SESSION['result_popup'];
+                                    unset($_SESSION['result_popup']);
+                                }
                             ?>
                             <h1 style="font-size: 50px; font-family: 'Lemon/Milk', sans-serif; color: white;">THESIS AND CAPSTONE MANAGER</h1>
                             <h5 style="font-size: 14px; color: white;">A website for managing your thesis and capstone</h5>

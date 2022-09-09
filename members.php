@@ -54,7 +54,7 @@
     <body> 
         <div class="mt-3 container">  
             <div class="card container-fluid">
-                <div class="card-header">Users List</div>
+                <div class="card-header">Administrative Panel - Members</div>
                 <div class="card-body">
                     <div class="table table-responsive w-100 d-block d-md-table">
                         <table class="table table-hover">

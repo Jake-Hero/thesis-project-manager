@@ -112,14 +112,15 @@ table, th, td {
 
 .wrapper 
 {
-    height: 100vh;
-    overflow-x: auto;
-    overflow-y: auto;
-    perspective: 2px;
+    overflow: auto;
 
-    background: url("../images/bg-register-login.png") fixed center;
-    background-size: cover; 
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    background-image: url("../images/bg-register-login.png");
     background-repeat: no-repeat;
+    background-size: cover;
+    display: block;
 }
 
 .blank-wrapper 

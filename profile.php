@@ -23,9 +23,17 @@
 
     <body>
         <div class ="wrapper">
-            <div class="container mt-4">
+            <div class="container mt-4 mb-5">
+                <?php 
+                    if(isset($_SESSION['result_popup']))
+                    {
+                        echo $_SESSION['result_popup'];
+                        unset($_SESSION['result_popup']);
+                    }
+                ?>
+
                 <div class="card container-fluid">
-                    <div class="card-header">Profile Settings</div>
+                    <div class="card-header">Edit My Profile</div>
                     <div class="card-body">
                         <?php if(!is_user_verified()): ?>
                         <div class="alert alert-warning d-flex align-items-center fade show">
@@ -40,7 +48,7 @@
                         <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
                         <i class="fas fa-check-circle"></i>
                             <div class ="mx-3">
-                                <?php echo $_SESSION['success_message']; ?>
+                                <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']) ?>
                             </div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
@@ -50,7 +58,7 @@
                         <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
                             <i class='fas fa-exclamation-triangle'></i>
                             <div class ="mx-3">
-                                <?php echo $_SESSION['error_message']; ?>
+                                <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']) ?>
                             </div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
@@ -90,21 +98,22 @@
 
                                     <label for="" class="mt-4">Change Email</label>
                                     
-                                    <?php 
-                                        if(is_user_verified()):
-                                    ?>
+                                    <?php if(is_user_verified()): ?>
                                         <input type="text" name="email" class="col-sm-10 form-control" placeholder="Change Email">
-                                    <?php 
-                                        else:
-                                    ?>
-                                        <input type="text" id="disabledTextInput" class="form-control" placeholder="Verify Your Account First!" disabled>
+                                    <?php else: ?>
+                                        <input type="text" id="disabledTextInput" class="form-control" placeholder="You need to verify your account first." disabled>
                                     <?php endif; ?>
 
                                     <label for="" class="mt-4">Change Password</label>
                                     <input type="password" name="password" class="col-sm-10 form-control" placeholder="Change Password">
 
                                     <label for="" class="mt-4">Change Avatar</label>
-                                    <input type="file" name="image" id="image" class="col-sm-10 form-control" >
+                                    
+                                    <?php if(is_user_verified()): ?>
+                                        <input type="file" name="image" id="image" class="col-sm-10 form-control">
+                                    <?php else: ?>
+                                        <input type="text" id="disabledTextInput" class="form-control" placeholder="You need to verify your account first." disabled>
+                                    <?php endif; ?>
 
                                     <label for="" class="mt-4">Verify Password</label>
                                     <input type="password" name="verifypassword" class="col-sm-10 form-control" placeholder="Verify Password">

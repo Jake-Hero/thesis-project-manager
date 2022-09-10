@@ -1,5 +1,5 @@
 <?php
-    require "functions.php";
+    require "includes/functions.php";
 
     $errors = array('fullname'=>'','email'=>'','username'=>'');
 
@@ -59,16 +59,22 @@
 
                                 <div class="form-group">
                                     <label for="" class="col col-form-label">Email</label>
-                                    <?php if(!empty($errors['email'])):?>
-                                        <div class="form-group">
-                                            <strong class="text-danger">
-                                                <?php echo '<label for="" class="col col-form-label">' .$errors['email']. '</label>';?>
-                                            </strong>
-                                        </div>
-                                        <input type="text" name ="email" class="col-sm-10 form-control is-invalid" placeholder="youremail@domain">
-                                    <?php else: ?>        
-                                        <input type="text" name ="email" class="col-sm-10 form-control" placeholder="youremail@domain">
-                                    <?php endif; ?>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fa-solid fa-envelope"></i>
+                                        </span>
+
+                                        <?php if(!empty($errors['email'])):?>
+                                            <div class="form-group">
+                                                <strong class="text-danger">
+                                                    <?php echo '<label for="" class="col col-form-label">' .$errors['email']. '</label>';?>
+                                                </strong>
+                                            </div>
+                                            <input type="text" name ="email" class="col-sm-10 form-control is-invalid" placeholder="youremail@domain">
+                                        <?php else: ?>        
+                                            <input type="text" name ="email" class="col-sm-10 form-control" placeholder="youremail@domain">
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -87,16 +93,27 @@
 
                                 <div class="form-group">
                                     <label for="" class="col col-form-label">Password</label>
-                                    <?php if(!empty($errors['password'])):?>
-                                        <div class="form-group">
-                                            <strong class="text-danger">
-                                                <?php echo '<label for="" class="col col-form-label">' .$errors['password']. '</label>';?>
-                                            </strong>
-                                        </div>
-                                        <input type="password" name="password" class="col-sm-10 form-control is-invalid" placeholder="Password">
-                                    <?php else: ?>
-                                        <input type="password" name="password" class="col-sm-10 form-control" placeholder="Password">
-                                    <?php endif; ?>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fa-solid fa-key"></i>
+                                        </span>                                    
+                                        <?php if(!empty($errors['password'])):?>
+                                            <div class="form-group">
+                                                <strong class="text-danger">
+                                                    <?php echo '<label for="" class="col col-form-label">' .$errors['password']. '</label>';?>
+                                                </strong>
+                                            </div>
+                                            <input type="password" name="password" class="col-sm-10 form-control is-invalid" placeholder="Password">
+                                        <?php else: ?>
+                                            <input type="password" name="password" class="col-sm-10 form-control" placeholder="Password">
+                                        <?php endif; ?>
+
+                                        <span class="input-group-text">
+                                            <div class="toggle_hide_password">
+                                                <i class="far fa-eye-slash" id="togglePassword" style="cursor: pointer"></i>
+                                            </div>
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div class="row mt-5 mx-auto">

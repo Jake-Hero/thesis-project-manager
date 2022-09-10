@@ -1,5 +1,5 @@
 <?php
-    require "functions.php";
+    require "includes/functions.php";
     is_user_login();
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)

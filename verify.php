@@ -1,7 +1,7 @@
 <?php
     $errors = array();
 
-    require "functions.php";
+    require "includes/functions.php";
     is_user_login();
 
     if(is_user_verified())

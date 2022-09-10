@@ -117,22 +117,10 @@ table, th, td {
     position: relative;
     width: 100%;
     min-height: 100%;
-    background-image: url("../images/bg-register-login.png");
+    background-image: url("../assets/images/thesis-background.png");
     background-repeat: no-repeat;
     background-size: cover;
     display: block;
-}
-
-.blank-wrapper 
-{
-    height: 100vh;
-    overflow-x: auto;
-    overflow-y: auto;
-    perspective: 2px;
-
-    background: url("../images/bg-register-login.png") fixed center;
-    background-size: cover; 
-    background-repeat: no-repeat;
 }
 
 .panel-footer

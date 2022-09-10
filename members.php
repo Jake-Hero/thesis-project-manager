@@ -1,5 +1,5 @@
 <?php
-    require "functions.php";
+    require "includes/functions.php";
     is_user_login();
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
@@ -57,12 +57,48 @@
                 <div class="card-header">Administrative Panel - Members</div>
                 <div class="card-body">
                     <div class="table table-responsive w-100 d-block d-md-table">
+                        <div class="table-title mb-3">
+                            <div class="row d-flex justify-content-between align-items-center">
+                                <div class="col-lg-4">
+                                    <div class="form-check mb-0">
+                                        <form method="post">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <select class="form-select me-2" aria-label="Default select example">
+                                                        <option selected>Sort users</option>
+                                                        <option value="1">Sort by Name</option>
+                                                        <option value="2">Sort by ID</option>
+                                                        <option value="3">Sort by Date Registration</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col">
+                                                    <input class="btn btn-secondary" type="submit" name="sortbtn" value="Sort">
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <form method="post">
+                                        <div class="row">
+                                            <div class="col">
+                                                <input type="text" name="searchfield" class="col-sm-10 form-control" placeholder="Search User">
+                                            </div>
+                                            <div class="col">
+                                                <input class="btn btn-secondary" type="submit" name="sortbtn" value="Sort">
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                         <table class="table table-hover">
                             <thead>
                                 <tr class="table-light">
                                     <th scope="col"></th>
-                                    <th scope="col">Full Name <i class="fa fa-sort"></i></th>
-                                    <th scope="col">Username <i class="fa fa-sort"></i></th>
+                                    <th scope="col">Full Name</th>
+                                    <th scope="col">Username</th>
                                     <th scope="col">Email</th>
                                     <th scope="col">Last Seen</th>
                                     <th scope="col">Role</th>
@@ -77,7 +113,7 @@
                                 ?>
                                 <tr class="table-light">
                                     <td class="text-center">    
-                                        <img src="profile_pictures/<?php echo $row['image']; ?>" class="rounded-circle btn-lg" height="60" alt="Avatar" />
+                                        <img src="assets/profile_pictures/<?php echo $row['image']; ?>" class="rounded-circle btn-lg" height="60" alt="Avatar" />
                                     </td>
                                     <td><?php echo $row['fullname']; ?></td>
                                     <td><?php echo $row['username']; ?></td>

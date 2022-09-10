@@ -1,11 +1,14 @@
-// Regular JS
+$(document).ready(function() {
 
-$('html').css('overflow', 'auto');
+    $(".toggle_hide_password").on('click', function(e) {
+      e.preventDefault()
 
-document.querySelector(".admin-sidebar .admin-toggle").addEventListener("click",function() {
-    document.querySelector(".admin-sidebar").classList.toggle("active");  
-});
+      var input_group = $(this).closest('.input-group')
+      var input = input_group.find('input.form-control')
+      var icon = input_group.find('i')
+  
+      input.attr('type', input.attr("type") === "text" ? 'password' : 'text')
 
-// JQuery - AJAX
-jQuery(window).load(function () {
-});
+      icon.toggleClass('fa-eye-slash fa-eye')
+    })
+})

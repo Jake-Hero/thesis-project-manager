@@ -1,5 +1,5 @@
 <?php
-    require "functions.php";
+    require "includes/functions.php";
 
     if(is_user_login(false))
     {
@@ -32,8 +32,8 @@
                         </div>
 
                         <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                            <img src="./images/lpu-b-logo.png" alt="LPU-B Logo" width="210vw" height="210vh">
-                            <img src="./images/lpu-ccs-logo.png" alt="LPU-B Logo" width="210vw" height="210vh">
+                            <img src="assets/images/lpu-b-logo.png" alt="LPU-B Logo" width="210vw" height="210vh">
+                            <img src="assets/images/lpu-ccs-logo.png" alt="LPU-B Logo" width="210vw" height="210vh">
                         </div>
                         
                     </div>

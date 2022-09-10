@@ -7,10 +7,10 @@ error_reporting(E_ALL);
 
 date_default_timezone_set('Asia/Manila');
 
-require_once "db.php";
+require_once "./config/db.php";
 require "mobile_detection.php";
 require "browser_detection.php";
-require "mail.php";
+require "./config/mail.php";
 
 define("ROLE_STUDENT", 0);
 define("ROLE_PANELIST", 1);
@@ -326,6 +326,7 @@ function profileSave()
 {
     global $con;
 
+    $hashed_password = NULL;
     $username = $_SESSION['user']['username'];
     $password = $_POST['verifypassword'];        
 
@@ -337,17 +338,32 @@ function profileSave()
     if(password_verify($password, $row['password']))
     { // if verify password matches the password
         // if a user uploaded a profile picture
-        if(isset($_POST['email']) && strlen($_POST['email']) > 0 && $_POST['email'] == $row['email'])
+        if(!empty($_POST['email']) > 0 && $_POST['email'] == $row['email'])
         {
             $_SESSION['error_message'] = "Your new email cannot be the same as your old one!";
         }        
-        else if(isset($_POST['password']) && strlen($_POST['password']) > 0 && password_verify($_POST['password'], $row['password']))
+        else if(!empty($_POST['password']) && password_verify($_POST['password'], $row['password']))
         {
             $_SESSION['error_message'] = "Your new password cannot be the same as your old one!";
         }
+        else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z ]+$/', $_POST['fullname']))
+        {
+            $_SESSION['error_message'] = "Enter a valid full name!";
+        }
+        else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z]+$/', $_POST['username']))
+        {
+            $_SESSION['error_message'] = "Enter a valid username!";
+        }
         else 
         {
-            if(isset($_POST['email']) && strlen($_POST['email']) > 0)
+            if(!empty($_POST['username']))
+            {
+                $query = "SELECT COUNT(*) FROM users WHERE username = :username limit 1;";
+                $countStm = $con->prepare($query);
+                $countStm->execute(['username' => $_POST['username']]);
+                $existing_username = $countStm->fetchColumn();
+            }
+            if(!empty($_POST['email']))
             {
                 $query = "SELECT COUNT(*) FROM users WHERE email = :email limit 1;";
                 $countStm = $con->prepare($query);
@@ -355,7 +371,11 @@ function profileSave()
                 $existing_email = $countStm->fetchColumn();
             }
 
-            if($existing_email)
+            if(!empty($_POST['username']) && $existing_username)
+            {
+                $_SESSION['error_message'] = "Choose another username, A user is already using that email!";
+            }
+            else if(!empty($_POSt['email']) && $existing_email)
             {
                 $_SESSION['error_message'] = "Choose another email, A user is already using that email!";
             }
@@ -363,12 +383,11 @@ function profileSave()
             {
                 if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
                     uploadImages();
-
-                if(isset($_POST['email']) && strlen($_POST['email']) > 0)
+               
+                if(!empty($_POST['email']))
                 {
-                    $query = "UPDATE users SET email = :email WHERE id = :id";
-                    $updateStmt = $con->prepare($query);
-                    $updateStmt->execute(['email' => $_POST['email'], 'id' => $row['id']]);
+                    $message = "Your email address " .$_SESSION['user']['email']. " was replaced by a new email address.";
+                    send_mail($_SESSION['user']['email'], "Changed E-Mail", $message);
 
                     $_SESSION['result_popup'] =
                             "
@@ -376,7 +395,7 @@ function profileSave()
                                     swal({
                                         title: \"Verification\",
                                         type: \"warning\",
-                                        text: \"You are not verified yet, Please verify your account via 'Edit My Profile'. Check your inbox or your spam folder.\",
+                                        text: \"You are not verified yet, Please verify your account via 'Edit My Profile'.\",
                                         allowOutsideClick: false,
                                         showConfirmButton: true,
                                         confirmButtonText: 'OK'
@@ -384,16 +403,38 @@ function profileSave()
                                 </script>                        
                             ";     
                             
-                    sendVerificationCode($_POST['email']);
+                    //sendVerificationCode($_POST['email']);
                 }
-                if(isset($_POST['password']) && strlen($_POST['password']) > 0)
+                if(!empty($_POST['password']))
                 {
                     $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                    $query = "UPDATE users SET password = :password WHERE id = :id";
-                    $updateStmt = $con->prepare($query);
-                    $updateStmt->execute(['password' => $hashed_password, 'id' => $row['id']]);
+
+                    $message = "Your password was changed;";
+                    send_mail($_SESSION['user']['email'], "Changed password", $message);
                 }
 
+                $fullname = NULL;
+                if(!empty($_POST['fullname'])) $fullname = $_POST['fullname'];                
+                $username = NULL;
+                if(!empty($_POST['username'])) $username = $_POST['username'];
+                $email = NULL;
+                if(!empty($_POST['email'])) $email = $_POST['email'];
+
+                $query = "UPDATE users SET 
+                            fullname = COALESCE(:fullname, fullname),
+                            username = COALESCE(:username, username),
+                            email = COALESCE(:email, email),
+                            password = COALESCE(:password, password) 
+                          WHERE id = :id";
+
+                $updateStmt = $con->prepare($query);
+                $updateStmt->bindValue(':fullname', $fullname, PDO::PARAM_STR);
+                $updateStmt->bindValue(':username', $username, PDO::PARAM_STR);
+                $updateStmt->bindValue(':email', $email, PDO::PARAM_STR);
+                $updateStmt->bindValue(':password', $hashed_password, PDO::PARAM_STR);
+                $updateStmt->bindValue(':id', $_SESSION['user']['id'], PDO::PARAM_INT);
+                $updateStmt->execute();
+            
                 $_SESSION['success_message'] = "Changes to your profile has been saved!";
             }
         }
@@ -401,6 +442,162 @@ function profileSave()
     else 
     {
         $_SESSION['error_message'] = "Verify Password does not match with the User's Password!";
+    }
+    return true;
+}
+
+function adminEditProfile($str)
+{
+    global $con;
+
+    $hashed_password = NULL;
+    $username = $str;     
+
+    $query = "SELECT * FROM users WHERE username = :username limit 1;";
+    $select_stm = $con->prepare($query);
+    $select_stm->execute(['username' => $username]);
+    $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+
+    if(!empty($_POST['email']) && $_POST['email'] == $row['email'])
+    {
+        $_SESSION['error_message'] = "Your new email cannot be the same as your old one!";
+    }        
+    else if(!empty($_POST['password']) && password_verify($_POST['password'], $row['password']))
+    {
+        $_SESSION['error_message'] = "Your new password cannot be the same as your old one!";
+    }
+    else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z ]+$/', $_POST['fullname']))
+    {
+        $_SESSION['error_message'] = "Enter a valid full name!";
+    }
+    else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z]+$/', $_POST['username']))
+    {
+        $_SESSION['error_message'] = "Enter a valid username!";
+    }
+    else 
+    {
+        if(!empty($_POST['username']))
+        {
+            $query = "SELECT COUNT(*) FROM users WHERE username = :username limit 1;";
+            $countStm = $con->prepare($query);
+            $countStm->execute(['username' => $_POST['username']]);
+            $existing_username = $countStm->fetchColumn();
+        }
+        if(!empty($_POST['email']))
+        {
+            $query = "SELECT COUNT(*) FROM users WHERE email = :email limit 1;";
+            $countStm = $con->prepare($query);
+            $countStm->execute(['email' => $_POST['email']]);
+            $existing_email = $countStm->fetchColumn();
+        }
+
+        if(!empty($_POST['username']) && $existing_username)
+        {
+            $_SESSION['error_message'] = "Choose another username, A user is already using that email!";
+        }
+        else if(!empty($_POSt['email']) && $existing_email)
+        {
+            $_SESSION['error_message'] = "Choose another email, A user is already using that email!";
+        }
+        else 
+        {
+            if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
+                adminuploadImages($row);
+            
+            if(!empty($_POST['email']))
+            {
+                $message = "Your email address " .$row['email']. " was replaced by a new email address.";
+                send_mail($row['email'], "Changed E-Mail", $message);
+            }
+            if(!empty($_POST['password']))
+            {
+                $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+                $message = "Your password was changed;";
+                send_mail($row['email'], "Changed password", $message);
+            }
+
+            $fullname = NULL;
+            if(!empty($_POST['fullname'])) $fullname = $_POST['fullname'];                
+            $username = NULL;
+            if(!empty($_POST['username'])) $username = $_POST['username'];
+            $email = NULL;
+            if(!empty($_POST['email'])) $email = $_POST['email'];
+            $role = NULL;
+            if(!empty($_POST['role']) && $_POST['role'] >= 0) $role = $_POST['role'];
+
+            $query = "UPDATE users SET 
+                        fullname = COALESCE(:fullname, fullname),
+                        username = COALESCE(:username, username),
+                        email = COALESCE(:email, email),
+                        password = COALESCE(:password, password),
+                        role = COALESCE(:role, role)
+                        WHERE id = :id";
+
+            $updateStmt = $con->prepare($query);
+            $updateStmt->bindValue(':fullname', $fullname, PDO::PARAM_STR);
+            $updateStmt->bindValue(':username', $username, PDO::PARAM_STR);
+            $updateStmt->bindValue(':email', $email, PDO::PARAM_STR);
+            $updateStmt->bindValue(':password', $hashed_password, PDO::PARAM_STR);
+            $updateStmt->bindValue(':role', $role, PDO::PARAM_STR);
+            $updateStmt->bindValue(':id', $row['id'], PDO::PARAM_INT);
+            $updateStmt->execute();
+        
+            $_SESSION['success_message'] = "Changes to this profile has been saved!";
+
+            $query = "SELECT * FROM users WHERE id = :id LIMIT 1;";
+            $selectStm = $con->prepare($query);
+            $selectStm->execute(['id' => $row['id']]);
+            $row = $selectStm->fetch(PDO::FETCH_ASSOC);
+        }
+    }
+    return $row;
+}
+
+function adminuploadImages(array $row)
+{
+    global $con;
+    $arr = array();
+
+    $arr['id'] = $row['id'];
+    $name = $row['username'];
+
+    $imgName = $_FILES['image']['name'];
+    $imgSize = $_FILES['image']['size'];
+    $tmpName = $_FILES['image']['tmp_name'];
+
+    $validExt = ['jpg', 'jpeg', 'png'];
+    $imgExt = explode('.', $imgName);
+    $imgExt = strtolower(end($imgExt));
+
+    if(!in_array($imgExt, $validExt))
+    {
+        alert("Invalid file extension (jpg, jpeg, png is only allowed!)");
+    }
+    else if($imgSize > 1200000)
+    {
+        alert("File size is too large!");
+    }
+    else 
+    {
+        $imgName = explode('.', $imgName);
+
+        $arr['newImgName'] = $name . " - " . date("m.d.y H.i.s");
+        $arr['newImgName'] .= '.' . $imgExt;
+
+        $query = "UPDATE users SET image = :newImgName WHERE id = :id";
+        $q = $con->prepare($query);
+        $q->execute($arr);
+
+        $tmp_path = "assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
+        $real_path = "assets/profile_pictures/" .$arr['newImgName'];
+
+        move_uploaded_file($tmpName, $tmp_path);
+        resize_image($tmp_path, $real_path);
+
+        unlink($tmp_path);
+
+        header("Refresh:0");
     }
     return true;
 }
@@ -433,22 +630,20 @@ function uploadImages()
     {
         $imgName = explode('.', $imgName);
 
-        $arr['newImgName'] = $name . " - " . $imgName[0];
+        $arr['newImgName'] = $name . " - " . date("m.d.y H.i.s");
         $arr['newImgName'] .= '.' . $imgExt;
 
         $query = "UPDATE users SET image = :newImgName WHERE id = :id";
         $q = $con->prepare($query);
         $q->execute($arr);
 
-        $tmp_path = "profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
-        $real_path = "profile_pictures/" .$arr['newImgName'];
+        $tmp_path = "assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
+        $real_path = "assets/profile_pictures/" .$arr['newImgName'];
 
         move_uploaded_file($tmpName, $tmp_path);
         resize_image($tmp_path, $real_path);
 
         unlink($tmp_path);
-
-        $_SESSION['profilepic'] = $arr['newImgName'];
 
         header("Refresh:0");
     }

@@ -1,6 +1,6 @@
 <?php
     $count = 0;
-    require "functions.php";
+    require "includes/functions.php";
     is_user_login();
 
     require('header.php');
@@ -25,7 +25,7 @@
         <div class ="wrapper">
             <div class="container mt-4 mb-5">
                 <?php 
-                    if(isset($_SESSION['result_popup']))
+                    if(!empty($_SESSION['result_popup']))
                     {
                         echo $_SESSION['result_popup'];
                         unset($_SESSION['result_popup']);
@@ -67,13 +67,14 @@
                         <div class="row">
                             <div class="col-md-3 border-end">
                                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
-                                    <img src="<?php echo 'profile_pictures/' .$_SESSION['user']['image'] ?>" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
+                                    <img src="<?php echo 'assets/profile_pictures/' .$_SESSION['user']['image'] ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
                                     <span class="text-black-50 mt-2">Preview Profile Picture</span>
                                 </div>
                             </div>
 
                             <div class="col-md-5">
                                 <form method="post" enctype="multipart/form-data">
+                                    <h3><?php echo $_SESSION['user']['fullname'] ?></h3>
 
                                     <div class="row">
                                         <div class="col">
@@ -96,27 +97,82 @@
                                         </div>
                                     </div>
 
+                                    <label for="" class="mt-4">Change Full Name</label>
+                                    
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <?php if(is_user_verified()): ?>
+                                                <input type="text" name="fullname" class="col-sm-10 form-control" placeholder="<?php echo $_SESSION['user']['fullname'] ?>">
+                                            <?php else: ?>
+                                                <input type="text" id="disabledTextInput" class="form-control" placeholder="You need to verify your account first." disabled>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <label for="" class="mt-4">Change Username</label>
+                                    
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <?php if(is_user_verified()): ?>
+                                                <input type="text" name="username" class="col-sm-10 form-control" placeholder=<?php echo $_SESSION['user']['username'] ?>>
+                                            <?php else: ?>
+                                                <input type="text" id="disabledTextInput" class="form-control" placeholder="You need to verify your account first." disabled>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
                                     <label for="" class="mt-4">Change Email</label>
                                     
-                                    <?php if(is_user_verified()): ?>
-                                        <input type="text" name="email" class="col-sm-10 form-control" placeholder="Change Email">
-                                    <?php else: ?>
-                                        <input type="text" id="disabledTextInput" class="form-control" placeholder="You need to verify your account first." disabled>
-                                    <?php endif; ?>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fa-solid fa-envelope"></i>
+                                            </span>
+                                    
+                                            <?php if(is_user_verified()): ?>
+                                                <input type="text" name="email" class="col-sm-10 form-control" placeholder="Change Email">
+                                            <?php else: ?>
+                                                <input type="text" id="disabledTextInput" class="form-control" placeholder="You need to verify your account first." disabled>
+                                            <?php endif; ?>
 
-                                    <label for="" class="mt-4">Change Password</label>
-                                    <input type="password" name="password" class="col-sm-10 form-control" placeholder="Change Password">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="" class="mt-4">Change Password</label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fa-solid fa-key"></i>
+                                            </span>
+                                            <input type="password" name="password" class="col-sm-10 form-control" placeholder="Change Password">
+
+                                            <span class="input-group-text">
+                                                <div class="toggle_hide_password">
+                                                    <i class="far fa-eye-slash" id="togglePassword" style="cursor: pointer"></i>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
 
                                     <label for="" class="mt-4">Change Avatar</label>
                                     
                                     <?php if(is_user_verified()): ?>
-                                        <input type="file" name="image" id="image" class="col-sm-10 form-control">
+                                        <input type="file" name="image" id="imageFile" class="col-sm-10 form-control" onchange="preview(this);">
                                     <?php else: ?>
                                         <input type="text" id="disabledTextInput" class="form-control" placeholder="You need to verify your account first." disabled>
                                     <?php endif; ?>
 
-                                    <label for="" class="mt-4">Verify Password</label>
-                                    <input type="password" name="verifypassword" class="col-sm-10 form-control" placeholder="Verify Password">
+                                    <div class="form-group">
+                                        <label for="" class="mt-4">Verify Password</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fa-solid fa-key"></i>
+                                            </span>
+
+                                            <input type="password" name="verifypassword" class="col-sm-10 form-control" placeholder="Verify Password">
+                                        </div>
+                                    </div>
 
                                     <div class="row mt-5 mx-auto">
                                         <input type="submit" name="save" value="Save Changes" class="rounded-pill btn btn-warning border border-light btn-lg">
@@ -131,17 +187,16 @@
     </body>
 
     <script>
-        function imagePreview(fileInput) {
-            if (fileInput.files && fileInput.files[0]) {
-                var fileReader = new FileReader();
-                fileReader.onload = function (event) {
-                    $('#preview').html('<img src="'+event.target.result+'" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;"/>');
+        function preview(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                $('#preview').attr('src', e.target.result);
                 };
-                fileReader.readAsDataURL(fileInput.files[0]);
+
+                reader.readAsDataURL(input.files[0]);
             }
         }
-        $("#image").change(function () {
-            imagePreview(this);
-        });            
     </script>
 </html>

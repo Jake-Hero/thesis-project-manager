@@ -1,5 +1,5 @@
 <?php
-    require "functions.php";
+    require "includes/functions.php";
     is_user_login();
     
     // Visit Detection
@@ -16,7 +16,7 @@
     </head>
 
     <body>
-        <div class ="blank-wrapper">
+        <div class ="wrapper">
             <?php 
                 if(isset($_SESSION['result_popup']))
                 {

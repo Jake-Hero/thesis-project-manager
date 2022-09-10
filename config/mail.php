@@ -18,7 +18,7 @@ function send_mail($recipient,$subject,$message)
   $mail->Host       = "smtp.gmail.com";
 
   $mail->Username   = "ronaldlacsonpla@gmail.com";
-  $mail->Password   = "tlcafovtdumnvsdp";
+  $mail->Password   = "qjwiftsrolnprpgg";
 
   $mail->IsHTML(true);
   $mail->AddAddress($recipient, $subject);

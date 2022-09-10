@@ -1,7 +1,7 @@
 <?php
     $errors = array();
 
-    require "functions.php";
+    require "includes/functions.php";
     is_user_login();
 
     if(is_user_verified())
@@ -96,58 +96,60 @@
 
     <body>  
         <div class="wrapper">
-            <div class="container h-100">
-                <div class="row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center h-100">
-                    <div class="col-md-6">
-                        <form method="post" enctype="multipart/form-data" class="profile-form px-4 py-3 border border-dark">
-                            <h1>Verification Code</h1>
-                            <?php 
-                                if(isset($_SESSION['result_popup']))
-                                    echo $_SESSION['result_popup'];
+            <section class="vh-100">
+                <div class="container py-5 h-100">
+                    <div class="row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center h-100">
+                        <div class="col-md-6">
+                            <form method="post" enctype="multipart/form-data" class="bg-white px-4 py-3 border border-dark" style="--bs-bg-opacity: .5;">
+                                <h1>Verification Code</h1>
 
-                                //unset($_SESSION['result_popup']);
-                            ?>
-
-                            <?php if(!empty($errors['fail'])): ?>
-                                <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
-                                    <i class='fas fa-exclamation-triangle'></i>
-                                    <div class ="mx-3">
-                                        <?php echo $errors['fail'];?>
+                                <?php if(!empty($errors['fail'])): ?>
+                                    <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
+                                        <i class='fas fa-exclamation-triangle'></i>
+                                        <div class ="mx-3">
+                                            <?php echo $errors['fail'];?>
+                                        </div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                     </div>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            <?php endif; ?>
+                                <?php endif; ?>
 
-                            <?php if(!empty($_SESSION['message'])): ?>
-                                <div class="alert alert-success d-flex align-items-center fade show">
-                                    <div class ="mx-3">
-                                        <?php echo $_SESSION['message']; ?>
+                                <?php if(!empty($_SESSION['message'])): ?>
+                                    <div class="alert alert-success d-flex align-items-center fade show">
+                                        <div class ="mx-3">
+                                            <?php echo $_SESSION['message']; ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php if(!empty($_SESSION['message_error'])): ?>
+                                    <div class="alert alert-danger d-flex align-items-center fade show">
+                                        <i class='fas fa-exclamation-triangle'></i>
+                                        <div class ="mx-3">
+                                            <?php echo $_SESSION['message_error'];?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+
+                                <div class="col">
+                                    <label for="" class="col col-form-label">Please put code here</label>
+                                    <input type="text" name="code" class="col form-control" placeholder="Code">
+                                </div>
+
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <div class="mt-3">
+                                        <a href="profile.php" class="text-danger"><strong>Go back to Edit My Profile</strong></a>
                                     </div>
                                 </div>
-                            <?php endif; ?>
 
-                            <?php if(!empty($_SESSION['message_error'])): ?>
-                                <div class="alert alert-danger d-flex align-items-center fade show">
-                                    <i class='fas fa-exclamation-triangle'></i>
-                                    <div class ="mx-3">
-                                        <?php echo $_SESSION['message_error'];?>
-                                    </div>
+                                <div class="row mt-5 mx-auto">
+                                    <input type="submit" name="resend" value="Resend Code" class="rounded-pill btn btn-warning border border-light btn-lg">
+                                    <input type="submit" name="submit" value="Verify" class="rounded-pill btn btn-warning border border-light btn-lg">
                                 </div>
-                            <?php endif; ?>
-
-                            <div class="col">
-                                <label for="" class="col col-form-label">Please put code here</label>
-                                <input type="text" name="code" class="col form-control" placeholder="Code">
-                            </div>
-
-                            <div class="row mt-5 mx-auto">
-                                <input type="submit" name="resend" value="Resend Code" class="rounded-pill btn btn-warning border border-light btn-lg">
-                                <input type="submit" name="submit" value="Verify" class="rounded-pill btn btn-warning border border-light btn-lg">
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     </body>
 </html>

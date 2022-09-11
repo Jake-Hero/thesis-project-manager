@@ -61,18 +61,21 @@
                             <div class="row d-flex justify-content-between align-items-center">
                                 <div class="col-lg-4">
                                     <div class="form-check mb-0">
-                                        <form method="post">
+                                        <form method="GET">
                                             <div class="row">
                                                 <div class="col">
-                                                    <select class="form-select me-2" aria-label="Default select example">
-                                                        <option selected>Sort users</option>
-                                                        <option value="1">Sort by Name</option>
-                                                        <option value="2">Sort by ID</option>
-                                                        <option value="3">Sort by Date Registration</option>
+                                                    <select name="sort" class="form-select me-2" aria-label="Default select example">
+                                                        <option>Sort users</option>
+                                                        <option value="a-z" <?php if(isset($_GET['sort']) && $_GET['sort'] == "a-z") echo 'selected' ?>>Sort by Full Name (A-Z)</option>
+                                                        <option value="z-a" <?php if(isset($_GET['sort']) && $_GET['sort'] == "z-a") echo 'selected' ?>>Sort by Full Name (Z-A)</option>
+                                                        <option value="id_desc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "id_desc") echo 'selected' ?>>Sort by User ID (Highest to Lowest)</option>
+                                                        <option value="id_asc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "id_asc") echo 'selected' ?>>Sort by User ID (Lowest to Highest)</option>
+                                                        <option value="date_desc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "date_desc") echo 'selected' ?>>Sort by Date Registration (Newest to Oldest)</option>
+                                                        <option value="date_asc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "date_asc") echo 'selected' ?>>Sort by Date Registration (Oldest to Newest)</option>
                                                     </select>
                                                 </div>
                                                 <div class="col">
-                                                    <input class="btn btn-secondary" type="submit" name="sortbtn" value="Sort">
+                                                    <button class="btn btn-secondary" type="submit">Sort</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -80,13 +83,13 @@
                                 </div>
 
                                 <div class="col-lg-3">
-                                    <form method="post">
+                                    <form method="get">
                                         <div class="row">
                                             <div class="col">
-                                                <input type="text" name="searchfield" class="col-sm-10 form-control" placeholder="Search User">
+                                                <input type="text" name="search" class="col-sm-10 form-control" placeholder="<?php if(isset($_GET['search'])) echo $_GET['search'];?>">
                                             </div>
                                             <div class="col">
-                                                <input class="btn btn-secondary" type="submit" name="sortbtn" value="Sort">
+                                                <button class="btn btn-secondary" type="submit">Search</search>
                                             </div>
                                         </div>
                                     </form>
@@ -107,11 +110,49 @@
                             </thead>
                             <tbody>
                                 <?php
-                                $selectStmt = $con->prepare('SELECT * FROM users');
+                                if(isset($_GET['search']))
+                                {
+                                    $search = '%' . $_GET['search'] . '%';
+                                    $selectStmt = $con->prepare("SELECT * FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword");
+                                    $selectStmt->bindParam(':keyword', $search);
+                                }
+                                else if(isset($_GET['sort']))
+                                {
+                                    switch($_GET['sort'])
+                                    {
+                                        case "a-z":
+                                            $selectStmt = $con->prepare('SELECT * FROM users ORDER BY fullname ASC');                                    
+                                            break;
+                                        case "z-a":
+                                            $selectStmt = $con->prepare('SELECT * FROM users ORDER BY fullname DESC');                                    
+                                            break;
+                                        case "id_desc":
+                                            $selectStmt = $con->prepare('SELECT * FROM users ORDER BY id DESC');                                    
+                                            break;
+                                        case "id_asc":
+                                            $selectStmt = $con->prepare('SELECT * FROM users ORDER BY id ASC'); 
+                                            break;
+                                        case "date_desc":
+                                            $selectStmt = $con->prepare('SELECT * FROM users ORDER BY date DESC');                                    
+                                            break;
+                                        case "date_asc":
+                                            $selectStmt = $con->prepare('SELECT * FROM users ORDER BY date ASC'); 
+                                            break;
+                                        default: 
+                                            $selectStmt = $con->prepare('SELECT * FROM users ORDER BY id ASC');
+                                            break;
+                                    }
+                                }
+                                else 
+                                    $selectStmt = $con->prepare('SELECT * FROM users ORDER BY id ASC');
+                                
                                 $selectStmt->execute();
+                                if($selectStmt->rowCount() > 0):
                                 while($row = $selectStmt->fetch(PDO::FETCH_ASSOC)): 
                                 ?>
+
                                 <tr class="table-light">
+
                                     <td class="text-center">    
                                         <img src="assets/profile_pictures/<?php echo $row['image']; ?>" class="rounded-circle btn-lg" height="60" alt="Avatar" />
                                     </td>
@@ -127,10 +168,12 @@
                                         <a href="edit_users.php?id=<?php echo $row['id']; ?>" class="edit" title="Edit" data-toggle="tooltip"><i class="fa fa-pencil-square "></i></a>
                                         </div>                                
                                     </td>
-                                </tr>                        
-                                <?php
-                                endwhile;
-                                ?>
+                                </tr>   
+
+                                <?php endwhile; ?>
+                                <?php else: ?>
+                                    <td colspan="7" class="text-center">No user found.</td>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>

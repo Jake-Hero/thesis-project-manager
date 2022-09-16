@@ -14,25 +14,24 @@
 <link href="http://fonts.cdnfonts.com/css/lemonmilk" rel="stylesheet">
 
 <!-- Custom Style Files -->
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="<?php echo ROOT_FOLDER . '/css/style.css'; ?>">
 
 <!-- Website Icon -->
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css"></head>
 
 <!-- Font Awesome -->
 <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
 
-<!-- SweetAlert2 & custom.js -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.11.0/sweetalert2.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.11.0/sweetalert2.all.min.js"></script>
-
 <!-- JQuery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <!-- Custom JS files -->
-<script type="text/javascript" src="js/custom.js"></script>
-<script type="text/javascript" src="js/lastseen.js"></script>
+<script type="text/javascript" src="<?php echo ROOT_FOLDER . '/js/custom.js'; ?>"></script>
+<script type="text/javascript" src="<?php echo ROOT_FOLDER . '/js/lastseen.js'; ?>"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.11/dist/sweetalert2.all.js"></script>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>

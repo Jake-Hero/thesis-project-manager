@@ -14,7 +14,7 @@
             <div class="row">
                 <!--Grid column-->
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <img src="profile_pictures/default_profile.jpg" class="rounded-circle" alt="Mervin">
+                    <img src="<?php echo ROOT_FOLDER; ?>/assets/profile_pictures/default_profile.jpg" class="rounded-circle" alt="Mervin">
 
                     <div class="row-lg-3">
                         <p style="margin-top: 5vh;">Mervin Jesse S. Dimaano</p>
@@ -24,7 +24,7 @@
 
                 <!--Grid column-->
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <img src="profile_pictures/default_profile.jpg" class="rounded-circle" alt="RV Angel">
+                    <img src="<?php echo ROOT_FOLDER; ?>/assets/profile_pictures/default_profile.jpg" class="rounded-circle" alt="RV Angel">
 
                     <div class="row-lg-3">
                         <p style="margin-top: 5vh;">RV Angel B. Mayuga</p>
@@ -34,7 +34,7 @@
 
                 <!--Grid column-->
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <img src="profile_pictures/default_profile.jpg" class="rounded-circle" alt="Alliah">
+                    <img src="<?php echo ROOT_FOLDER; ?>/assets/profile_pictures/default_profile.jpg" class="rounded-circle" alt="Alliah">
 
                     <div class="row-lg-3">
                         <p style="margin-top: 5vh;">Alliah J. Pureza</p>
@@ -44,7 +44,7 @@
 
                 <!--Grid column-->
                 <div class="col-lg-3 col-md-6 mb-4">
-                    <img src="profile_pictures/default_profile.jpg" class="rounded-circle" alt="Justine">
+                    <img src="<?php echo ROOT_FOLDER; ?>/assets/profile_pictures/default_profile.jpg" class="rounded-circle" alt="Justine">
 
                     <div class="row-lg-3">
                         <p style="margin-top: 5vh;">Justine Rainiel A. Ramos</p>

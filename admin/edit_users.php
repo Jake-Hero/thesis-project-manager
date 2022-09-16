@@ -1,10 +1,17 @@
 <?php
-    require "includes/functions.php";
+    require "../includes/functions.php";
+    is_user_valid();
     is_user_login();
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: dashboard.php");
+        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        die;
+    }
+
+    if(!isset($_GET['id']))
+    {
+        header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
         die;
     }
 
@@ -19,7 +26,7 @@
 
         if(!$row)
         {
-            header("Location: members.php");
+            header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
             die;
         }
 	}
@@ -34,22 +41,25 @@
 
     $currentPage = 'admin';
 
-    // Visit Detection
-    recordUserVisit();
-
-    require('header.php');
+    require('../includes/header.php');
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('head.php')?>
+        <?php require('../head.php')?>
         <title>Thesis & Capstone Manager - Admin Panel</title>      
     </head>
 
     <body> 
         <div class="wrapper">
             <div class="container mt-4 mb-5">
+                <div class="row">
+                    <div class="col mb-3">
+                        <a href="<?php echo ROOT_FOLDER; ?>/admin/members.php?page=1"><button type="submit" class="btn btn-warning btn-md">Go Back to the List</button></a>
+                    </div>
+                </div>
+
                 <div class="card container-fluid">
                     <div class="card-header"><?php echo "You are now viewing and editing " .$row['fullname']. "'s Profile"; ?></div>
                     <div class="card-body">
@@ -83,7 +93,7 @@
                         <div class="row">
                             <div class="col-md-3 border-end">
                                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
-                                    <img src="<?php echo 'assets/profile_pictures/' .$row['image'] ?>" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
+                                    <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$row['image'] ?>" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
                                     <span class="text-black-50 mt-2">Profile Picture</span>
                                 </div>
                             </div>
@@ -103,7 +113,7 @@
                                                 <?php echo '<div class="text-black-50">' .$row['email']. '</div>'; ?>
 
                                                 <?php 
-                                                    if(is_user_verified($row['id']))
+                                                    if($row['email'] == $row['email_verified'])
                                                         echo '<div class="text-success"><strong>Verified</strong></div>';
                                                     else
                                                         echo '<div class="text-danger"><strong>Not Verified</strong></div>';
@@ -170,7 +180,12 @@
                                     <input type="file" name="image" id="image" class="col-sm-10 form-control">
 
                                     <div class="row mt-5 mx-auto">
-                                        <input type="submit" name="save" value="Save Changes" class="rounded-pill btn btn-warning border border-light btn-lg">
+                                        <div class="col">
+                                            <input type="submit" name="save" value="Save Changes" class="rounded-pill btn btn-lg btn-warning">
+                                        </div>
+                                        <div class="col">
+                                            <button type="button" id="delete" class="rounded-pill btn btn-lg btn-danger">Delete</button>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -180,4 +195,56 @@
             </div>
         </div>
     </body>
+
+    <script>
+        document.getElementById('delete').onclick = function(){
+            var id = <?php echo $_GET['id']; ?>;
+            var your_id = <?php echo $_SESSION['user']['id']; ?>;
+
+            if(id == your_id)
+            {
+                Swal.fire(
+                            'Error',
+                            'You are deleting your own profile!',
+                            'error'
+                        )
+                return false;
+            }
+
+            swal({
+                title: 'Are you sure?',
+                text: "You won't be able to undo this action.",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Delete'
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        type: 'GET', 
+                        url: 'src/delete_user.php',
+                        data: {'user_id' : id},
+                        success: function(response) {
+                            if(response=="success") {
+                                Swal.fire(
+                                    'Deleted',
+                                    'You have deleted the user.',
+                                    'success'
+                                ).then(function() {
+                                    window.location.href = "/admin/members.php?page=1";
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    'Something went wrong on deleting the user.',
+                                    'error'
+                                )
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    </script>
 </html>

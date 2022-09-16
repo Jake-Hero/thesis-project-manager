@@ -7,15 +7,42 @@ error_reporting(E_ALL);
 
 date_default_timezone_set('Asia/Manila');
 
-require_once "./config/db.php";
+define ('PROJECT_NAME', 'thesis-project-manager');
+define ('ROOT_FOLDER', DIRECTORY_SEPARATOR . PROJECT_NAME);
+
+require_once realpath(dirname(__FILE__) . '/../config/db.php');
+require realpath(dirname(__FILE__) . '/../config/mail.php');
+
 require "mobile_detection.php";
 require "browser_detection.php";
-require "./config/mail.php";
 
 define("ROLE_STUDENT", 0);
 define("ROLE_PANELIST", 1);
 define("ROLE_ADVISOR", 2);
 define("ROLE_ADMIN", 3);
+
+function getImageUri()
+{
+    return SITE_ROOT . 'assets' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR;
+}
+
+function getFullName($id)
+{
+    global $con;
+    $leader = NULL;
+
+    $query = "SELECT fullname FROM users WHERE id = :id limit 1;";
+    $select_stm = $con->prepare($query);
+    $select_stm->execute(['id' => $id]);
+
+    if($select_stm->rowCount() > 0)
+    {
+        $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+        $leader = $row['fullname'];
+    }
+
+    return $leader;
+}
 
 function getUserRole($role) {
     $roleString = array();
@@ -110,20 +137,17 @@ function signup_user($data)
 
     if(isset($data['username']) && isset($data['email']) && !empty($data['username']) && !empty($data['email']))
     {    
-        $arr['username'] = $data['username'];
-        $arr['email'] = $data['email'];
-
         $query = "SELECT username, email FROM users WHERE username = :username OR email = :email";
         $select_stm = $con->prepare($query);
-        $select_stm->execute($arr);
+        $select_stm->execute(['username' => $data['username'], 'email' => $data['email']]);
 
         if($select_stm->rowCount() > 0)
         {
             $row = $select_stm->fetch(PDO::FETCH_ASSOC);
 
-            if($row['username'] == $arr['username'])
+            if($row['username'] == $data['username'])
                 $errors['username'] = 'This username is already taken!';
-            if($row['email'] == $arr['email'])
+            else if($row['email'] == $data['email'])
                 $errors['email'] = 'This email is already in use!';
         }
     }
@@ -131,38 +155,40 @@ function signup_user($data)
     // no error 
     if(count($errors) == 0)
     {
-        $arr['fullname'] = $data['fullname'];
-        $arr['ip'] = getIPAddress();
-        $arr['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-        $arr['date'] = date("Y-m-d H:i:s");       
+        $hashed_password = password_hash($data['password'], PASSWORD_DEFAULT);
 
-        $query = "INSERT INTO users (date, ip_addr, fullname, username, email, password) VALUES(:date, :ip, :fullname, :username, :email, :password)";
+        $query = "INSERT INTO users (date, ip_addr, fullname, username, email, password) VALUES(:creation, :ip, :fullname, :username, :email, :pass)";
         $insert_stm = $con->prepare($query);
-        $insert_stm->execute($arr);
-
-        $_SESSION['result_popup'] =
-        "
-            <script type=\"text/javascript\">
-                swal({
-                    title: \"Registered\",
-                    type: \"success\",
-                    text: \"You are registered, Please login.success\",
-                    allowOutsideClick: false,
-                    showConfirmButton: true,
-                    confirmButtonText: 'OK'
-                    });
-            </script>                        
-        ";
-
-        header("Location: login.php");
+        $insert_stm->bindValue('creation', date("Y-m-d H:i:s")); 
+        $insert_stm->bindValue('ip', getIPAddress());
+        $insert_stm->bindValue('fullname', $data['fullname']); 
+        $insert_stm->bindValue('username', $data['username']); 
+        $insert_stm->bindValue('email', $data['email']); 
+        $insert_stm->bindValue('pass', $hashed_password);
+        $insert_stm->execute();
         
-        $_SESSION['username'] = $arr['username'];
+        $_SESSION['username'] = $data['username'];
         $_SESSION['userid'] = $con->lastInsertId();
         $_SESSION['logged_in'] = true;
         $_SESSION['profilepic'] = 'default_profile.jpg'; 
         $_SESSION['role'] = 0;
-    }
 
+        $_SESSION['result_popup'] = 
+        '
+            <script type="text/javascript">
+                swal({
+                    title: "Registered",
+                    type: "success",
+                    text: "You are now registered, Please login.",
+                    allowOutsideClick: false,
+                    showConfirmButton: true,
+                    confirmButtonText: "OK"
+                })
+            </script>        
+        ';
+
+        header("Location: login.php");
+    }
     return $errors;
 }
 
@@ -173,63 +199,55 @@ function login_user($data)
 
     // Field Errors
 
-    $arr['username'] = $data['username'];  
-    $arr['password'] = $data['password'];
+    if(empty($data['username']))
+        $errors['all'] = "You didn't fill up the username.";
 
-    $query = "SELECT * FROM users WHERE (username = :username OR email = :username) limit 1;";
-    $select_stm = $con->prepare($query);
-    $select_stm->execute($arr);
-
-    if($select_stm->rowCount() > 0)
+    // no error 
+    if(count($errors) == 0)
     {
-        $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+        $query = "SELECT * FROM users WHERE (username = :username OR email = :username) limit 1;";
+        $select_stm = $con->prepare($query);
+        $select_stm->execute(['username' => $data['username'], 'password' => $data['password']]);
 
-        if(password_verify($arr['password'], $row['password']))
+        if($select_stm->rowCount() > 0)
         {
-            $_SESSION['user'] = $row;
-            $_SESSION['logged_in'] = true;
+            $row = $select_stm->fetch(PDO::FETCH_ASSOC);
 
-            $arr['ip'] = getIPAddress();
-            $query = "UPDATE users SET ip_addr = :ip WHERE username = :username OR email = :username limit 1;";
-            $update_stm = $con->prepare($query);
-            $update_stm->execute($arr);
+            if(password_verify($data['password'], $row['password']))
+            {
+                $_SESSION['user'] = $row;
+                $_SESSION['logged_in'] = true;
 
-            if($row['email'] != $row['email_verified'] || is_null($row['email_verified'])) {
-                $_SESSION['result_popup'] =
-                        "
-                            <script type=\"text/javascript\">
-                                swal({
-                                    title: \"Verification\",
-                                    type: \"warning\",
-                                    text: \"You are not verified yet, Please verify your account via 'Edit My Profile'. Check your inbox or your spam folder.\",
-                                    allowOutsideClick: false,
-                                    showConfirmButton: true,
-                                    confirmButtonText: 'OK'
-                                    });
-                            </script>                        
-                        ";
+                $query = "UPDATE users SET ip_addr = :ip WHERE username = :username OR email = :username limit 1;";
+                $update_stm = $con->prepare($query);
+                $update_stm->execute(['ip' => getIPAddress(), 'username' => $data['username']]);
 
-                sendVerificationCode($row['email']);
+                /*if($row['email'] != $row['email_verified'] || is_null($row['email_verified'])) {    
+                    
+                    sendVerificationCode($row['email']);
+                }*/
+
                 header("Location: dashboard.php");
-            } else {
-                header("Location: dashboard.php");
+            }
+            else 
+            {
+                $errors['all'] = "You have typed a wrong password!";
             }
         }
         else 
         {
-            $errors['all'] = "You have typed a wrong password!";
+            $errors['all'] = "That username or email doesn't exist!";
         }
-    }
-    else 
-    {
-        $errors['all'] = "That username or email doesn't exist!";
     }
     return $errors;
 }
 
-function sendVerificationCode($email)
+function sendVerificationCode($email = NULL)
 {
     global $con;
+
+    if(empty($email))
+        $email = $_SESSION['user']['email'];
 
     $errors = array();
     $now = time();
@@ -290,20 +308,43 @@ function is_user_verified($id = NULL)
     if(!isset($id))
         $id = $_SESSION['user']['id'];
 
-    $query = "SELECT * FROM users WHERE id = :id limit 1;";
+    $query = "SELECT email, email_verified FROM users WHERE id = :id limit 1;";
     $select_stm = $con->prepare($query);
     $select_stm->execute(['id' => $id]);
 
     if($select_stm->rowCount() > 0)
     {
         $row = $select_stm->fetch(PDO::FETCH_ASSOC);
-        $_SESSION['user'] = $row;
 
         if($row['email'] == $row['email_verified'])
             return true;
     }
 
     return false;
+}
+
+function is_user_valid()
+{
+    global $con;
+
+    if(isset($_SESSION['user']['id']))
+    {
+        $query = "SELECT * FROM users WHERE id = :id";
+        $selectStmt = $con->prepare($query);
+        $selectStmt->bindValue('id', $_SESSION['user']['id']);
+        $selectStmt->execute();
+
+        if($selectStmt->rowCount() < 1)
+        {
+            header("Location: logout.php");
+            die;
+        }
+        else
+        {
+            $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+            $_SESSION['user'] = $row;
+        }
+    }
 }
 
 function is_user_login($redirect = true)
@@ -702,6 +743,180 @@ function resize_image($source_image, $resize_image)
     }
 
     return $resize_image;
+}
+
+function create_group($data)
+{
+    global $con;
+    $errors = array();
+
+    // Field Errors
+    if(empty($data['group_title']))
+        $errors['error_message'] = "You did not give the group a thesis title.";
+    else if(empty($data['group_leader']))
+        $errors['error_message'] = "Make sure to assign a leader!";
+
+    else if(!preg_match('/^[a-zA-Z ]+$/', $data['group_title']))
+        $errors['error_message'] = "Enter a valid thesis title or group name!";
+
+    if(!empty($data['group_title']))
+    {    
+        $query = "SELECT * FROM groups WHERE group_title = :title";
+        $select_stm = $con->prepare($query);
+        $select_stm->execute(['title' => $data['group_title']]);
+
+        if($select_stm->rowCount() > 0)
+        {
+            $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+
+            $errors['error_message'] = 'This thesis title or group name is already taken!';
+        }
+    }
+
+    // no error 
+    if(count($errors) == 0)
+    {
+        $query = "SELECT id, group_id FROM users WHERE id = :user_id OR username = :user_name";
+        $select_stm = $con->prepare($query);
+        $select_stm->bindValue('user_id', (int) $data['group_leader'], PDO::PARAM_INT);
+        $select_stm->bindValue('user_name', $data['group_leader']);
+        $select_stm->execute();
+
+        if($select_stm->rowCount() > 0)
+        {
+            $row = $select_stm->fetch(PDO::FETCH_ASSOC);   
+
+            if($row['group_id'] > 0)
+            {
+                $errors['error_message'] = "User is already a leader or member of another thesis group.";
+            }
+            else 
+            {
+                $query = "INSERT INTO groups (creation, group_leader, group_title) VALUES(:creation, :leader, :title)";
+                $insert_stm = $con->prepare($query);
+                $insert_stm->execute(['creation' => date("Y-m-d H:i:s"), 'leader' => $row['id'], 'title' => $data['group_title']]);
+            
+                $query = "UPDATE users SET group_id = :groupid WHERE id = :leader";
+                $updateStmt = $con->prepare($query);
+                $updateStmt->execute(['groupid' => $con->lastInsertId(), 'leader' => $row['id']]);
+            
+                header("Location: edit_group.php?id=" .$con->lastInsertId());
+            }
+        }
+        else 
+        {
+            $errors['error_message'] = "Specify a valid user, The specified ID or username is invalid.";
+        }
+    }
+    return $errors;
+}
+
+function adminEditGroup($id)
+{
+    global $con;
+
+    $hashed_password = NULL;
+    $username = $str;     
+
+    $query = "SELECT * FROM users WHERE username = :username limit 1;";
+    $select_stm = $con->prepare($query);
+    $select_stm->execute(['username' => $username]);
+    $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+
+    if(!empty($_POST['email']) && $_POST['email'] == $row['email'])
+    {
+        $_SESSION['error_message'] = "Your new email cannot be the same as your old one!";
+    }        
+    else if(!empty($_POST['password']) && password_verify($_POST['password'], $row['password']))
+    {
+        $_SESSION['error_message'] = "Your new password cannot be the same as your old one!";
+    }
+    else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z ]+$/', $_POST['fullname']))
+    {
+        $_SESSION['error_message'] = "Enter a valid full name!";
+    }
+    else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z]+$/', $_POST['username']))
+    {
+        $_SESSION['error_message'] = "Enter a valid username!";
+    }
+    else 
+    {
+        if(!empty($_POST['username']))
+        {
+            $query = "SELECT COUNT(*) FROM users WHERE username = :username limit 1;";
+            $countStm = $con->prepare($query);
+            $countStm->execute(['username' => $_POST['username']]);
+            $existing_username = $countStm->fetchColumn();
+        }
+        if(!empty($_POST['email']))
+        {
+            $query = "SELECT COUNT(*) FROM users WHERE email = :email limit 1;";
+            $countStm = $con->prepare($query);
+            $countStm->execute(['email' => $_POST['email']]);
+            $existing_email = $countStm->fetchColumn();
+        }
+
+        if(!empty($_POST['username']) && $existing_username)
+        {
+            $_SESSION['error_message'] = "Choose another username, A user is already using that email!";
+        }
+        else if(!empty($_POSt['email']) && $existing_email)
+        {
+            $_SESSION['error_message'] = "Choose another email, A user is already using that email!";
+        }
+        else 
+        {
+            if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
+                adminuploadImages($row);
+            
+            if(!empty($_POST['email']))
+            {
+                $message = "Your email address " .$row['email']. " was replaced by a new email address.";
+                send_mail($row['email'], "Changed E-Mail", $message);
+            }
+            if(!empty($_POST['password']))
+            {
+                $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+                $message = "Your password was changed;";
+                send_mail($row['email'], "Changed password", $message);
+            }
+
+            $fullname = NULL;
+            if(!empty($_POST['fullname'])) $fullname = $_POST['fullname'];                
+            $username = NULL;
+            if(!empty($_POST['username'])) $username = $_POST['username'];
+            $email = NULL;
+            if(!empty($_POST['email'])) $email = $_POST['email'];
+            $role = NULL;
+            if(!empty($_POST['role']) && $_POST['role'] >= 0) $role = $_POST['role'];
+
+            $query = "UPDATE users SET 
+                        fullname = COALESCE(:fullname, fullname),
+                        username = COALESCE(:username, username),
+                        email = COALESCE(:email, email),
+                        password = COALESCE(:password, password),
+                        role = COALESCE(:role, role)
+                        WHERE id = :id";
+
+            $updateStmt = $con->prepare($query);
+            $updateStmt->bindValue(':fullname', $fullname, PDO::PARAM_STR);
+            $updateStmt->bindValue(':username', $username, PDO::PARAM_STR);
+            $updateStmt->bindValue(':email', $email, PDO::PARAM_STR);
+            $updateStmt->bindValue(':password', $hashed_password, PDO::PARAM_STR);
+            $updateStmt->bindValue(':role', $role, PDO::PARAM_STR);
+            $updateStmt->bindValue(':id', $row['id'], PDO::PARAM_INT);
+            $updateStmt->execute();
+        
+            $_SESSION['success_message'] = "Changes to this profile has been saved!";
+
+            $query = "SELECT * FROM users WHERE id = :id LIMIT 1;";
+            $selectStm = $con->prepare($query);
+            $selectStm->execute(['id' => $row['id']]);
+            $row = $selectStm->fetch(PDO::FETCH_ASSOC);
+        }
+    }
+    return $row;
 }
 
 ?>

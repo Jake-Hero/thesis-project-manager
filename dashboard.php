@@ -1,11 +1,13 @@
 <?php
     require "includes/functions.php";
+    is_user_valid();
     is_user_login();
     
     // Visit Detection
     recordUserVisit();
 
-    require('header.php');
+    $currentPage = 'dashboard';
+    require('includes/header.php');
 ?>
 
 <!DOCTYPE html>
@@ -16,23 +18,23 @@
     </head>
 
     <body>
-        <div class ="wrapper">
-            <?php 
-                if(isset($_SESSION['result_popup']))
-                {
-                    echo $_SESSION['result_popup'];
-                    unset($_SESSION['result_popup']);
-                }
-            ?>
-
-            <div class="container pt-5">
-                <div class="row d-flex justify-content-center pt-5">
-                    <div class="col-md-3 offset-sm-2">
-                    </div>
-                    <div class="col-md-3 offset-sm-2">
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php 
+            if(!is_user_verified())
+            {
+                echo 
+                "
+                    <script type=\"text/javascript\">
+                    swal({
+                        title: \"Verification\",
+                        type: \"warning\",
+                        text: \"You are not verified yet, Please verify your account via 'Edit My Profile'.\",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK'
+                        });
+                    </script>   
+                "; 
+            }
+        ?>
     </body>
 </html>

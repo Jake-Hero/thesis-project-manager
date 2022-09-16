@@ -1,9 +1,9 @@
 <?php
   use PHPMailer\PHPMailer\PHPMailer;
   use PHPMailer\PHPMailer\Exception;
-  require 'PHPMailer-master/src/Exception.php';
-  require 'PHPMailer-master/src/PHPMailer.php';
-  require 'PHPMailer-master/src/SMTP.php';
+  require realpath(dirname(__FILE__) . '/../PHPMailer-master/src/Exception.php');
+  require realpath(dirname(__FILE__) . '/../PHPMailer-master/src/PHPMailer.php');
+  require realpath(dirname(__FILE__) . '/../PHPMailer-master/src/SMTP.php');
 
 function send_mail($recipient,$subject,$message)
 {

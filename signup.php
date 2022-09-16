@@ -1,6 +1,7 @@
 <?php
     require "includes/functions.php";
 
+    is_user_valid();
     $errors = array('fullname'=>'','email'=>'','username'=>'');
 
     if(is_user_login(false))
@@ -29,13 +30,6 @@
                     <div class="row d-flex justify-content-center align-items-center h-100">
                         
                         <div class="col-lg-4 col-xs-2 px-5">
-                            <?php 
-                                if(isset($_SESSION['result_popup']))
-                                {
-                                    echo $_SESSION['result_popup'];
-                                    unset($_SESSION['result_popup']);
-                                }
-                            ?>
                             <h1 style="font-size: 50px; font-family: 'Lemon/Milk', sans-serif; color: white;">THESIS AND CAPSTONE MANAGER</h1>
                             <h5 style="font-size: 14px; color: white;">A website for managing your thesis and capstone</h5>
                         </div>
@@ -44,13 +38,56 @@
 
                             <form method="post" id="reg-form" class="bg-white border border-dark px-5 py-4" style="--bs-bg-opacity: .5;">
                                 <div class="form-group">
+                                    <?php if(!empty($errors['fullname'])):?>
+                                        <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
+                                            <i class='fas fa-exclamation-triangle'></i>
+                                            <div class ="mx-3">
+                                                <?php echo $errors['fullname'];?>
+                                            </div>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>                                
+
+                                <div class="form-group">
+                                    <?php if(!empty($errors['email'])):?>
+                                        <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
+                                            <i class='fas fa-exclamation-triangle'></i>
+                                            <div class ="mx-3">
+                                                <?php echo $errors['email'];?>
+                                            </div>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    <?php endif; ?>
+                                </div> 
+
+                                <div class="form-group">
+                                    <?php if(!empty($errors['username'])):?>
+                                        <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
+                                            <i class='fas fa-exclamation-triangle'></i>
+                                            <div class ="mx-3">
+                                                <?php echo $errors['username'];?>
+                                            </div>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    <?php endif; ?>
+                                </div> 
+
+                                <div class="form-group">
+                                    <?php if(!empty($errors['password'])):?>
+                                        <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
+                                            <i class='fas fa-exclamation-triangle'></i>
+                                            <div class ="mx-3">
+                                                <?php echo $errors['password'];?>
+                                            </div>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    <?php endif; ?>
+                                </div> 
+
+                                <div class="form-group">
                                     <label for="" class="col col-form-label">Full Name</label>
                                     <?php if(!empty($errors['fullname'])):?>
-                                        <div class="form-group">
-                                            <strong class="text-danger">
-                                                <?php echo '<label for="" class="col col-form-label">' .$errors['fullname']. '</label>';?>
-                                            </strong>
-                                        </div>
                                         <input type="text" name ="fullname" class="col-sm-10 form-control is-invalid" placeholder="Full Name">
                                     <?php else: ?>
                                         <input type="text" name ="fullname" class="col-sm-10 form-control" placeholder="Full Name">
@@ -59,17 +96,13 @@
 
                                 <div class="form-group">
                                     <label for="" class="col col-form-label">Email</label>
+
                                     <div class="input-group">
                                         <span class="input-group-text">
                                             <i class="fa-solid fa-envelope"></i>
                                         </span>
 
                                         <?php if(!empty($errors['email'])):?>
-                                            <div class="form-group">
-                                                <strong class="text-danger">
-                                                    <?php echo '<label for="" class="col col-form-label">' .$errors['email']. '</label>';?>
-                                                </strong>
-                                            </div>
                                             <input type="text" name ="email" class="col-sm-10 form-control is-invalid" placeholder="youremail@domain">
                                         <?php else: ?>        
                                             <input type="text" name ="email" class="col-sm-10 form-control" placeholder="youremail@domain">
@@ -79,12 +112,8 @@
 
                                 <div class="form-group">
                                     <label for="" class="col col-form-label">Username</label>
+                                    
                                     <?php if(!empty($errors['username'])):?>
-                                        <div class="form-group">
-                                            <strong class="text-danger">
-                                                <?php echo '<label for="" class="col col-form-label">' .$errors['username']. '</label>';?>
-                                            </strong>
-                                        </div>
                                         <input type="text" name ="username" class="col-sm-10 form-control is-invalid" placeholder="Username">
                                     <?php else: ?>   
                                         <input type="text" name ="username" class="col-sm-10 form-control" placeholder="Username">
@@ -93,16 +122,12 @@
 
                                 <div class="form-group">
                                     <label for="" class="col col-form-label">Password</label>
+                                    
                                     <div class="input-group">
                                         <span class="input-group-text">
                                             <i class="fa-solid fa-key"></i>
                                         </span>                                    
                                         <?php if(!empty($errors['password'])):?>
-                                            <div class="form-group">
-                                                <strong class="text-danger">
-                                                    <?php echo '<label for="" class="col col-form-label">' .$errors['password']. '</label>';?>
-                                                </strong>
-                                            </div>
                                             <input type="password" name="password" class="col-sm-10 form-control is-invalid" placeholder="Password">
                                         <?php else: ?>
                                             <input type="password" name="password" class="col-sm-10 form-control" placeholder="Password">
@@ -117,7 +142,7 @@
                                 </div>
 
                                 <div class="row mt-5 mx-auto">
-                                    <input type="submit" id="signup" name="signup" value="Sign Up" class="rounded-pill btn btn-warning border border-light btn-lg">
+                                    <button type="submit" id="signup" name="signup" class="rounded-pill btn btn-warning border border-light btn-lg">Sign Up</button>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center">

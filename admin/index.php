@@ -1,10 +1,10 @@
 <?php
-    require "includes/functions.php";
+    require "../includes/functions.php";
     is_user_login();
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: dashboard.php");
+        header("Location: " . ROOT_FOLDER . "/dashboard.php");
         die;
     }
 
@@ -13,13 +13,13 @@
     // Visit Detection
     recordUserVisit();
 
-    require('header.php');
+    require('../includes/header.php');
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('head.php')?>
+        <?php require('../head.php')?>
         <title>Thesis & Capstone Manager - Admin Panel</title>      
     </head>
 
@@ -187,7 +187,7 @@
                             <div class="d-flex justify-content-between px-md-1">
                                 <div class="text-start">
                                     <p class="mb-0">
-                                        <a href="members.php">Click me to view all the registered users in this website.</a>
+                                        <a href="<?php echo ROOT_FOLDER; ?>/admin/members.php?page=1">Click me to view all the registered users in this website.</a>
                                     </p>
 
                                     <p class="mb-0">

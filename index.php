@@ -1,6 +1,7 @@
 <?php
     require "includes/functions.php";
-
+    is_user_valid();
+    
     if(is_user_login(false))
     {
         header("Location: dashboard.php");

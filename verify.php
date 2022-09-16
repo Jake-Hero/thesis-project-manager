@@ -2,6 +2,8 @@
     $errors = array();
 
     require "includes/functions.php";
+
+    is_user_valid();
     is_user_login();
 
     if(is_user_verified())
@@ -64,7 +66,7 @@
                             </script>                        
                         ";
 
-                        header("Location: dashboard.php");
+                        header("Location: profile.php");
                     }
                     else 
                     {

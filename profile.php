@@ -1,9 +1,10 @@
 <?php
     $count = 0;
     require "includes/functions.php";
+    is_user_valid();
     is_user_login();
 
-    require('header.php');
+    require('includes/header.php');
 
     if($_SERVER['REQUEST_METHOD'] == 'POST')
     {
@@ -39,7 +40,7 @@
                         <div class="alert alert-warning d-flex align-items-center fade show">
                             <i class='fas fa-exclamation-triangle'></i>
                             <div class ="mx-3">
-                                Your email address is not verified. <a href="verify.php" class="alert-link">Click here</a> to verify your account.
+                                Your email address is not verified. <a href="<?php echo ROOT_FOLDER; ?>/verify.php" class="alert-link">Click here</a> to verify your account.
                             </div>
                         </div>
                         <?php endif; ?>
@@ -67,7 +68,7 @@
                         <div class="row">
                             <div class="col-md-3 border-end">
                                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
-                                    <img src="<?php echo 'assets/profile_pictures/' .$_SESSION['user']['image'] ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
+                                    <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$_SESSION['user']['image'] ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
                                     <span class="text-black-50 mt-2">Preview Profile Picture</span>
                                 </div>
                             </div>
@@ -175,7 +176,7 @@
                                     </div>
 
                                     <div class="row mt-5 mx-auto">
-                                        <input type="submit" name="save" value="Save Changes" class="rounded-pill btn btn-warning border border-light btn-lg">
+                                        <input type="submit" name="save" value="Save Changes" class="rounded-pill btn btn-lg btn-warning">
                                     </div>
                                 </form>
                             </div>

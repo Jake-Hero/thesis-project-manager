@@ -1,3 +1,5 @@
+// Show / Hide Password Field Function
+
 $(document).ready(function() {
 
     $(".toggle_hide_password").on('click', function(e) {

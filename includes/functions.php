@@ -21,11 +21,6 @@ define("ROLE_PANELIST", 1);
 define("ROLE_ADVISOR", 2);
 define("ROLE_ADMIN", 3);
 
-function getImageUri()
-{
-    return SITE_ROOT . 'assets' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR;
-}
-
 function getFullName($id)
 {
     global $con;
@@ -156,6 +151,7 @@ function signup_user($data)
     if(count($errors) == 0)
     {
         $hashed_password = password_hash($data['password'], PASSWORD_DEFAULT);
+        $email = filter_var($data['email'], FILTER_VALIDATE_EMAIL);
 
         $query = "INSERT INTO users (date, ip_addr, fullname, username, email, password) VALUES(:creation, :ip, :fullname, :username, :email, :pass)";
         $insert_stm = $con->prepare($query);
@@ -163,7 +159,7 @@ function signup_user($data)
         $insert_stm->bindValue('ip', getIPAddress());
         $insert_stm->bindValue('fullname', $data['fullname']); 
         $insert_stm->bindValue('username', $data['username']); 
-        $insert_stm->bindValue('email', $data['email']); 
+        $insert_stm->bindValue('email', $email); 
         $insert_stm->bindValue('pass', $hashed_password);
         $insert_stm->execute();
         
@@ -187,7 +183,7 @@ function signup_user($data)
             </script>        
         ';
 
-        header("Location: login.php");
+        header("Location: " . ROOT_FOLDER . "/login.php");
     }
     return $errors;
 }
@@ -227,7 +223,7 @@ function login_user($data)
                     sendVerificationCode($row['email']);
                 }*/
 
-                header("Location: dashboard.php");
+                header("Location: " . ROOT_FOLDER . "/dashboard.php");
             }
             else 
             {
@@ -336,7 +332,7 @@ function is_user_valid()
 
         if($selectStmt->rowCount() < 1)
         {
-            header("Location: logout.php");
+            header("Location: " . ROOT_FOLDER . "/logout.php");
             die;
         }
         else
@@ -354,7 +350,7 @@ function is_user_login($redirect = true)
 
     if($redirect)
     {
-        header("Location: index.php");
+        header("Location: " . ROOT_FOLDER . "/index.php");
         die;
     }
     else
@@ -459,7 +455,7 @@ function profileSave()
                 $username = NULL;
                 if(!empty($_POST['username'])) $username = $_POST['username'];
                 $email = NULL;
-                if(!empty($_POST['email'])) $email = $_POST['email'];
+                if(!empty($_POST['email'])) $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
 
                 $query = "UPDATE users SET 
                             fullname = COALESCE(:fullname, fullname),
@@ -563,7 +559,7 @@ function adminEditProfile($str)
             $username = NULL;
             if(!empty($_POST['username'])) $username = $_POST['username'];
             $email = NULL;
-            if(!empty($_POST['email'])) $email = $_POST['email'];
+            if(!empty($_POST['email'])) $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
             $role = NULL;
             if(!empty($_POST['role']) && $_POST['role'] >= 0) $role = $_POST['role'];
 
@@ -800,7 +796,7 @@ function create_group($data)
                 $updateStmt = $con->prepare($query);
                 $updateStmt->execute(['groupid' => $con->lastInsertId(), 'leader' => $row['id']]);
             
-                header("Location: edit_group.php?id=" .$con->lastInsertId());
+                header("Location: " . ROOT_FOLDER . "/admin/edit_group.php?id=" .$con->lastInsertId());
             }
         }
         else 

@@ -1,5 +1,5 @@
 $(window).on('load', function(){
     $.ajax({
-        url: "../src/lastseen.php",
+        url: "/thesis-project-manager/src/lastseen.php",
     });
 });

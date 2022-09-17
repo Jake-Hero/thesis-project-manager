@@ -3,7 +3,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark static-top" style="background-color: #A020F0;">
     <div class="container">
-        <a class="navbar-brand" href="dashboard.php">
+        <a class="navbar-brand" href="<?php echo ROOT_FOLDER; ?>/dashboard.php">
             <img src="<?php echo ROOT_FOLDER; ?>/assets/images/lpu-b-logo.png" alt="..." height="36">
             <img src="<?php echo ROOT_FOLDER; ?>/assets/images/lpu-ccs-logo.png" alt="..." height="36">
         </a>

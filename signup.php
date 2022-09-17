@@ -6,7 +6,7 @@
 
     if(is_user_login(false))
     {
-        header("Location: dashboard.php");
+        header("Location: " . ROOT_FOLDER. "/dashboard.php");
         die;
     }
 
@@ -147,7 +147,7 @@
 
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="mt-3">
-                                        <a href="login.php" class="text-danger"><strong>Already have an account?</strong></a>
+                                        <a href="<?php echo ROOT_FOLDER; ?>/login.php" class="text-danger"><strong>Already have an account?</strong></a>
                                     </div>
                                 </div>
                             </form>

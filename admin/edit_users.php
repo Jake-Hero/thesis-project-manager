@@ -56,7 +56,7 @@
             <div class="container mt-4 mb-5">
                 <div class="row">
                     <div class="col mb-3">
-                        <a href="<?php echo ROOT_FOLDER; ?>/admin/members.php?page=1"><button type="submit" class="btn btn-warning btn-md">Go Back to the List</button></a>
+                        <button onclick="history.back()" type="submit" class="btn btn-warning btn-md">Go Back to the List</button>
                     </div>
                 </div>
 

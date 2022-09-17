@@ -4,7 +4,7 @@
     
     if(is_user_login(false))
     {
-        header("Location: dashboard.php");
+        header("Location: " . ROOT_FOLDER . "/dashboard.php");
         die;
     }
 

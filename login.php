@@ -6,7 +6,7 @@
 
     if(is_user_login(false))
     {
-        header("Location: dashboard.php");
+        header("Location: " . ROOT_FOLDER . "/dashboard.php");
         die;
     }
 
@@ -99,9 +99,12 @@
                                     <button type="submit" name="login" class="rounded-pill btn btn-warning border border-light btn-lg">Login</button>
                                 </div>
 
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="mt-3">
-                                        <a href="signup.php" class="text-danger"><strong>Don't have an account?</strong></a>
+                                <div class="align-items-center">
+                                    <div class="row mt-3">
+                                        <a href="<?php echo ROOT_FOLDER; ?>/forgot_password.php" class="text-danger"><strong>Forgot your password?</strong></a>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <a href="<?php echo ROOT_FOLDER; ?>/signup.php" class="text-danger"><strong>Don't have an account?</strong></a>
                                     </div>
                                 </div>
                             </form>

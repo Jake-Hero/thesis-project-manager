@@ -8,7 +8,7 @@
 
     if(is_user_verified())
     {
-        header("Location: dashboard.php");
+        header("Location: " . ROOT_FOLDER . "/dashboard.php");
         die;
     }
 
@@ -22,7 +22,7 @@
         {
             if(is_user_verified())
             {
-                header("Location: dashboard.php");
+                header("Location: " . ROOT_FOLDER . "/dashboard.php");
                 die;
             }
             else
@@ -66,7 +66,7 @@
                             </script>                        
                         ";
 
-                        header("Location: profile.php");
+                        header("Location: " . ROOT_FOLDER . "/profile.php");
                     }
                     else 
                     {
@@ -75,25 +75,25 @@
                         $insert_stm->bindValue(':email', $vars['email']);
                         $insert_stm->execute();
 
-                        $errors['fail'] = "The code has expired!";
+                        $errors['error_message'] = "The code has expired!";
                     }
                 }
                 else 
                 {
-                    $errors['fail'] = "You have typed the wrong code!";
+                    $errors['error_message'] = "You have typed the wrong code!";
                 }                
             }
         }
     }
 
-    require('header.php');
+    require('includes/header.php');
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
         <?php require('head.php')?>
-        <title>Thesis & Capstone Manager - Admin Panel</title>
+        <title>Thesis & Capstone Manager - Verification</title>
     </head>
 
     <body>  
@@ -103,43 +103,25 @@
                     <div class="row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center h-100">
                         <div class="col-md-6">
                             <form method="post" enctype="multipart/form-data" class="bg-white px-4 py-3 border border-dark" style="--bs-bg-opacity: .5;">
-                                <h1>Verification Code</h1>
+                                <h1 class="text-center">Verification Code</h1>
 
-                                <?php if(!empty($errors['fail'])): ?>
-                                    <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
-                                        <i class='fas fa-exclamation-triangle'></i>
-                                        <div class ="mx-3">
-                                            <?php echo $errors['fail'];?>
-                                        </div>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if(!empty($_SESSION['message'])): ?>
-                                    <div class="alert alert-success d-flex align-items-center fade show">
-                                        <div class ="mx-3">
-                                            <?php echo $_SESSION['message']; ?>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-
-                                <?php if(!empty($_SESSION['message_error'])): ?>
+                                <?php if(!empty($_SESSION['error_message'])): ?>
                                     <div class="alert alert-danger d-flex align-items-center fade show">
                                         <i class='fas fa-exclamation-triangle'></i>
                                         <div class ="mx-3">
-                                            <?php echo $_SESSION['message_error'];?>
+                                            <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
                                         </div>
                                     </div>
                                 <?php endif; ?>
 
                                 <div class="col">
-                                    <label for="" class="col col-form-label">Please put code here</label>
+                                    <label for="" class="col col-form-label">Please put your code here</label>
                                     <input type="text" name="code" class="col form-control" placeholder="Code">
                                 </div>
 
                                 <div class="d-flex justify-content-center align-items-center">
                                     <div class="mt-3">
-                                        <a href="profile.php" class="text-danger"><strong>Go back to Edit My Profile</strong></a>
+                                        <a href="<?php echo ROOT_FOLDER; ?>/profile.php" class="text-danger"><strong>Go back to Edit My Profile</strong></a>
                                     </div>
                                 </div>
 

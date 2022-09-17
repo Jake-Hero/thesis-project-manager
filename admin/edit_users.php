@@ -84,15 +84,21 @@
                         <?php endif; ?>
 
                         <div class="alert alert-warning d-flex align-items-center fade show">
-                            <i class='fas fa-exclamation-triangle'></i>
                             <div class ="mx-3">
                                 This user was last seen on <?php echo $row['last_seen']; ?>
                             </div>
                         </div>
 
                         <div class="row">
+
                             <div class="col-md-3 border-end">
                                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                                    <div class="alert alert-success d-flex align-items-center fade show">
+                                        <div class ="mx-3">
+                                            Registration Date: <strong><?php echo $row['date']; ?></strong></label>
+                                        </div>
+                                    </div>
+                                
                                     <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$row['image'] ?>" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
                                     <span class="text-black-50 mt-2">Profile Picture</span>
                                 </div>
@@ -223,7 +229,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'GET', 
-                        url: 'src/delete_user.php',
+                        url: '/thesis-project-manager/src/delete_user.php',
                         data: {'user_id' : id},
                         success: function(response) {
                             if(response=="success") {
@@ -232,7 +238,7 @@
                                     'You have deleted the user.',
                                     'success'
                                 ).then(function() {
-                                    window.location.href = "/admin/members.php?page=1";
+                                    window.location.href = "/thesis-project-manager/admin/members.php?page=1";
                                 });
                             } else {
                                 Swal.fire(

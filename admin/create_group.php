@@ -51,7 +51,7 @@
 
                             <div class="form-group">
                                 <label for="" class="mt-4">Group Leader</label>
-                                <input type="text" name="group_leader" class="col-sm-10 form-control" placeholder="Enter the User ID or User Name">
+                                <input type="text" name="group_leader" class="col-sm-10 form-control" placeholder="Enter the ID, Full Name or User Name">
                             </div>                    
 
                             <div class="d-flex justify-content-center">

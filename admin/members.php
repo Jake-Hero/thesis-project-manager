@@ -15,7 +15,7 @@
     }
     else
     {
-        header("Location: " . ROOT_FOLDER . "members.php?page=1");
+        header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
         die;
     }
 
@@ -120,8 +120,6 @@
                                                             <option value="z-a" <?php if(isset($_GET['sort']) && $_GET['sort'] == "z-a") echo 'selected' ?>>Sort by Full Name (Z-A)</option>
                                                             <option value="id_desc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "id_desc") echo 'selected' ?>>Sort by User ID (Highest to Lowest)</option>
                                                             <option value="id_asc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "id_asc") echo 'selected' ?>>Sort by User ID (Lowest to Highest)</option>
-                                                            <option value="date_desc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "date_desc") echo 'selected' ?>>Sort by Date Registration (Newest to Oldest)</option>
-                                                            <option value="date_asc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "date_asc") echo 'selected' ?>>Sort by Date Registration (Oldest to Newest)</option>
                                                         </select>
                                                     </div>
                                                     <div class="col">
@@ -170,12 +168,6 @@
                                     {
                                         $search = '%' . $_GET['search'] . '%';
 
-                                        $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword";
-                                        $selectStmt = $con->prepare($query);
-                                        $selectStmt->bindValue(':keyword', $search);
-                                        $selectStmt->execute();
-                                        $total = $selectStmt->fetchColumn();
-
                                         $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword LIMIT :offset, :no_of_records";
                                         $selectStmt = $con->prepare($query);
                                         $selectStmt->bindValue(':keyword', $search);
@@ -185,8 +177,6 @@
                                         
                                         $total_rows = $selectStmt->fetchColumn();
                                         $total_pages = ceil($total_rows / $no_of_records_per_page);
-
-                                        $search = '%' . $_GET['search'] . '%';
 
                                         switch($_GET['sort'])
                                         {
@@ -202,12 +192,6 @@
                                             case "id_asc":
                                                 $selectStmt = $con->prepare('SELECT * FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword ORDER BY id ASC LIMIT :offset, :no_of_records'); 
                                                 break;
-                                            case "date_desc":
-                                                $selectStmt = $con->prepare('SELECT * FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword ORDER BY date DESC LIMIT :offset, :no_of_records');                                    
-                                                break;
-                                            case "date_asc":
-                                                $selectStmt = $con->prepare('SELECT * FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword ORDER BY date ASC LIMIT :offset, :no_of_records'); 
-                                                break;
                                             default: 
                                                 $selectStmt = $con->prepare('SELECT * FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword ORDER BY id ASC LIMIT :offset, :no_of_records');
                                                 break;
@@ -218,12 +202,6 @@
                                     else if(isset($_GET['search']))
                                     {
                                         $search = '%' . $_GET['search'] . '%';
-
-                                        $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword";
-                                        $selectStmt = $con->prepare($query);
-                                        $selectStmt->bindValue(':keyword', $search);
-                                        $selectStmt->execute();
-                                        $total = $selectStmt->fetchColumn();
 
                                         $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword LIMIT :offset, :no_of_records";
                                         $selectStmt = $con->prepare($query);
@@ -240,12 +218,13 @@
                                     }
                                     else if(isset($_GET['sort']))
                                     {
-                                        $query = "SELECT COUNT(*) FROM users";
+                                        $query = "SELECT COUNT(*) FROM users LIMIT :offset, :no_of_records";
                                         $selectStmt = $con->prepare($query);
+                                        $selectStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+                                        $selectStmt->bindValue(':no_of_records', $no_of_records_per_page, PDO::PARAM_INT);
                                         $selectStmt->execute();
                                         
                                         $total_rows = $selectStmt->fetchColumn();
-                                        $total = $total_rows;
                                         $total_pages = ceil($total_rows / $no_of_records_per_page);      
 
                                         switch($_GET['sort'])
@@ -262,17 +241,11 @@
                                             case "id_asc":
                                                 $selectStmt = $con->prepare('SELECT * FROM users ORDER BY id ASC LIMIT :offset, :no_of_records'); 
                                                 break;
-                                            case "date_desc":
-                                                $selectStmt = $con->prepare('SELECT * FROM users ORDER BY date DESC LIMIT :offset, :no_of_records');                                    
-                                                break;
-                                            case "date_asc":
-                                                $selectStmt = $con->prepare('SELECT * FROM users ORDER BY date ASC LIMIT :offset, :no_of_records'); 
-                                                break;
                                             default: 
                                                 $selectStmt = $con->prepare('SELECT * FROM users ORDER BY id ASC LIMIT :offset, :no_of_records');
                                                 break;
                                         }
-                                    }
+                                    } 
                                     else 
                                     {
                                         $query = "SELECT COUNT(*) FROM users";
@@ -324,13 +297,17 @@
                                     Page <?php echo $page_number." of ".$total_pages; ?>
                                 </div>
 
+                                <div class="mb-3 text-center text-black-50">
+                                    Queries found: <?php echo $total_rows; ?>
+                                </div>
+
                                 <div class="text-center">
                                     <nav aria-label="Page navigation example mt-5">
                                         <ul class="pagination justify-content-center">
                                             <li class="page-item <?php if($page_number <= 1){ echo 'disabled'; } ?>">
                                                 <a class="page-link"
                                                     href="<?php 
-                                                            echo $_SERVER['PHP_SELF']; 
+                                                            echo ROOT_FOLDER. '/admin/members.php'; 
                                                             
                                                             if($page_number <= 1)
                                                             { 
@@ -344,7 +321,7 @@
                                                             } 
                                                             else 
                                                             { 
-                                                                echo $_SERVER['PHP_SELF']; 
+                                                                echo ROOT_FOLDER. '/admin/members.php'; 
 
                                                                 echo "?page=" . $prev_page; 
                                                                 
@@ -360,7 +337,7 @@
                                             <li class="page-item <?php if($page_number == $i) {echo 'active'; } ?>">
                                                 <a class="page-link" href="
                                                 <?php 
-                                                    echo $_SERVER['PHP_SELF']. '?page=' .$i;
+                                                    echo ROOT_FOLDER. '/admin/members.php?page=' .$i;
                                                     
                                                     if(isset($_GET['sort']))
                                                         echo '&sort=' .$_GET['sort'];
@@ -375,7 +352,7 @@
                                                 <a class="page-link"
                                                     href="
                                                     <?php 
-                                                        echo $_SERVER['PHP_SELF']; 
+                                                        echo ROOT_FOLDER. '/admin/members.php'; 
                                                         if($page_number >= $total_pages)
                                                         {
                                                             echo '?page=1'; 

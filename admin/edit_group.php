@@ -33,7 +33,7 @@
 
     if($_SERVER['REQUEST_METHOD'] == 'POST')
     {
-        if(isset($_POST['save']))
+        if(isset($_POST['editbtn']))
         {
             $row = adminEditGroup($row['groupid']);
         }
@@ -86,7 +86,15 @@
                         <div class="row">
                             <div class="col-md-3 border-end">   
                                 <div class="d-flex flex-column text-left">
+                                    <div class="alert alert-success d-flex align-items-center fade show">
+                                        <div class ="mx-3">
+                                            Created on: <strong><?php echo $row['creation']; ?></strong></label>
+                                        </div>
+                                    </div>
+
                                     <label for="" class="mt-4"><strong>Members:</strong></label>
+
+                                    <ul class="list-group">
 
                                     <?php
                                         $query = "SELECT fullname FROM users WHERE group_id = :id LIMIT 1;";
@@ -96,7 +104,6 @@
                                         $rows = $selectStm->fetch(PDO::FETCH_ASSOC);
                                     ?>
 
-                                    <ul class="list-group">
                                         <li class="list-group-item"><?php echo $rows['fullname']; ?> <strong>(Leader)</strong></li>
                                         <?php endif; ?>
 
@@ -126,12 +133,22 @@
 
                                     <div class="form-group">
                                         <label for="" class="mt-4">Change Group Leader</label>
-                                        <input type="text" name="group_leader" class="col-sm-10 form-control" placeholder="Enter ID or Username (<?php echo getFullName($row['group_leader']); ?>)">
+                                        <input type="text" name="group_leader" class="col-sm-10 form-control" placeholder="Enter ID, Full Name or Username (<?php echo getFullName($row['group_leader']); ?>)">
                                     </div>                        
+
+                                    <div class="form-group">
+                                        <label for="" class="mt-4">Add Member</label>
+                                        <input type="text" name="add_member" class="col-sm-10 form-control" placeholder="Enter ID, Full Name or Username)">
+                                    </div>       
+
+                                    <div class="form-group">
+                                        <label for="" class="mt-4">Remove Member</label>
+                                        <input type="text" name="remove_member" class="col-sm-10 form-control" placeholder="Enter ID, Full Name or Username)">
+                                    </div>       
 
                                     <div class="d-flex justify-content-center">
                                         <div class="row mt-5 col-md-5">
-                                            <input type="submit" name="createbtn" value="Edit" class="rounded-pill btn btn-lg text-light" style="background-color: #A020F0;">
+                                            <input type="submit" name="editbtn" value="Edit" class="rounded-pill btn btn-lg text-light" style="background-color: #A020F0;">
                                         </div>
                                     </div>
                                 </form>

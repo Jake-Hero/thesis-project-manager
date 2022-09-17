@@ -493,100 +493,109 @@ function adminEditProfile($str)
     $query = "SELECT * FROM users WHERE username = :username limit 1;";
     $select_stm = $con->prepare($query);
     $select_stm->execute(['username' => $username]);
-    $row = $select_stm->fetch(PDO::FETCH_ASSOC);
 
-    if(!empty($_POST['email']) && $_POST['email'] == $row['email'])
+    if($select_stm->rowCount() > 0)
     {
-        $_SESSION['error_message'] = "Your new email cannot be the same as your old one!";
-    }        
-    else if(!empty($_POST['password']) && password_verify($_POST['password'], $row['password']))
-    {
-        $_SESSION['error_message'] = "Your new password cannot be the same as your old one!";
-    }
-    else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z ]+$/', $_POST['fullname']))
-    {
-        $_SESSION['error_message'] = "Enter a valid full name!";
-    }
-    else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z]+$/', $_POST['username']))
-    {
-        $_SESSION['error_message'] = "Enter a valid username!";
-    }
-    else 
-    {
-        if(!empty($_POST['username']))
-        {
-            $query = "SELECT COUNT(*) FROM users WHERE username = :username limit 1;";
-            $countStm = $con->prepare($query);
-            $countStm->execute(['username' => $_POST['username']]);
-            $existing_username = $countStm->fetchColumn();
-        }
-        if(!empty($_POST['email']))
-        {
-            $query = "SELECT COUNT(*) FROM users WHERE email = :email limit 1;";
-            $countStm = $con->prepare($query);
-            $countStm->execute(['email' => $_POST['email']]);
-            $existing_email = $countStm->fetchColumn();
-        }
+        $row = $select_stm->fetch(PDO::FETCH_ASSOC);
 
-        if(!empty($_POST['username']) && $existing_username)
+        if(!empty($_POST['email']) && $_POST['email'] == $row['email'])
         {
-            $_SESSION['error_message'] = "Choose another username, A user is already using that email!";
+            $_SESSION['error_message'] = "Your new email cannot be the same as your old one!";
+        }        
+        else if(!empty($_POST['password']) && password_verify($_POST['password'], $row['password']))
+        {
+            $_SESSION['error_message'] = "Your new password cannot be the same as your old one!";
         }
-        else if(!empty($_POSt['email']) && $existing_email)
+        else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z ]+$/', $_POST['fullname']))
         {
-            $_SESSION['error_message'] = "Choose another email, A user is already using that email!";
+            $_SESSION['error_message'] = "Enter a valid full name!";
+        }
+        else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z]+$/', $_POST['username']))
+        {
+            $_SESSION['error_message'] = "Enter a valid username!";
         }
         else 
         {
-            if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
-                adminuploadImages($row);
-            
+            if(!empty($_POST['username']))
+            {
+                $query = "SELECT COUNT(*) FROM users WHERE username = :username limit 1;";
+                $countStm = $con->prepare($query);
+                $countStm->execute(['username' => $_POST['username']]);
+                $existing_username = $countStm->fetchColumn();
+            }
             if(!empty($_POST['email']))
             {
-                $message = "Your email address " .$row['email']. " was replaced by a new email address.";
-                send_mail($row['email'], "Changed E-Mail", $message);
+                $query = "SELECT COUNT(*) FROM users WHERE email = :email limit 1;";
+                $countStm = $con->prepare($query);
+                $countStm->execute(['email' => $_POST['email']]);
+                $existing_email = $countStm->fetchColumn();
             }
-            if(!empty($_POST['password']))
+
+            if(!empty($_POST['username']) && $existing_username)
             {
-                $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-                $message = "Your password was changed;";
-                send_mail($row['email'], "Changed password", $message);
+                $_SESSION['error_message'] = "Choose another username, A user is already using that email!";
             }
+            else if(!empty($_POST['email']) && $existing_email)
+            {
+                $_SESSION['error_message'] = "Choose another email, A user is already using that email!";
+            }
+            else 
+            {
+                if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
+                    adminuploadImages($row);
+                
+                if(!empty($_POST['email']))
+                {
+                    $message = "Your email address " .$row['email']. " was replaced by a new email address.";
+                    send_mail($row['email'], "Changed E-Mail", $message);
+                }
+                if(!empty($_POST['password']))
+                {
+                    $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-            $fullname = NULL;
-            if(!empty($_POST['fullname'])) $fullname = $_POST['fullname'];                
-            $username = NULL;
-            if(!empty($_POST['username'])) $username = $_POST['username'];
-            $email = NULL;
-            if(!empty($_POST['email'])) $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
-            $role = NULL;
-            if(!empty($_POST['role']) && $_POST['role'] >= 0) $role = $_POST['role'];
+                    $message = "Your password was changed;";
+                    send_mail($row['email'], "Changed password", $message);
+                }
 
-            $query = "UPDATE users SET 
-                        fullname = COALESCE(:fullname, fullname),
-                        username = COALESCE(:username, username),
-                        email = COALESCE(:email, email),
-                        password = COALESCE(:password, password),
-                        role = COALESCE(:role, role)
-                        WHERE id = :id";
+                $fullname = NULL;
+                if(!empty($_POST['fullname'])) $fullname = $_POST['fullname'];                
+                $username = NULL;
+                if(!empty($_POST['username'])) $username = $_POST['username'];
+                $email = NULL;
+                if(!empty($_POST['email'])) $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+                $role = NULL;
+                if(!empty($_POST['role']) && $_POST['role'] >= 0) $role = $_POST['role'];
 
-            $updateStmt = $con->prepare($query);
-            $updateStmt->bindValue(':fullname', $fullname, PDO::PARAM_STR);
-            $updateStmt->bindValue(':username', $username, PDO::PARAM_STR);
-            $updateStmt->bindValue(':email', $email, PDO::PARAM_STR);
-            $updateStmt->bindValue(':password', $hashed_password, PDO::PARAM_STR);
-            $updateStmt->bindValue(':role', $role, PDO::PARAM_STR);
-            $updateStmt->bindValue(':id', $row['id'], PDO::PARAM_INT);
-            $updateStmt->execute();
-        
-            $_SESSION['success_message'] = "Changes to this profile has been saved!";
+                $query = "UPDATE users SET 
+                            fullname = COALESCE(:fullname, fullname),
+                            username = COALESCE(:username, username),
+                            email = COALESCE(:email, email),
+                            password = COALESCE(:password, password),
+                            role = COALESCE(:role, role)
+                            WHERE id = :id";
 
-            $query = "SELECT * FROM users WHERE id = :id LIMIT 1;";
-            $selectStm = $con->prepare($query);
-            $selectStm->execute(['id' => $row['id']]);
-            $row = $selectStm->fetch(PDO::FETCH_ASSOC);
+                $updateStmt = $con->prepare($query);
+                $updateStmt->bindValue('fullname', $fullname, PDO::PARAM_STR);
+                $updateStmt->bindValue('username', $username, PDO::PARAM_STR);
+                $updateStmt->bindValue('email', $email, PDO::PARAM_STR);
+                $updateStmt->bindValue('password', $hashed_password, PDO::PARAM_STR);
+                $updateStmt->bindValue('role', $role, PDO::PARAM_STR);
+                $updateStmt->bindValue('id', $row['id'], PDO::PARAM_INT);
+                $updateStmt->execute();
+            
+                header("Refresh:0");
+                $_SESSION['success_message'] = "Changes to this profile has been saved!";
+            
+                $query = "SELECT * FROM users WHERE username = :username limit 1;";
+                $select_stm = $con->prepare($query);
+                $select_stm->execute(['username' => $username]);
+                $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+            }
         }
+    }
+    else 
+    {
+        header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
     }
     return $row;
 }
@@ -772,9 +781,10 @@ function create_group($data)
     // no error 
     if(count($errors) == 0)
     {
-        $query = "SELECT id, group_id FROM users WHERE id = :user_id OR username = :user_name";
+        $query = "SELECT id, group_id FROM users WHERE id = :user_id OR fullname = :full_name OR username = :user_name";
         $select_stm = $con->prepare($query);
         $select_stm->bindValue('user_id', (int) $data['group_leader'], PDO::PARAM_INT);
+        $select_stm->bindValue('full_name', $data['group_leader']);
         $select_stm->bindValue('user_name', $data['group_leader']);
         $select_stm->execute();
 
@@ -809,108 +819,142 @@ function create_group($data)
 
 function adminEditGroup($id)
 {
-    global $con;
+    global $con; 
 
-    $hashed_password = NULL;
-    $username = $str;     
+    $query = "SELECT * FROM groups WHERE groupid = :id limit 1;";
+    $selectStmt = $con->prepare($query);
+    $selectStmt->execute(['id' => $id]);
 
-    $query = "SELECT * FROM users WHERE username = :username limit 1;";
-    $select_stm = $con->prepare($query);
-    $select_stm->execute(['username' => $username]);
-    $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+    if($selectStmt->rowCount() > 0)
+    {
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
 
-    if(!empty($_POST['email']) && $_POST['email'] == $row['email'])
-    {
-        $_SESSION['error_message'] = "Your new email cannot be the same as your old one!";
-    }        
-    else if(!empty($_POST['password']) && password_verify($_POST['password'], $row['password']))
-    {
-        $_SESSION['error_message'] = "Your new password cannot be the same as your old one!";
-    }
-    else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z ]+$/', $_POST['fullname']))
-    {
-        $_SESSION['error_message'] = "Enter a valid full name!";
-    }
-    else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z]+$/', $_POST['username']))
-    {
-        $_SESSION['error_message'] = "Enter a valid username!";
-    }
-    else 
-    {
-        if(!empty($_POST['username']))
+        if((!empty($_POST['add_member']) && !empty($_POST['remove_member'])) && $_POST['add_member'] == $_POST['remove_member'])
         {
-            $query = "SELECT COUNT(*) FROM users WHERE username = :username limit 1;";
-            $countStm = $con->prepare($query);
-            $countStm->execute(['username' => $_POST['username']]);
-            $existing_username = $countStm->fetchColumn();
-        }
-        if(!empty($_POST['email']))
-        {
-            $query = "SELECT COUNT(*) FROM users WHERE email = :email limit 1;";
-            $countStm = $con->prepare($query);
-            $countStm->execute(['email' => $_POST['email']]);
-            $existing_email = $countStm->fetchColumn();
-        }
-
-        if(!empty($_POST['username']) && $existing_username)
-        {
-            $_SESSION['error_message'] = "Choose another username, A user is already using that email!";
-        }
-        else if(!empty($_POSt['email']) && $existing_email)
-        {
-            $_SESSION['error_message'] = "Choose another email, A user is already using that email!";
+            $_SESSION['error_message'] = "You cannot add and remove the same member at the same time!";
         }
         else 
         {
-            if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
-                adminuploadImages($row);
+            if(!empty($_POST['group_leader']))
+            {
+                $query = "SELECT id, group_id FROM users WHERE id = :user_id OR fullname = :fullname OR username = :username";
+                $selectStmt = $con->prepare($query);
+                $selectStmt->bindValue('user_id', $_POST['group_leader'], PDO::PARAM_INT);
+                $selectStmt->bindValue('fullname', $_POST['group_leader']);
+                $selectStmt->bindValue('username', $_POST['group_leader']);
+                $selectStmt->execute();
             
-            if(!empty($_POST['email']))
-            {
-                $message = "Your email address " .$row['email']. " was replaced by a new email address.";
-                send_mail($row['email'], "Changed E-Mail", $message);
+                if($selectStmt->rowCount() > 0)
+                    $leader_row = $selectStmt->fetch();            
             }
-            if(!empty($_POST['password']))
+            if(!empty($_POST['add_member']))
             {
-                $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                $query = "SELECT COUNT(*) FROM users WHERE group_id = :id";
+                $countStmt = $con->prepare($query);
+                $countStmt->bindValue('id', $id, PDO::PARAM_INT);
+                $countStmt->execute();
 
-                $message = "Your password was changed;";
-                send_mail($row['email'], "Changed password", $message);
+                $count = $countStmt->fetchColumn();
+
+                $query = "SELECT id, group_id FROM users WHERE id = :user_id OR fullname = :fullname OR username = :username";
+                $selectStmt = $con->prepare($query);
+                $selectStmt->bindValue('user_id', $_POST['add_member'], PDO::PARAM_INT);
+                $selectStmt->bindValue('fullname', $_POST['add_member']);
+                $selectStmt->bindValue('username', $_POST['add_member']);
+                $selectStmt->execute();
+
+                if($selectStmt->rowCount() > 0)
+                    $add_row = $selectStmt->fetch();
             }
 
-            $fullname = NULL;
-            if(!empty($_POST['fullname'])) $fullname = $_POST['fullname'];                
-            $username = NULL;
-            if(!empty($_POST['username'])) $username = $_POST['username'];
-            $email = NULL;
-            if(!empty($_POST['email'])) $email = $_POST['email'];
-            $role = NULL;
-            if(!empty($_POST['role']) && $_POST['role'] >= 0) $role = $_POST['role'];
+            if(!empty($_POST['remove_member']))
+            {
+                $query = "SELECT id, group_id FROM users WHERE id = :user_id OR fullname = :fullname OR username = :username";
+                $deleteMmbrStmt = $con->prepare($query);
+                $deleteMmbrStmt->bindValue('user_id', $_POST['remove_member'], PDO::PARAM_INT);
+                $deleteMmbrStmt->bindValue('fullname', $_POST['remove_member']);
+                $deleteMmbrStmt->bindValue('username', $_POST['remove_member']);
+                $deleteMmbrStmt->execute();
 
-            $query = "UPDATE users SET 
-                        fullname = COALESCE(:fullname, fullname),
-                        username = COALESCE(:username, username),
-                        email = COALESCE(:email, email),
-                        password = COALESCE(:password, password),
-                        role = COALESCE(:role, role)
-                        WHERE id = :id";
+                if($deleteMmbrStmt->rowCount() > 0)
+                    $delete_row = $deleteMmbrStmt->fetch();
+            }
 
-            $updateStmt = $con->prepare($query);
-            $updateStmt->bindValue(':fullname', $fullname, PDO::PARAM_STR);
-            $updateStmt->bindValue(':username', $username, PDO::PARAM_STR);
-            $updateStmt->bindValue(':email', $email, PDO::PARAM_STR);
-            $updateStmt->bindValue(':password', $hashed_password, PDO::PARAM_STR);
-            $updateStmt->bindValue(':role', $role, PDO::PARAM_STR);
-            $updateStmt->bindValue(':id', $row['id'], PDO::PARAM_INT);
-            $updateStmt->execute();
-        
-            $_SESSION['success_message'] = "Changes to this profile has been saved!";
+            if(!empty($_POST['add_member']) && $count >= 5)
+            {
+                $_SESSION['error_message'] = "This thesis group can only have a maximum of five members!";
+            }
+            else if((!empty($_POST['group_leader']) && $leader_row['group_id'] > 0) || (!empty($_POST['add_member']) && $add_row['group_id'] > 0))
+            {
+                $_SESSION['error_message'] = "That user is already a leader or member of a thesis group!";
+            }
+            else if(!empty($_POST['remove_member']) && $delete_row['group_id'] != $id)
+            {
+                $_SESSION['error_message'] = "That user is not a member of this group!";
+            }
+            else 
+            {
+                $group_title = NULL;
+                if(!empty($_POST['group_title'])) $group_title = $_POST['group_title'];                
+                $leader = NULL;
+                if(!empty($_POST['group_leader'])) $leader = $leader_row['id'];
+                
+                if(!empty($_POST['group_leader']))
+                {
+                    $query = "UPDATE users SET group_id = :id WHERE id = :user_id";
+                    $updateStmt = $con->prepare($query);
+                    $updateStmt->bindValue('id', $id, PDO::PARAM_INT);
+                    $updateStmt->bindValue('user_id', $leader_row['id'], PDO::PARAM_INT);
+                    $updateStmt->execute();
+                }
+                if(!empty($_POST['add_member']))
+                {
+                    $query = "UPDATE users SET group_id = :id WHERE id = :user_id";
+                    $updateStmt = $con->prepare($query);
+                    $updateStmt->bindValue('id', $id, PDO::PARAM_INT);
+                    $updateStmt->bindValue('user_id', $add_row['id'], PDO::PARAM_INT);
+                    $updateStmt->execute();
+                }
 
-            $query = "SELECT * FROM users WHERE id = :id LIMIT 1;";
-            $selectStm = $con->prepare($query);
-            $selectStm->execute(['id' => $row['id']]);
-            $row = $selectStm->fetch(PDO::FETCH_ASSOC);
+                if(!empty($_POST['remove_member']))
+                {
+                    $query = "UPDATE users SET group_id = 0 WHERE id = :user_id";
+                    $updateStmt = $con->prepare($query);
+                    $updateStmt->bindValue('user_id', $delete_row['id'], PDO::PARAM_INT);
+                    $updateStmt->execute();
+
+                    if($row['group_leader'] == $delete_row['id'])
+                    {
+                        $query = "UPDATE users SET group_leader = 0 WHERE id = :user_id";
+                        $updateStmt = $con->prepare($query);
+                        $updateStmt->bindValue('user_id', $delete_row['id'], PDO::PARAM_INT);
+                        $updateStmt->execute();
+                    }
+                }
+
+                $query = "UPDATE groups SET 
+                            group_leader = COALESCE(:leader, group_leader),
+                            group_title = COALESCE(:title, group_title) 
+                            WHERE groupid = :id";
+
+                $updateStmt = $con->prepare($query);
+                $updateStmt->bindValue('leader', $leader, PDO::PARAM_INT);
+                $updateStmt->bindValue('title', $group_title, PDO::PARAM_STR);
+                $updateStmt->bindValue('id', $id, PDO::PARAM_INT);
+                $updateStmt->execute();
+            
+                $_SESSION['success_message'] = "Changes to the group has been saved!";
+            
+                $query = "SELECT * FROM groups WHERE groupid = :id limit 1;";
+                $selectStmt = $con->prepare($query);
+                $selectStmt->execute(['id' => $id]);
+                $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+            }
         }
+    }
+    else 
+    {
+        header("Location: " . ROOT_FOLDER . "/admin/group.php?page=1");
     }
     return $row;
 }

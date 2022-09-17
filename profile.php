@@ -68,6 +68,12 @@
                         <div class="row">
                             <div class="col-md-3 border-end">
                                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                                    <div class="alert alert-success d-flex align-items-center fade show">
+                                        <div class ="mx-3">
+                                            Registration Date: <strong><?php echo $_SESSION['user']['date']; ?></strong></label>
+                                        </div>
+                                    </div>
+                                
                                     <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$_SESSION['user']['image'] ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
                                     <span class="text-black-50 mt-2">Preview Profile Picture</span>
                                 </div>

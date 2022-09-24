@@ -801,11 +801,15 @@ function create_group($data)
                 $query = "INSERT INTO groups (creation, group_leader, group_title) VALUES(:creation, :leader, :title)";
                 $insert_stm = $con->prepare($query);
                 $insert_stm->execute(['creation' => date("Y-m-d H:i:s"), 'leader' => $row['id'], 'title' => $data['group_title']]);
-            
+                $groupid = $con->lastInsertId();
+
                 $query = "UPDATE users SET group_id = :groupid WHERE id = :leader";
                 $updateStmt = $con->prepare($query);
-                $updateStmt->execute(['groupid' => $con->lastInsertId(), 'leader' => $row['id']]);
+                $updateStmt->execute(['groupid' => $groupid, 'leader' => $row['id']]);
             
+                log_group($groupid, $_SESSION['user']['fullname'] . " created the thesis group.");
+                log_group($groupid, $_SESSION['user']['fullname'] . " has assigned " . getFullName($row['id']) . " as the group leader.");
+
                 header("Location: " . ROOT_FOLDER . "/admin/edit_group.php?id=" .$con->lastInsertId());
             }
         }
@@ -815,6 +819,27 @@ function create_group($data)
         }
     }
     return $errors;
+}
+
+function log_group($groupid, $details)
+{
+    global $con;
+   
+    $query = "SELECT COUNT(*) FROM groups WHERE groupid = :id";
+    $selectStmt = $con->prepare($query);
+    $selectStmt->bindValue('id', $groupid, PDO::PARAM_INT);
+    $selectStmt->execute();
+
+    if($selectStmt->fetchColumn() > 0)
+    {
+        $query = "INSERT INTO group_logs (groupid, log_date, log_details) VALUES(:id, :date, :details)";
+        $selectStmt = $con->prepare($query);
+        $selectStmt->bindValue('id', $groupid, PDO::PARAM_INT);
+        $selectStmt->bindValue('date', date("Y-m-d H:i:s"));
+        $selectStmt->bindValue('details', $details);
+        $selectStmt->execute();        
+    }
+    return true;
 }
 
 function adminEditGroup($id)
@@ -895,7 +920,12 @@ function adminEditGroup($id)
             else 
             {
                 $group_title = NULL;
-                if(!empty($_POST['group_title'])) $group_title = $_POST['group_title'];                
+                if(!empty($_POST['group_title'])) 
+                {
+                    $group_title = $_POST['group_title'];     
+                    log_group($id, $_SESSION['user']['fullname'] . " has changed the thesis title.");
+                }
+                    
                 $leader = NULL;
                 if(!empty($_POST['group_leader'])) $leader = $leader_row['id'];
                 
@@ -906,6 +936,8 @@ function adminEditGroup($id)
                     $updateStmt->bindValue('id', $id, PDO::PARAM_INT);
                     $updateStmt->bindValue('user_id', $leader_row['id'], PDO::PARAM_INT);
                     $updateStmt->execute();
+
+                    log_group($id, $_SESSION['user']['fullname'] . " has given the leader status to " . getFullName($leader_row['id']));
                 }
                 if(!empty($_POST['add_member']))
                 {
@@ -914,6 +946,8 @@ function adminEditGroup($id)
                     $updateStmt->bindValue('id', $id, PDO::PARAM_INT);
                     $updateStmt->bindValue('user_id', $add_row['id'], PDO::PARAM_INT);
                     $updateStmt->execute();
+
+                    log_group($id, $_SESSION['user']['fullname'] . " has added " . getFullName($add_row['id']) . " to the group.");
                 }
 
                 if(!empty($_POST['remove_member']))
@@ -930,6 +964,8 @@ function adminEditGroup($id)
                         $updateStmt->bindValue('user_id', $delete_row['id'], PDO::PARAM_INT);
                         $updateStmt->execute();
                     }
+
+                    log_group($id, $_SESSION['user']['fullname'] . " has removed " . getFullName($delete_row['id']) . " from the group.");
                 }
 
                 $query = "UPDATE groups SET 

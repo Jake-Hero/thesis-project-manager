@@ -51,14 +51,14 @@
         <title>Thesis & Capstone Manager - Edit Group</title>   
         
         <style>
-            .list-group {
-                font-size: 80%;
+            .card-body #members {
+                font-size: 85%;
             }
         </style>
     </head>
 
     <body> 
-        <div class="wrapper">
+        <div class="grey-wrapper">
             <div class="container mt-4 mb-5">
                 <div class="card container-fluid">
                     <div class="card-header"><?php echo "You are now viewing and editing Thesis Title/Group: " .$row['group_title']; ?></div>
@@ -86,41 +86,55 @@
                         <div class="row">
                             <div class="col-md-3 border-end">   
                                 <div class="d-flex flex-column text-left">
-                                    <div class="alert alert-success d-flex align-items-center fade show">
-                                        <div class ="mx-3">
-                                            Created on: <strong><?php echo $row['creation']; ?></strong></label>
-                                        </div>
-                                    </div>
-
-                                    <label for="" class="mt-4"><strong>Members:</strong></label>
-
-                                    <ul class="list-group">
 
                                     <?php
-                                        $query = "SELECT fullname FROM users WHERE group_id = :id LIMIT 1;";
+                                        $query = "SELECT fullname, image FROM users WHERE id = :id LIMIT 1;";
                                         $selectStm = $con->prepare($query);
-                                        $selectStm->execute(['id' => $row['groupid']]);
+                                        $selectStm->execute(['id' => $row['group_leader']]);
                                         if($selectStm->rowCount() > 0):
                                         $rows = $selectStm->fetch(PDO::FETCH_ASSOC);
                                     ?>
 
-                                        <li class="list-group-item"><?php echo $rows['fullname']; ?> <strong>(Leader)</strong></li>
-                                        <?php endif; ?>
+                                    <label for="" class="border-bottom border-dark text-center mt-4">Thesis Leader</label>
+                                    
+                                    <div class="text-center mt-3">
+                                        <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$rows['image'] ?>" class="rounded-circle shadow-sm border-info img-sm mr-3" style="width: 40px; height: 40px;" alt="Avatar" />
+                                        <p class="border-bottom border-light mt-2"><?php echo $rows['fullname']; ?></p>        
+                                    </div>
 
-                                        <?php
-                                        $query = "SELECT id, fullname FROM users WHERE group_id = :id";
-                                        $selectStm = $con->prepare($query);
-                                        $selectStm->execute(['id' => $row['groupid']]);
-                                        if($selectStm->rowCount() >= 2):
-                                        while($rows = $selectStm->fetch(PDO::FETCH_ASSOC)): 
-                                        if($row['group_leader'] == $rows['id']) continue;
-                                        ?>
-                                        <li class="list-group-item"><?php echo $rows['fullname']; ?></li>
-                                        <?php endwhile; ?>
-                                        <?php else: ?>
-                                        <li class="list-group-item">No other group members were found.</li>
-                                        <?php endif; ?>
-                                    </ul>  
+                                    <?php endif; ?>
+
+                                    <label for="" class="border-bottom border-info border-4 text-center mt-4">Members</label>
+
+                                    <div class="card">
+                                        <div class="card-body" id="members">
+                                            <div class="row d-flex justify-content-start">
+                                                <?php
+                                                $query = "SELECT id, fullname, image FROM users WHERE group_id = :id";
+                                                $selectStm = $con->prepare($query);
+                                                $selectStm->execute(['id' => $row['groupid']]);
+                                                if($selectStm->rowCount() >= 2):
+                                                while($rows = $selectStm->fetch(PDO::FETCH_ASSOC)): 
+                                                    if($row['group_leader'] == $rows['id']) continue;
+                                                ?>
+
+                                                <div class="col text-center">
+                                                    <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$rows['image'] ?>" class="rounded-circle shadow-sm border-info img-sm mr-3" style="width: 40px; height: 40px;" alt="Avatar" />
+                                                    <p><?php echo $rows['fullname']; ?></p>
+                                                </div>
+                                                
+                                                <?php endwhile; ?>
+
+                                                <?php else: ?>
+
+                                                <div class="col">
+                                                    No other group members were found.
+                                                </div>
+                                            
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>  
                                 </div>  
                             </div>
 
@@ -148,7 +162,7 @@
 
                                     <div class="d-flex justify-content-center">
                                         <div class="row mt-5 col-md-5">
-                                            <input type="submit" name="editbtn" value="Edit" class="rounded-pill btn btn-lg text-light" style="background-color: #A020F0;">
+                                            <input type="submit" name="editbtn" value="Edit" class="rounded-pill btn btn-warning btn-lg">
                                         </div>
                                     </div>
                                 </form>

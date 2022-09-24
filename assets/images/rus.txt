@@ -1,0 +1,6 @@
+send_button.svg(1) : îøèáêà 010: íåâåðíàÿ ôóíêöèÿ èëè îáúÿâëåíèå
+send_button.svg(1) : îøèáêà 013: îòñóòñòâóåò òî÷êà âõîäà (íåò public-ôóíêöèé)
+Pawn compiler 3.2.3664	 	 	Copyright (c) 1997-2016, ITB CompuPhase
+
+
+Îøèáîê:2.

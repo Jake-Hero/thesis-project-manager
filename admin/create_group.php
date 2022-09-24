@@ -26,7 +26,7 @@
     </head>
 
     <body>
-        <div class ="wrapper">
+        <div class ="grey-wrapper">
             <div class="container mt-4">
                 <div class="card container-fluid">
                     <div class="card-header">Create a new Group</div>
@@ -56,7 +56,7 @@
 
                             <div class="d-flex justify-content-center">
                                 <div class="row mt-5 col-md-5">
-                                    <input type="submit" name="createbtn" value="Create" class="rounded-pill btn btn-lg text-light" style="background-color: #A020F0;">
+                                    <input type="submit" name="createbtn" value="Create" class="rounded-pill btn btn-lg btn-warning">
                                 </div>
                             </div>
                         </form>

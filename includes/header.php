@@ -29,10 +29,14 @@
                 <?php endif; ?>
                 </li>
 
+                <li class="nav-item <?php if($currentPage == 'about') echo 'fw-bold'; ?>">
+                    <a class="nav-link active" href="<?php echo ROOT_FOLDER; ?>/about.php">About</a>                    
+                </li>
+
                 <!-- User Profile - Edit, Admin Panel, Logout -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' . $_SESSION['user']['image'] ?>" class="rounded-circle border border-light btn-lg" height="30" alt="Avatar" />
+                        <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' . $_SESSION['user']['image'] ?>" class="rounded-circle" height="30" alt="Avatar" />
                     </a>        
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="<?php echo ROOT_FOLDER; ?>/profile.php">Edit My Profile</a>

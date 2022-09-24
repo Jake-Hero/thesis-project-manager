@@ -95,13 +95,13 @@
     </head>
 
     <body> 
-        <div class="wrapper">
+        <div class="grey-wrapper">
             <div class="mt-4 mb-4 container">  
                 <div class="card">
-                    <div class="card-header">Administrative Panel - Members</div>
+                    <div class="card-header border-bottom border-5 border-success">Administrative Panel - Members</div>
                     <div class="card-body">
                         <div class="table table-responsive w-100 d-block d-md-table">
-                            <div class="table-title mb-3">
+                            <div class="table-title border-bottom border-3 mb-3">
                                 <div class="row d-flex justify-content-between align-items-center">
                                     <div class="col-lg-4">
                                         <div class="form-check mb-0">
@@ -168,11 +168,9 @@
                                     {
                                         $search = '%' . $_GET['search'] . '%';
 
-                                        $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword LIMIT :offset, :no_of_records";
+                                        $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword";
                                         $selectStmt = $con->prepare($query);
                                         $selectStmt->bindValue(':keyword', $search);
-                                        $selectStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-                                        $selectStmt->bindValue(':no_of_records', $no_of_records_per_page, PDO::PARAM_INT);
                                         $selectStmt->execute();
                                         
                                         $total_rows = $selectStmt->fetchColumn();
@@ -203,11 +201,9 @@
                                     {
                                         $search = '%' . $_GET['search'] . '%';
 
-                                        $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword LIMIT :offset, :no_of_records";
+                                        $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) LIKE :keyword";
                                         $selectStmt = $con->prepare($query);
                                         $selectStmt->bindValue(':keyword', $search);
-                                        $selectStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-                                        $selectStmt->bindValue(':no_of_records', $no_of_records_per_page, PDO::PARAM_INT);
                                         $selectStmt->execute();
                                         
                                         $total_rows = $selectStmt->fetchColumn();
@@ -218,10 +214,8 @@
                                     }
                                     else if(isset($_GET['sort']))
                                     {
-                                        $query = "SELECT COUNT(*) FROM users LIMIT :offset, :no_of_records";
+                                        $query = "SELECT COUNT(*) FROM users";
                                         $selectStmt = $con->prepare($query);
-                                        $selectStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-                                        $selectStmt->bindValue(':no_of_records', $no_of_records_per_page, PDO::PARAM_INT);
                                         $selectStmt->execute();
                                         
                                         $total_rows = $selectStmt->fetchColumn();
@@ -321,8 +315,6 @@
                                                             } 
                                                             else 
                                                             { 
-                                                                echo ROOT_FOLDER. '/admin/members.php'; 
-
                                                                 echo "?page=" . $prev_page; 
                                                                 
                                                                 if(isset($_GET['sort']))

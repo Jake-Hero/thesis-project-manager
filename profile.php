@@ -23,7 +23,7 @@
     </head>
 
     <body>
-        <div class ="wrapper">
+        <div class ="grey-wrapper">
             <div class="container mt-4 mb-5">
                 <?php 
                     if(!empty($_SESSION['result_popup']))

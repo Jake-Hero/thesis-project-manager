@@ -18,23 +18,25 @@
     </head>
 
     <body>
-        <?php 
-            if(!is_user_verified())
-            {
-                echo 
-                "
-                    <script type=\"text/javascript\">
-                    swal({
-                        title: \"Verification\",
-                        type: \"warning\",
-                        text: \"You are not verified yet, Please verify your account via 'Edit My Profile'.\",
-                        allowOutsideClick: false,
-                        showConfirmButton: true,
-                        confirmButtonText: 'OK'
-                        });
-                    </script>   
-                "; 
-            }
-        ?>
+        <div class="grey-wrapper">
+            <?php 
+                if(!is_user_verified())
+                {
+                    echo 
+                    "
+                        <script type=\"text/javascript\">
+                        swal({
+                            title: \"Verification\",
+                            type: \"warning\",
+                            text: \"You are not verified yet, Please verify your account via 'Edit My Profile'.\",
+                            allowOutsideClick: false,
+                            showConfirmButton: true,
+                            confirmButtonText: 'OK'
+                            });
+                        </script>   
+                    "; 
+                }
+            ?>
+        </div>
     </body>
 </html>

@@ -451,7 +451,30 @@ function profileSave()
                 }
 
                 $fullname = NULL;
-                if(!empty($_POST['fullname'])) $fullname = $_POST['fullname'];                
+                if(!empty($_POST['fullname'])) 
+                {
+                    $fullname = $_POST['fullname'];       
+                    
+                    $query = "SELECT posted_by FROM comments WHERE posted_by = :name";
+                    $selectStmt = $con->prepare($query);
+                    $selectStmt->bindParam('name', $_SESSION['user']['fullname']);
+                    $selectStmt->execute();
+
+                    if($selectStmt->rowCount() > 0)
+                    {
+                        $result = $selectStmt->fetch();
+
+                        foreach($result as $row)
+                        {
+                            $query = "UPDATE comments SET posted_by = :new_name WHERE posted_by = :old_name";
+                            $selectStmt = $con->prepare($query);
+                            $selectStmt->bindParam('new_name', $fullname);
+                            $selectStmt->bindParam('old_name', $_SESSION['user']['fullname']);
+                            $selectStmt->execute();                            
+                        }
+                    }
+                }
+
                 $username = NULL;
                 if(!empty($_POST['username'])) $username = $_POST['username'];
                 $email = NULL;
@@ -473,6 +496,8 @@ function profileSave()
                 $updateStmt->execute();
             
                 $_SESSION['success_message'] = "Changes to your profile has been saved!";
+            
+                header("Refresh:0");
             }
         }
     }
@@ -558,7 +583,30 @@ function adminEditProfile($str)
                 }
 
                 $fullname = NULL;
-                if(!empty($_POST['fullname'])) $fullname = $_POST['fullname'];                
+                if(!empty($_POST['fullname'])) 
+                {
+                    $fullname = $_POST['fullname'];
+                
+                    $query = "SELECT posted_by FROM comments WHERE posted_by = :name";
+                    $selectStmt = $con->prepare($query);
+                    $selectStmt->bindParam('name', $_SESSION['user']['fullname']);
+                    $selectStmt->execute();
+
+                    if($selectStmt->rowCount() > 0)
+                    {
+                        $result = $selectStmt->fetch();
+
+                        foreach($result as $row)
+                        {
+                            $query = "UPDATE comments SET posted_by = :new_name WHERE posted_by = :old_name";
+                            $selectStmt = $con->prepare($query);
+                            $selectStmt->bindParam('new_name', $fullname);
+                            $selectStmt->bindParam('old_name', $_SESSION['user']['fullname']);
+                            $selectStmt->execute();                            
+                        }
+                    }
+                }
+                    
                 $username = NULL;
                 if(!empty($_POST['username'])) $username = $_POST['username'];
                 $email = NULL;

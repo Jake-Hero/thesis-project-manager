@@ -47,65 +47,40 @@
                 font-size: 19px;
             }
 
-            ul {
-                list-style-type: none;
+            #comment-content
+            { 
+                height: 70vh; 
+                overflow-x: scroll; 
+                overflow-y: auto;
+                width: 100%; 
             }
 
-            .comment-row {
-                border-bottom: #e0dfdf 1px solid;
-                margin-bottom: 15px;
-                padding: 15px;
-            }
-
-            .outer-comment {
-                background: #F0F0F0;
-                padding: 20px;
-                border: #dedddd 1px solid;
-                border-radius: 4px;
-            }
-
-            span.comment-row-label {
-                color: #484848;
-            }
-
-            span.posted-by {
-                font-weight: bold;
-            }
-
-            .comment-info {
-                font-size: 0.9em;
-                padding: 0 0 10px 0;
-            }
-
-            .comment-text {
-                margin: 10px 0px 30px 0;
-            }
-
-            .btn-reply {
-                color: #2f20d1;
-                cursor: pointer;
-                text-decoration: none;
-            }
-
-            .btn-reply:hover {
-                text-decoration: underline;
-            }
-
-            #comment-message {
-                margin-left: 20px;
-                color: #005e00;
+            #form_comment_2
+            {
                 display: none;
             }
 
-            .label {
-                padding: 0 0 4px 0;
+            button,
+            button:active,
+            button:focus, 
+            button:hover,
+            .btn,
+            .btn:active, 
+            .btn:focus, 
+            .btn:hover{   
+                border:none !important;
+                outline:none !important;
+            }
+
+            form.comment_reply {
+                display: none;
             }
         </style>
     </head>
 
     <body>
         <div class="grey-wrapper">
-            <div class="container-fluid header mt-4">            
+            <div class="container-fluid header mt-4 mb-3">            
 
                 <?php if($selectStmt->rowCount() > 0): ?>
                     <?php $group_row = $selectStmt->fetch(); ?>
@@ -185,7 +160,7 @@
 
                                     <div class="row">
                                         <dl>
-                                            <dt><b class="border-bottom border-danger">Recent Activities</b></dt>
+                                            <dt><b class="border-bottom border-danger">Recent Group Log</b></dt>
                                         </dl>
 
                                         <dl>
@@ -215,10 +190,15 @@
 
                     <div class="row mx-auto">
                         <div class="col-lg-6">
-                            <div class="card">
+                            <div id="card-id" class="card">
                                 <div class="card-header" style="font-family: 'Lemon/Milk', sans-serif;">Panelist Comments</div>
-                                <div class="card-body">
+                                <div id="comment-content" class="card-body">
                                     <form id="form_comment">
+                                        <div id="replying_to" class="alert alert-dismissible" role="alert" style="display:none;">
+                                            <strong></strong>
+                                            <button type="button" id="replying_hide" class="btn-close"></button>
+                                        </div>
+
                                         <input type="hidden" name="comment_id" id="commentId" />
                                         <input type="hidden" name="author" value="<?php echo $_SESSION['user']['fullname'] ?>" />
 
@@ -243,30 +223,87 @@
 </html>
 
 <script>
-    function postReply(commentId) {
+    $(function(){
+        $("#replying_hide").on("click", function(){
+            $('#replying_to').hide();
+            $("#commentId").val(0);
+        });
+    });
+
+    function postReply(commentId, posted_by) {
         $('#commentId').val(commentId);
-        $('html, body').animate({ scrollTop: $("#commentPic").offset().top-300 }, 0);
+        $('#comment-content').scrollTop(0);
+
+        ShowAlert('You are replying to ' + posted_by);
+    }
+
+    function ShowAlert(text) {
+        var AlertMsg = $('div[role="alert"]');
+        $(AlertMsg).find('strong').html(text);
+        $(AlertMsg).removeAttr('class');
+        $(AlertMsg).addClass('alert alert-primary');
+        $(AlertMsg).show();
+    }
+
+    function deleteReply(commentId) {
+        swal({
+                title: 'Are you sure?',
+                text: "You won't be able to undo this action.",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Delete'
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        type: 'GET', 
+                        url: 'src/comment_delete.php',
+                        data: {'comment_id' : commentId},
+                        success: function(response) {
+                            if(response=="success") {
+                                listComment();
+                                Swal.fire(
+                                    'Deleted',
+                                    'Comment Deleted.',
+                                    'success'
+                                )
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    'Something went wrong.',
+                                    'error'
+                                )
+                            }
+                        }
+                    });
+                }
+            });
     }
 
     $("#publishBtn").click(function () {
         var str = $("#form_comment").serialize();
-
-        $.ajax({
-            url: "src/comment_add.php",
-            data: str,
-            type: 'get',
-            success: function (response)
-            {
-                var result = eval('(' + response + ')');
-                if (response)
+        if($("#comment").val()) {
+            $.ajax({
+                url: "src/comment_add.php",
+                data: str,
+                type: 'get',
+                success: function (response)
                 {
-                    $("#comment").val("");
-                    $("#commentId").val("");
-                    listComment();
-                    $('html, body').animate({ scrollTop: $("#comment").offset().top }, 0);
-                } 
-            }
-        });
+                    var result = eval('(' + response + ')');
+                    if (response)
+                    {
+                        if($("#comment").val()) {
+                            $("#comment").val("");
+                            $("#commentId").val("");
+                            
+                            listComment();
+                            $('html, body').animate({ scrollTop: $("#comment").offset().top }, 0);
+                        }
+                    } 
+                }
+            });
+        }
     });
 
     $(document).ready(function () {
@@ -274,59 +311,16 @@
     });
 
     function listComment() {
-        $.post("src/comment_list.php",
-            function (data) {
-                var data = JSON.parse(data);
+        $('#replying_to').show();
+        $('#replying_to').hide();
 
-                var comments = "";
-                var replies = "";
-                var item = "";
-                var parent = -1;
-                var results = new Array();
-
-                var list = $("<ul class='outer-comment'>");
-                var item = $("<li>").html(comments);
-
-                for (var i = 0; (i < data.length); i++)
-                {
-                    var commentId = data[i]['id'];
-                    parent = data[i]['parent_id'];
-
-                    if (parent == "0")
-                    {
-                        comments = "<div class='comment-row'>"+
-                        "<div class='comment-info'><span class='comment-row-label'>from</span> <span class='posted-by'>" + data[i]['posted_by'] + " </span> <span class='comment-row-label'>at</span> <span class='posted-at'>" + data[i]['posted_date'] + "</span></div>" +
-                        "<div class='comment-text'>" + data[i]['comment'] + "</div>"+
-                        "<div><a class='btn-reply' onClick='postReply(" + commentId + ")'>Reply</a></div>"+
-                        "</div>";
-
-                        var item = $("<li>").html(comments);
-
-                        list.append(item);
-                        var reply_list = $('<ul>');
-                        item.append(reply_list);
-                        listReplies(commentId, data, reply_list);
-                    }
-                }
-                $("#view_comment").html(list);
-            });
-    }
-
-    function listReplies(commentId, data, list) {
-        for (var i = 0; (i < data.length); i++)
-        {
-            if (commentId == data[i].parent_id)
+        $.ajax({
+            url:"src/comment_list.php",
+            method:"POST",
+            success:function(response)
             {
-                var comments = "<div class='comment-row'>"+
-                " <div class='comment-info'><span class='comment-row-label'>from</span> <span class='posted-by'>" + data[i]['posted_by'] + " </span> <span class='comment-row-label'>at</span> <span class='posted-at'>" + data[i]['posted_date'] + "</span></div>" +
-                "<div class='comment-text'>" + data[i]['comment'] + "</div>"+
-                "</div>";
-                var item = $("<li>").html(comments);
-                var reply_list = $('<ul>');
-                list.append(item);
-                item.append(reply_list);
-                listReplies(data[i].comment_id, data, reply_list);
+                $('#view_comment').html(response);
             }
-        }
+        })
     }
 </script>

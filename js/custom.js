@@ -18,3 +18,8 @@ $(document).ready(function() {
 $(function () {
   $('[data-toggle="popover"]').popover()
 })
+
+var alertList = document.querySelectorAll('.alert')
+alertList.forEach(function (alert) {
+  new bootstrap.Alert(alert)
+})

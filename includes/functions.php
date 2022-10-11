@@ -508,6 +508,118 @@ function profileSave()
     return true;
 }
 
+function createUserProfile()
+{
+    global $con;
+
+    $hashed_password = NULL;
+    $image_name = "default_profile.jpg";
+
+    if(empty($_POST['fullname']) || empty($_POST['username']) || empty($_POST['email']) || empty($_POST['password']))
+        $_SESSION['error_message'] = "Make sure to fill out all the fields!";
+
+    if($_POST['role'] < 0)
+        $_SESSION['error_message'] = "Assign a role!";
+
+    if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z ]+$/', $_POST['fullname']))
+    {
+        $_SESSION['error_message'] = "Enter a valid full name!";
+    }
+    else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z]+$/', $_POST['username']))
+    {
+        $_SESSION['error_message'] = "Enter a valid username!";
+    }
+    else 
+    {
+        if(!empty($_POST['username']))
+        {
+            $query = "SELECT COUNT(*) FROM users WHERE username = :username limit 1;";
+            $countStm = $con->prepare($query);
+            $countStm->execute(['username' => $_POST['username']]);
+            $existing_username = $countStm->fetchColumn();
+        }
+        if(!empty($_POST['email']))
+        {
+            $query = "SELECT COUNT(*) FROM users WHERE email = :email limit 1;";
+            $countStm = $con->prepare($query);
+            $countStm->execute(['email' => $_POST['email']]);
+            $existing_email = $countStm->fetchColumn();
+        }
+
+        if(!empty($_POST['username']) && $existing_username)
+        {
+            $_SESSION['error_message'] = "Choose another username, A user is already using that username!";
+        }
+        else if(!empty($_POST['email']) && $existing_email)
+        {
+            $_SESSION['error_message'] = "Choose another email, A user is already using that email!";
+        }
+        else 
+        {
+            $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+            if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
+                $image_name = uploadnewImages($_POST['username']);
+
+            $query = "INSERT INTO users (date, ip_addr, fullname, username, email, password, image, role) VALUES(:creation, :ip, :fullname, :username, :email, :pass, :img, :role)";
+            $insert_stm = $con->prepare($query);
+            $insert_stm->bindValue('creation', date("Y-m-d H:i:s")); 
+            $insert_stm->bindValue('ip', getIPAddress());
+            $insert_stm->bindValue('fullname', $_POST['fullname']); 
+            $insert_stm->bindValue('username', $_POST['username']); 
+            $insert_stm->bindValue('email', $_POST['email']); 
+            $insert_stm->bindValue('pass', $hashed_password);
+            $insert_stm->bindValue('img', $image_name);
+            $insert_stm->bindValue('role', $_POST['role']);
+            $insert_stm->execute();
+        
+            header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1&search=" . $_POST['email']);
+        }
+    }
+    return true;
+}
+
+function uploadnewImages($name)
+{
+    global $con;
+    $arr = array();
+
+    $imgName = $_FILES['image']['name'];
+    $imgSize = $_FILES['image']['size'];
+    $tmpName = $_FILES['image']['tmp_name'];
+
+    $validExt = ['jpg', 'jpeg', 'png'];
+    $imgExt = explode('.', $imgName);
+    $imgExt = strtolower(end($imgExt));
+
+    if(!in_array($imgExt, $validExt))
+    {
+        alert("Invalid file extension (jpg, jpeg, png is only allowed!)");
+    }
+    else if($imgSize > 1200000)
+    {
+        alert("File size is too large!");
+    }
+    else 
+    {
+        $imgName = explode('.', $imgName);
+
+        $imgName = $name . " - " . date("m.d.y H.i.s");
+        $imgName .= '.' . $imgExt;
+
+        $tmp_path = "../assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
+        $real_path = "../assets/profile_pictures/" .$imgName;
+
+        move_uploaded_file($tmpName, $tmp_path);
+        resize_image($tmp_path, $real_path);
+
+        unlink($tmp_path);
+
+        header("Refresh:0");
+    }
+    return $imgName;
+}
+
 function adminEditProfile($str)
 {
     global $con;
@@ -558,7 +670,7 @@ function adminEditProfile($str)
 
             if(!empty($_POST['username']) && $existing_username)
             {
-                $_SESSION['error_message'] = "Choose another username, A user is already using that email!";
+                $_SESSION['error_message'] = "Choose another username, A user is already using that username!";
             }
             else if(!empty($_POST['email']) && $existing_email)
             {
@@ -683,8 +795,8 @@ function adminuploadImages(array $row)
         $q = $con->prepare($query);
         $q->execute($arr);
 
-        $tmp_path = "assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
-        $real_path = "assets/profile_pictures/" .$arr['newImgName'];
+        $tmp_path = "../assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
+        $real_path = "../assets/profile_pictures/" .$arr['newImgName'];
 
         move_uploaded_file($tmpName, $tmp_path);
         resize_image($tmp_path, $real_path);
@@ -846,9 +958,11 @@ function create_group($data)
             }
             else 
             {
-                $query = "INSERT INTO groups (creation, group_leader, group_title) VALUES(:creation, :leader, :title)";
+                $code = bin2hex(random_bytes(6));
+
+                $query = "INSERT INTO groups (creation, group_leader, group_title, group_code) VALUES(:creation, :leader, :title, :code)";
                 $insert_stm = $con->prepare($query);
-                $insert_stm->execute(['creation' => date("Y-m-d H:i:s"), 'leader' => $row['id'], 'title' => $data['group_title']]);
+                $insert_stm->execute(['creation' => date("Y-m-d H:i:s"), 'leader' => $row['id'], 'title' => $data['group_title'], 'code' => $code]);
                 $groupid = $con->lastInsertId();
 
                 $query = "UPDATE users SET group_id = :groupid WHERE id = :leader";

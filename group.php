@@ -79,12 +79,12 @@
     </head>
 
     <body>
-        <div class="grey-wrapper">
-            <div class="container-fluid header mt-4 mb-3">            
+        
+        <?php if($selectStmt->rowCount() > 0): ?>
+            <?php $group_row = $selectStmt->fetch(); ?>
 
-                <?php if($selectStmt->rowCount() > 0): ?>
-                    <?php $group_row = $selectStmt->fetch(); ?>
-
+            <div class="grey-wrapper">
+                <div class="container-fluid header mt-4 mb-3">    
                     <div class="row mx-auto d-flex justify-content-evenly mb-4">
                         <div class="col-md-12">
                             <h3 class="border-bottom border-3 border-warning" style="font-family: 'Times New Roman'; font-weight: bold;">Group Activity</h3>
@@ -215,10 +215,36 @@
                             </div>
                         </div>
                     </div>
-
-                <?php endif; ?>
+                </div>
             </div>
-        </div>
+
+        <?php else: ?>
+            
+            <div class="grey-wrapper">
+                <div class="container py-5 h-100">
+                    <h3 class="text-center border-bottom border-3 border-danger" style="font-family: 'Times New Roman'; font-weight: bold;">You don't have a group yet!</h3>
+                    <p class="text-center">You are not assigned to a group yet, please message your <strong>Adviser</strong>. Your adviser will assign you to a group or give you a group code for you to type in the box below.</p>
+
+                    <div class="mt-5 row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center">
+                        <div class="col-md-6">
+                            <form method="post" enctype="multipart/form-data" class="px-4 py-3">
+
+                                <div class="col">
+                                    <label for="" class="col col-form-label">Please type the group code given to you by your adviser.</label>
+                                    <input type="text" name="forgot_field" class="col form-control" placeholder="Group Code">
+                                </div>
+
+                                <div class="row mt-3 mx-auto">
+                                    <input type="submit" name="submit" value="Submit" class="rounded-pill btn btn-warning border border-light btn-lg">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <?php endif; ?>
+
     </body>
 </html>
 

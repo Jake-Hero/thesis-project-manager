@@ -149,6 +149,14 @@
                                         </form>
                                     </div>
                                 </div>
+
+                                <div class="row d-flex justify-content-between align`-items-center">
+                                    <div class="col-lg-4"></div>
+
+                                    <div class="col-lg-2 offset-lg-1">
+                                        <a href="<?php echo ROOT_FOLDER;?>/admin/create_user.php"><button class="btn btn-warning"><i class="fa-sharp fa-solid fa-plus"></i> Add New User</button></a>
+                                    </div>
+                                </div>
                             </div>
                             <table class="table table-hover">
                                 <thead>

@@ -9,33 +9,11 @@
         die;
     }
 
-    if(!isset($_GET['id']))
-    {
-        header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
-        die;
-    }
-
-    if(isset($_GET['id']))
-	{
-		$userid = $_GET['id'];
-
-        $query = "SELECT * FROM users WHERE id = :id LIMIT 1;";
-        $selectStm = $con->prepare($query);
-        $selectStm->execute(['id' => $userid]);
-        $row = $selectStm->fetch(PDO::FETCH_ASSOC);
-
-        if(!$row)
-        {
-            header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
-            die;
-        }
-	}
-
     if($_SERVER['REQUEST_METHOD'] == 'POST')
     {
         if(isset($_POST['save']))
         {
-            $row = adminEditProfile($row['username']);
+            $row = createUserProfile();
         }
     }
 
@@ -61,18 +39,8 @@
                 </div>
 
                 <div class="card container-fluid">
-                    <div class="card-header"><?php echo "You are now viewing and editing " .$row['fullname']. "'s Profile"; ?></div>
+                    <div class="card-header"> Add New User</div>
                     <div class="card-body">
-                        <?php if(!empty($_SESSION['success_message'])):?>
-                        <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
-                        <i class="fas fa-check-circle"></i>
-                            <div class ="mx-3">
-                                <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']) ?>
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        <?php endif; ?>
-
                         <?php if(!empty($_SESSION['error_message'])):?>
                         <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
                             <i class='fas fa-exclamation-triangle'></i>
@@ -83,23 +51,11 @@
                         </div>
                         <?php endif; ?>
 
-                        <div class="alert alert-warning d-flex align-items-center fade show">
-                            <div class ="mx-3">
-                                This user was last seen on <?php echo $row['last_seen']; ?>
-                            </div>
-                        </div>
-
                         <div class="row">
 
                             <div class="col-md-3 border-end">
                                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
-                                    <div class="alert alert-success d-flex align-items-center fade show">
-                                        <div class ="mx-3">
-                                            Registration Date: <strong><?php echo $row['date']; ?></strong></label>
-                                        </div>
-                                    </div>
-                                
-                                    <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$row['image'] ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
+                                    <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/default_profile.jpg' ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
                                     <span class="text-black-50 mt-2">Profile Picture</span>
                                 </div>
                             </div>
@@ -107,28 +63,7 @@
                             <div class="col-md-5">
                                 <form method="post" enctype="multipart/form-data">
 
-                                    <div class="row">
-                                        <div class="col">
-                                            <label for="" class="form-label">Email</label>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col">
-                                            <label for="" class="form-label">
-                                                <?php echo '<div class="text-black-50">' .$row['email']. '</div>'; ?>
-
-                                                <?php 
-                                                    if($row['email'] == $row['email_verified'])
-                                                        echo '<div class="text-success"><strong>Verified</strong></div>';
-                                                    else
-                                                        echo '<div class="text-danger"><strong>Not Verified</strong></div>';
-                                                ?>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <label for="" class="mt-4">Assign Role (current role: <?php echo getUserRole($row['role']) ?>)</label>
+                                    <label for="" class="mt-4">Assign Role</label>
 
                                     <div class="form-group">
                                         <select name="role" class="form-select me-2" aria-label="Default select example">
@@ -143,36 +78,36 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="" class="mt-4">Change Full Name</label>
+                                        <label for="" class="mt-4">Full Name</label>
                                         <div class="input-group"> 
-                                            <input type="text" name="fullname" class="col-sm-10 form-control" placeholder="<?php echo $row['fullname']; ?>">
+                                            <input type="text" name="fullname" class="col-sm-10 form-control" placeholder="Full Name">
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="" class="mt-4">Change Username</label>
+                                        <label for="" class="mt-4">Username</label>
                                         <div class="input-group"> 
-                                            <input type="text" name="username" class="col-sm-10 form-control" placeholder="<?php echo $row['username']; ?>">
+                                            <input type="text" name="username" class="col-sm-10 form-control" placeholder="Username">
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="" class="mt-4">Change Email</label>
+                                        <label for="" class="mt-4">Email</label>
                                         <div class="input-group">
                                             <span class="input-group-text">
                                                 <i class="fa-solid fa-envelope"></i>
                                             </span>         
-                                            <input type="text" name="email" class="col-sm-10 form-control" placeholder=<?php echo $row['email'] ?>>
+                                            <input type="text" name="email" class="col-sm-10 form-control" placeholder="Email">
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="" class="mt-4">Change Password</label>
+                                        <label for="" class="mt-4">Password</label>
                                         <div class="input-group">
                                             <span class="input-group-text">
                                                 <i class="fa-solid fa-key"></i>
                                             </span>                                      
-                                            <input type="password" name="password" class="col-sm-10 form-control" placeholder="Change Password">
+                                            <input type="password" name="password" class="col-sm-10 form-control" placeholder="Password">
                                             <span class="input-group-text">
                                                 <div class="toggle_hide_password">
                                                     <i class="far fa-eye-slash" id="togglePassword" style="cursor: pointer"></i>
@@ -181,16 +116,13 @@
                                         </div>
                                     </div>
 
-                                    <label for="" class="mt-4">Change Avatar</label>
+                                    <label for="" class="mt-4">Avatar</label>
                                     
                                     <input type="file" name="image" id="image" class="col-sm-10 form-control" onchange="preview(this);">
 
                                     <div class="row mt-5 mx-auto">
-                                        <div class="col">
-                                            <input type="submit" name="save" value="Save Changes" class="rounded-pill btn btn-lg btn-warning">
-                                        </div>
-                                        <div class="col">
-                                            <button type="button" id="delete" class="rounded-pill btn btn-lg btn-danger">Delete</button>
+                                        <div class="col text-center">
+                                            <input type="submit" name="save" value="Create User" class="rounded-pill btn btn-lg btn-warning">
                                         </div>
                                     </div>
                                 </form>

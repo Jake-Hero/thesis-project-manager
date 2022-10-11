@@ -19,6 +19,11 @@
         die;
     }
 
+    if(isset($_POST['createbtn']))
+    {
+        $errors = create_group($_POST);
+    }
+
     $no_of_records_per_page = 10;
     $offset = ($page_number-1) * $no_of_records_per_page; 
     $prev_page = $page_number - 1;
@@ -32,6 +37,7 @@
 <html>
     <head>
         <?php require('../head.php')?>
+        <link rel="stylesheet" href="<?php echo ROOT_FOLDER . '/css/fade.css'; ?>">
         <title>Thesis & Capstone Manager - Group</title>
 
         <style>
@@ -88,6 +94,43 @@
     </head>
 
     <body>
+        <div class="modal fade" id="modalCreateGroup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Create Group</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <form id="create_form" method="post" enctype="multipart/form-data">
+                        <div class="modal-body mx-3">
+                            <p>
+                                You are now about to create a new Thesis Group, please fill up the form.
+                            </p>
+
+                            <div class="form-group has-error md-form mt-5 mb-4">
+                                <label data-error="wrong" data-success="right" for="group_title">Research (Thesis) Title</label>
+                                <input type="text" id="group_title" name="group_title" class="form-control validate" placeholder="Title">
+                            </div>
+
+                            <div class="form-group has-error md-form mb-4">
+                                <label data-error="wrong" data-success="right" for="group_leader">Leader</label>
+                                <input type="text" id="group_leader" name="group_leader" class="form-control validate" placeholder="Enter the ID, Full Name or User Name">
+                            </div>
+
+                        </div>
+
+                        <div class="modal-footer d-flex justify-content-center">
+                            <button type="submit" id="createbtn" class="btn btn-warning">Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div class="grey-wrapper">
             <div class="mt-4 mb-4 container">
                 <div class="card">
@@ -147,7 +190,7 @@
                                     <div class="col-lg-4"></div>
 
                                     <div class="col-lg-2">
-                                        <a href="<?php echo ROOT_FOLDER;?>/admin/create_group.php"><button class="btn text-light" style="background-color: #A020F0;" type="submit"><i class="fa-sharp fa-solid fa-plus"></i> Create Group</button></a>
+                                        <a href="" data-toggle="modal" data-target="#modalCreateGroup"><button class="btn text-light" style="background-color: #A020F0;" type="submit"><i class="fa-sharp fa-solid fa-plus"></i> Create Group</button></a>
                                     </div>
                                 </div>
                             </div>
@@ -159,6 +202,7 @@
                                         <th scope="col" class="w-50">Title</th>
                                         <th scope="col">Leader</th>
                                         <th scope="col">Members</th>
+                                        <th scope="col">Join Code</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -168,7 +212,7 @@
                                     {
                                         $search = '%' . $_GET['search'] . '%';
 
-                                        $query = "SELECT COUNT(*) FROM groups WHERE group_title LIKE :keyword";
+                                        $query = "SELECT COUNT(*) FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ";
                                         $selectStmt = $con->prepare($query);
                                         $selectStmt->bindValue(':keyword', $search);
                                         $selectStmt->execute();
@@ -179,19 +223,19 @@
                                         switch($_GET['sort'])
                                         {
                                             case "a-z":
-                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE group_title LIKE :keyword ORDER BY group_title ASC LIMIT :offset, :no_of_records');                                    
+                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY group_title ASC LIMIT :offset, :no_of_records');                                    
                                                 break;
                                             case "z-a":
-                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE group_title LIKE :keyword ORDER BY group_title DESC LIMIT :offset, :no_of_records');                                    
+                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY group_title DESC LIMIT :offset, :no_of_records');                                    
                                                 break;
                                             case "id_desc":
-                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE group_title LIKE :keyword ORDER BY groupid DESC LIMIT :offset, :no_of_records');                                    
+                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY groupid DESC LIMIT :offset, :no_of_records');                                    
                                                 break;
                                             case "id_asc":
-                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE group_title LIKE :keyword ORDER BY groupid ASC LIMIT :offset, :no_of_records'); 
+                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY groupid ASC LIMIT :offset, :no_of_records'); 
                                                 break;
                                             default: 
-                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE group_title LIKE :keyword ORDER BY groupid ASC LIMIT :offset, :no_of_records');
+                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY groupid ASC LIMIT :offset, :no_of_records');
                                                 break;
                                         }
 
@@ -201,7 +245,7 @@
                                     {
                                         $search = '%' . $_GET['search'] . '%';
 
-                                        $query = "SELECT COUNT(*) FROM groups WHERE group_title LIKE :keyword";
+                                        $query = "SELECT COUNT(*) FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ";
                                         $selectStmt = $con->prepare($query);
                                         $selectStmt->bindValue(':keyword', $search);
                                         $selectStmt->execute();
@@ -209,7 +253,7 @@
                                         $total_rows = $selectStmt->fetchColumn();
                                         $total_pages = ceil($total_rows / $no_of_records_per_page);
                                     
-                                        $selectStmt = $con->prepare('SELECT * FROM groups WHERE group_title LIKE :keyword LIMIT :offset, :no_of_records');
+                                        $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  LIMIT :offset, :no_of_records');
                                         $selectStmt->bindParam(':keyword', $search);
                                     }
                                     else if(isset($_GET['sort']))
@@ -272,6 +316,8 @@
                                                     echo $count;
                                                 ?>
                                             </td>
+
+                                            <td><?php echo $row['group_code']; ?></td>
 
                                             <td class="text-center">
                                                 <a href="<?php echo ROOT_FOLDER; ?>/admin/edit_group.php?id=<?php echo $row['groupid']; ?>" class="edit" title="Edit" data-toggle="tooltip"><i class="fa fa-pencil-square "></i></a>                            
@@ -382,6 +428,45 @@
     </body>
 
     <script>
+        $("#createbtn").click(function (e) {
+            e.preventDefault();
+
+            var str = $("#create_form").serialize();
+            $.ajax({
+                url: "../src/create_group.php",
+                data: str,
+                type: 'GET',
+                success: function (response)
+                {
+                    if(!$('#group_leader').val() || !$('#group_title').val()) {
+                        Swal.fire(
+                                    'Error',
+                                    'Please fill out all the fields!',
+                                    'error'
+                                )
+                    }
+                    else if(response=="leader_taken") {
+                        Swal.fire(
+                            'Error',
+                            'This user is already in another research group.',
+                            'error'
+                        )
+                    }
+                    else if(response=="leader_invalid") {
+                        Swal.fire(
+                            'Error',
+                            'The specified user is not valid in the system.',
+                            'error'
+                        )
+                    }
+                    else {
+                        location.reload();
+                    }
+                }
+                
+            });
+        });
+
         function showAlertGroupDelete(id) {
             swal({
                 title: 'Are you sure?',

@@ -9,6 +9,44 @@
         die;
     }
 
+    if($_SERVER['REQUEST_METHOD'] == "POST")
+    {
+        if(isset($_POST['joinBtn'])) {
+            $code = $_POST['join_field'];
+
+            if(empty($code)) {
+                $_SESSION['error_message'] = "Please fill up the field!";
+            } else {
+                $query = "SELECT * FROM groups WHERE group_code = :code";
+                $selectStmt = $con->prepare($query);
+                $selectStmt->execute(['code' => $code]);
+                $rows = $selectStmt->fetch(PDO::FETCH_ASSOC);
+
+                if($selectStmt->rowCount() > 0) {
+                    $query = "SELECT COUNT(*) FROM users WHERE group_id = :id";
+                    $selectStmt = $con->prepare($query);
+                    $selectStmt->execute(['id' => $rows['groupid']]);
+                    
+                    if($selectStmt->fetchColumn() >= 5) {
+                        $_SESSION['error_message'] = "That research group is already full, Please contact your adviser as soon as possible!";
+                    } else {
+                        $query = "UPDATE users SET group_id = :id WHERE id = :uid";
+                        $updateStmt = $con->prepare($query);
+                        $updateStmt->execute(['id' => $rows['groupid'], 'uid' => $_SESSION['user']['id']]);
+                        
+                        log_group($rows['groupid'], $_SESSION['user']['fullname'] . " has joined the group via Group Code.");
+
+                        $_SESSION['success_message'] = "You have joined the Research Group " . $rows['group_title'];
+                        header("Location: " . ROOT_FOLDER . "/group.php");
+                        die;
+                    }
+                } else {
+                    $_SESSION['error_message'] = "Group Code does not exist, Please make sure to double check the code you have!";
+                }
+            }
+        }
+    }
+
     $groupid = $_SESSION['user']['group_id'];
     $query = "SELECT * FROM groups WHERE groupid = :id";
     $selectStmt = $con->prepare($query);
@@ -47,6 +85,12 @@
                 font-size: 19px;
             }
 
+            #group-content
+            { 
+                height: 70vh; 
+                width: 100%; 
+            }
+
             #comment-content
             { 
                 height: 70vh; 
@@ -55,9 +99,20 @@
                 width: 100%; 
             }
 
-            #form_comment_2
-            {
-                display: none;
+            #task-content
+            { 
+                height: 50vh; 
+                overflow-x: scroll; 
+                overflow-y: auto;
+                width: 100%; 
+            }
+
+            #group-logs
+            { 
+                height: 30vh; 
+                overflow-x: scroll; 
+                overflow-y: auto;
+                width: 100%; 
             }
 
             button,
@@ -71,10 +126,6 @@
                 border:none !important;
                 outline:none !important;
             }
-
-            form.comment_reply {
-                display: none;
-            }
         </style>
     </head>
 
@@ -87,9 +138,79 @@
                 <div class="container-fluid header mt-4 mb-3">    
                     <div class="row mx-auto d-flex justify-content-evenly mb-4">
                         <div class="col-md-12">
+                            <?php if(!empty($_SESSION['success_message'])):?>
+                            <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
+                                <i class="fas fa-check-circle"></i>
+                                <div class ="mx-3">
+                                    <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']) ?>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            <?php endif; ?>
+  
                             <h3 class="border-bottom border-3 border-warning" style="font-family: 'Times New Roman'; font-weight: bold;">Group Activity</h3>
-                            <div class="jumbotron jumbotron-fluid border-start border-warning border-4 bg-light">
-                                <div class="container-fluid">
+                            <div class="card">
+                                <div class="card-header text-white" style="background-color: #800000; font-family: 'Lemon/Milk', sans-serif;">Active Tasks</div>
+                                <div id="task-content" class="card-body">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr class="table-light">
+                                                <th scope="col" class="text-center">Status</th>
+                                                <th scope="col" class="text-center" colspan="1">Task</th>
+                                                <th scope="col" class="text-center">Assigned To</th>
+                                                <th scope="col" class="text-center">Due Date</th>
+                                                <th scope="col" class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $selectStmt = $con->prepare('SELECT * FROM tasks WHERE taskgroup = :id AND taskstatus <= 1 ORDER BY taskid DESC');
+                                            $selectStmt->execute(['id' => $_SESSION['user']['group_id']]);
+
+                                            if($selectStmt->rowCount() > 0):
+                                                while($row = $selectStmt->fetch(PDO::FETCH_ASSOC)): 
+                                            ?>
+
+                                            <tr class="table-light text-center">
+                                                <td>
+                                                    <?php
+                                                    switch($row['taskstatus']) {
+                                                        case 0: 
+                                                            echo '<span class="badge bg-danger tg-white">Incomplete</span>';
+                                                            break;
+                                                        case 1: 
+                                                            echo '<span class="badge bg-warning text-white">In-Progress</span>';
+                                                            break;
+                                                        case 2: 
+                                                            echo '<span class="badge bg-success text-white">Complete</span>';
+                                                            break;
+                                                    }
+                                                    ?>
+                                                </td>
+                                                <td><?php echo $row['tasktitle'] . ' - ' . $row['taskdetail']; ?></td>
+                                                <td><?php echo getFullName($row['taskassignedto']); ?></td>
+                                                <td><?php echo getweekDay($row['taskdue']) . ', ' . date("F j g:i a", strtotime($row['taskdue'])); ?></td>
+                                                <td><a href="<?php echo ROOT_FOLDER . '/task.php?id=' . $row['taskid']; ?>"><span class="badge bg-primary text-white">View</span></a></td>
+                                            </tr>   
+        
+                                            <?php endwhile; ?>
+                                            <?php else: ?>
+                                            <tr class="table-light">
+                                                <td colspan="8" class="text-center">No task found</td>
+                                            </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mx-auto">
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-header text-black-50" style="background-color: #A020F0; font-family: 'Lemon/Milk', sans-serif;">Group Info</div>
+                                <div id="group-content" class="card-body">
                                     <div class="row">
                                         <div class="col-sm-6">
                                             <dl>
@@ -163,35 +284,35 @@
                                             <dt><b class="border-bottom border-danger">Recent Group Log</b></dt>
                                         </dl>
 
-                                        <dl>
-                                            <?php 
-                                                $query = "SELECT * FROM group_logs WHERE groupid = :id ORDER BY id DESC LIMIT 5;";
-                                                $selectStmt = $con->prepare($query);
-                                                $selectStmt->bindValue('id', $groupid, PDO::PARAM_INT);
-                                                $selectStmt->execute();
-                                            ?>
+                                        <div id="group-logs">
+                                            <dl>
+                                                <?php 
+                                                    $query = "SELECT * FROM group_logs WHERE groupid = :id ORDER BY id DESC LIMIT 5;";
+                                                    $selectStmt = $con->prepare($query);
+                                                    $selectStmt->bindValue('id', $groupid, PDO::PARAM_INT);
+                                                    $selectStmt->execute();
+                                                ?>
 
-                                            <?php if($selectStmt->rowCount() > 0): ?>
-                                                <?php while($activities_row = $selectStmt->fetch(PDO::FETCH_ASSOC)): ?>
-                                                    <dd><?php echo $activities_row['log_details'] . " on " . $activities_row['log_date']; ?></dd>
-                                                <?php endwhile; ?>
-                                            <?php else: ?>
-                                                <tr class="table-light text-center">
-                                                    <dd>No recent activities.</dd>
-                                                </tr>
-                                            <?php endif; ?>
-                                        </dl>
+                                                <?php if($selectStmt->rowCount() > 0): ?>
+                                                    <?php while($activities_row = $selectStmt->fetch(PDO::FETCH_ASSOC)): ?>
+                                                        <dd><?php echo $activities_row['log_details'] . " <strong>(" . $activities_row['log_date'] . ")</strong>"; ?></dd>
+                                                    <?php endwhile; ?>
+                                                <?php else: ?>
+                                                    <tr class="table-light text-center">
+                                                        <dd>No recent activities.</dd>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </dl>
+                                        </div>
                                     </div>
 
                                 </div>
-                            </div>    
+                            </div>  
                         </div>
-                    </div>
 
-                    <div class="row mx-auto">
                         <div class="col-lg-6">
-                            <div id="card-id" class="card">
-                                <div class="card-header" style="font-family: 'Lemon/Milk', sans-serif;">Panelist Comments</div>
+                            <div class="card">
+                                <div class="card-header text-black-50" style="background-color: #FFD700; font-family: 'Lemon/Milk', sans-serif;">Panelist Comments</div>
                                 <div id="comment-content" class="card-body">
                                     <form id="form_comment">
                                         <div id="replying_to" class="alert alert-dismissible" role="alert" style="display:none;">
@@ -199,6 +320,7 @@
                                             <button type="button" id="replying_hide" class="btn-close"></button>
                                         </div>
 
+                                        <input type="hidden" name="groupid" value="<?php echo $_SESSION['user']['group_id']; ?>">
                                         <input type="hidden" name="comment_id" id="commentId" />
                                         <input type="hidden" name="author" value="<?php echo $_SESSION['user']['fullname'] ?>" />
 
@@ -222,24 +344,32 @@
             
             <div class="grey-wrapper">
                 <div class="container py-5 h-100">
-                    <h3 class="text-center border-bottom border-3 border-danger" style="font-family: 'Times New Roman'; font-weight: bold;">You don't have a group yet!</h3>
-                    <p class="text-center">You are not assigned to a group yet, please message your <strong>Adviser</strong>. Your adviser will assign you to a group or give you a group code for you to type in the box below.</p>
+                    <form method="post" enctype="multipart/form-data" class="px-4 py-3">
+                        <h3 class="text-center border-bottom border-3 border-danger" style="font-family: 'Times New Roman'; font-weight: bold;">You don't have a group yet!</h3>
+                        <p class="text-center">You are not assigned to a group yet, please message your <strong>Adviser</strong>. Your adviser will assign you to a group or give you a group code for you to type in the box below.</p>
 
-                    <div class="mt-5 row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center">
-                        <div class="col-md-6">
-                            <form method="post" enctype="multipart/form-data" class="px-4 py-3">
+                        <?php if(!empty($_SESSION['error_message'])): ?>
+                            <div class="alert alert-danger d-flex align-items-center fade show">
+                                <i class='fas fa-exclamation-triangle'></i>
+                                <div class ="mx-3">
+                                    <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
 
+                        <div class="mt-5 row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center">
+                            <div class="col-md-6">
                                 <div class="col">
                                     <label for="" class="col col-form-label">Please type the group code given to you by your adviser.</label>
-                                    <input type="text" name="forgot_field" class="col form-control" placeholder="Group Code">
+                                    <input type="text" name="join_field" class="col form-control" placeholder="Group Code">
                                 </div>
 
                                 <div class="row mt-3 mx-auto">
-                                    <input type="submit" name="submit" value="Submit" class="rounded-pill btn btn-warning border border-light btn-lg">
+                                    <input type="submit" name="joinBtn" value="Join" class="rounded-pill btn btn-warning border border-light btn-lg">
                                 </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
 
@@ -283,8 +413,10 @@
             }).then((result) => {
                 if (result.value) {
                     $.ajax({
-                        type: 'GET', 
-                        url: 'src/comment_delete.php',
+                        dataType: 'text',
+                        type: 'POST',
+                        contentType: 'application/x-www-form-urlencoded',
+                        url: 'src/comment_delete',
                         data: {'comment_id' : commentId},
                         success: function(response) {
                             if(response=="success") {
@@ -311,9 +443,11 @@
         var str = $("#form_comment").serialize();
         if($("#comment").val()) {
             $.ajax({
-                url: "src/comment_add.php",
+                dataType: 'text',
+                type: 'POST',
+                contentType: 'application/x-www-form-urlencoded',
+                url: "src/comment_add",
                 data: str,
-                type: 'get',
                 success: function (response)
                 {
                     var result = eval('(' + response + ')');
@@ -341,8 +475,11 @@
         $('#replying_to').hide();
 
         $.ajax({
-            url:"src/comment_list.php",
-            method:"POST",
+            dataType: 'text',
+            type: 'POST',
+            contentType: 'application/x-www-form-urlencoded',
+            url:"src/comment_list",
+            data: {'groupid' : <?php echo $groupid; ?>},
             success:function(response)
             {
                 $('#view_comment').html(response);

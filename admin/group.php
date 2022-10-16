@@ -118,7 +118,9 @@
 
                             <div class="form-group has-error md-form mb-4">
                                 <label data-error="wrong" data-success="right" for="group_leader">Leader</label>
-                                <input type="text" id="group_leader" name="group_leader" class="form-control validate" placeholder="Enter the ID, Full Name or User Name">
+                                <input type="text" id="group_leader" name="group_leader" class="form-control validate" placeholder="Search..." autocomplete="off" required>
+                                <div class="list-group" id="show-list" style="overflow: hidden;">
+                                </div>
                             </div>
 
                         </div>
@@ -428,14 +430,42 @@
     </body>
 
     <script>
+        function selectName(val) {
+            $("#group_leader").val(val);
+            $("#show-list").html("");
+        }
+
+        $("#group_leader").keyup(function () {
+            let searchText = $(this).val();
+            if (searchText != "") {
+                $.ajax({
+                    dataType: 'text',
+                    type: 'POST',
+                    contentType: 'application/x-www-form-urlencoded',
+                    url: "../src/search_leader",
+                    data: {
+                        query: searchText,
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        $("#show-list").html(response);
+                    },
+                });
+            } else {
+                $("#show-list").html("");
+            }
+        });
+
         $("#createbtn").click(function (e) {
             e.preventDefault();
 
             var str = $("#create_form").serialize();
             $.ajax({
-                url: "../src/create_group.php",
+                dataType: 'text',
+                type: 'POST',
+                contentType: 'application/x-www-form-urlencoded',
+                url: "../src/create_group",
                 data: str,
-                type: 'GET',
                 success: function (response)
                 {
                     if(!$('#group_leader').val() || !$('#group_title').val()) {
@@ -479,8 +509,10 @@
             }).then((result) => {
                 if (result.value) {
                     $.ajax({
-                        type: 'GET', 
-                        url: '../src/delete_group.php',
+                        dataType: 'text',
+                        type: 'POST',
+                        contentType: 'application/x-www-form-urlencoded',
+                        url: '../src/delete_group',
                         data: {'group_id' : id},
                         success: function(response) {
                             if(response=="success") {

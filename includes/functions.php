@@ -21,6 +21,10 @@ define("ROLE_PANELIST", 1);
 define("ROLE_ADVISOR", 2);
 define("ROLE_ADMIN", 3);
 
+function getWeekday($date) {
+    return date('l', strtotime($date));
+}
+
 function getFullName($id)
 {
     global $con;
@@ -620,6 +624,97 @@ function uploadnewImages($name)
     return $imgName;
 }
 
+function adminEditTask($id)
+{
+    global $con;
+
+    $query = "SELECT * FROM tasks WHERE taskid = :id limit 1;";
+    $select_stm = $con->prepare($query);
+    $select_stm->execute(['id' => $id]);
+
+    if($select_stm->rowCount() > 0)
+    {
+        $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+
+        if(!empty($_POST['task_end']) && $_POST['task_end'] <= $row['taskstart']) {
+            $_SESSION['error_message'] = "Your end date cannot conflict with start date!";
+        } else {
+            $assigned = $row['taskassignedto'];
+            if(!empty($_POST['assigned_to']))
+            {
+                $assigned = $_POST['assigned_to'];
+                log_group($id, $_SESSION['user']['fullname'] . " has assigned " . getFullName($_POST['assigned_to']) . " to " . $row['tasktitle']);
+            }
+            $status = $row['taskstatus'];
+            if(!empty($_POST['task_status']))
+            {
+                $status = $_POST['task_status'];
+                switch($_POST['task_status']) {
+                    case 0:
+                        log_group($id, $_SESSION['user']['fullname'] . " has changed task status to Incomplete");
+                        break;
+                    case 1:
+                        log_group($id, $_SESSION['user']['fullname'] . " has changed task status to Pending");
+                        break;
+                    case 2:
+                        log_group($id, $_SESSION['user']['fullname'] . " has changed task status to Complete");
+                        break; 
+                }
+            }
+            $title = $row['tasktitle'];
+            if(!empty($_POST['task_title']))
+            {
+                $title = $_POST['task_title'];
+                log_group($id, $_SESSION['user']['fullname'] . " has changed task title to " . $_POST['task_title']);
+            }
+            $detail = $row['taskdetail'];
+            if(!empty($_POST['task_detail']))
+            {
+                $detail = $_POST['task_detail'];
+                log_group($id, $_SESSION['user']['fullname'] . " has changed the task detail.");
+            }
+
+            $duedate = $row['taskdue'];
+
+            if(!empty($_POST['task_end']))
+            {
+                $duedate = $_POST['task_end'];
+                log_group($id, $_SESSION['user']['fullname'] . " has changed the due date to " . $_POST['task_end']);
+            }
+
+            $query = "UPDATE tasks SET 
+                        tasktitle = COALESCE(:title, tasktitle),
+                        taskdetail = COALESCE(:detail, taskdetail),
+                        taskdue = COALESCE(:duedate, taskdue),
+                        taskassignedto = COALESCE(:assigned, taskassignedto),
+                        taskstatus = COALESCE(:status, taskstatus)
+                        WHERE taskid = :id";
+
+            $updateStmt = $con->prepare($query);
+            $updateStmt->bindValue('title', $title, PDO::PARAM_STR);
+            $updateStmt->bindValue('detail', $detail, PDO::PARAM_STR);
+            $updateStmt->bindValue('duedate', $duedate, PDO::PARAM_STR);
+            $updateStmt->bindValue('assigned', $assigned, PDO::PARAM_STR);
+            $updateStmt->bindValue('status', $status, PDO::PARAM_INT);
+            $updateStmt->bindValue('id', $id, PDO::PARAM_INT);
+            $updateStmt->execute();
+        
+            header("Refresh:0");
+            $_SESSION['success_message'] = "Changes to this task has been saved!";
+        
+            $query = "SELECT * FROM tasks WHERE taskid = :id limit 1;";
+            $select_stm = $con->prepare($query);
+            $select_stm->execute(['id' => $id]);
+            $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+        }
+    }
+    else 
+    {
+        header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
+    }
+    return $row;
+}
+
 function adminEditProfile($str)
 {
     global $con;
@@ -908,79 +1003,6 @@ function resize_image($source_image, $resize_image)
     }
 
     return $resize_image;
-}
-
-function create_group($data)
-{
-    global $con;
-    $errors = array();
-
-    // Field Errors
-    if(empty($data['group_title']))
-        $errors['error_message'] = "You did not give the group a thesis title.";
-    else if(empty($data['group_leader']))
-        $errors['error_message'] = "Make sure to assign a leader!";
-
-    else if(!preg_match('/^[a-zA-Z ]+$/', $data['group_title']))
-        $errors['error_message'] = "Enter a valid thesis title or group name!";
-
-    if(!empty($data['group_title']))
-    {    
-        $query = "SELECT * FROM groups WHERE group_title = :title";
-        $select_stm = $con->prepare($query);
-        $select_stm->execute(['title' => $data['group_title']]);
-
-        if($select_stm->rowCount() > 0)
-        {
-            $row = $select_stm->fetch(PDO::FETCH_ASSOC);
-
-            $errors['error_message'] = 'This thesis title or group name is already taken!';
-        }
-    }
-
-    // no error 
-    if(count($errors) == 0)
-    {
-        $query = "SELECT id, group_id FROM users WHERE id = :user_id OR fullname = :full_name OR username = :user_name";
-        $select_stm = $con->prepare($query);
-        $select_stm->bindValue('user_id', (int) $data['group_leader'], PDO::PARAM_INT);
-        $select_stm->bindValue('full_name', $data['group_leader']);
-        $select_stm->bindValue('user_name', $data['group_leader']);
-        $select_stm->execute();
-
-        if($select_stm->rowCount() > 0)
-        {
-            $row = $select_stm->fetch(PDO::FETCH_ASSOC);   
-
-            if($row['group_id'] > 0)
-            {
-                $errors['error_message'] = "User is already a leader or member of another thesis group.";
-            }
-            else 
-            {
-                $code = bin2hex(random_bytes(6));
-
-                $query = "INSERT INTO groups (creation, group_leader, group_title, group_code) VALUES(:creation, :leader, :title, :code)";
-                $insert_stm = $con->prepare($query);
-                $insert_stm->execute(['creation' => date("Y-m-d H:i:s"), 'leader' => $row['id'], 'title' => $data['group_title'], 'code' => $code]);
-                $groupid = $con->lastInsertId();
-
-                $query = "UPDATE users SET group_id = :groupid WHERE id = :leader";
-                $updateStmt = $con->prepare($query);
-                $updateStmt->execute(['groupid' => $groupid, 'leader' => $row['id']]);
-            
-                log_group($groupid, $_SESSION['user']['fullname'] . " created the thesis group.");
-                log_group($groupid, $_SESSION['user']['fullname'] . " has assigned " . getFullName($row['id']) . " as the group leader.");
-
-                header("Location: " . ROOT_FOLDER . "/admin/edit_group.php?id=" .$con->lastInsertId());
-            }
-        }
-        else 
-        {
-            $errors['error_message'] = "Specify a valid user, The specified ID or username is invalid.";
-        }
-    }
-    return $errors;
 }
 
 function log_group($groupid, $details)

@@ -1,7 +1,7 @@
 <?php 
 require realpath(dirname(__FILE__) . '/../includes/functions.php');
 
-$id = $_GET['group_id'];
+$id = $_POST['group_id'];
 
 $query = "SELECT * FROM groups WHERE groupid = :id";
 $selectStmt = $con->prepare($query);
@@ -16,6 +16,16 @@ if($selectStmt->rowCount() > 0)
     $updateStmt->execute();
 
     $query = "DELETE FROM group_logs WHERE groupid = :id";
+    $updateStmt = $con->prepare($query);
+    $updateStmt->bindValue('id', $id);
+    $updateStmt->execute();
+
+    $query = "DELETE FROM comments WHERE group_id = :id";
+    $updateStmt = $con->prepare($query);
+    $updateStmt->bindValue('id', $id);
+    $updateStmt->execute();
+
+    $query = "DELETE FROM tasks WHERE taskgroup = :id";
     $updateStmt = $con->prepare($query);
     $updateStmt->bindValue('id', $id);
     $updateStmt->execute();

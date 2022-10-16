@@ -1,7 +1,7 @@
 <?php 
 require realpath(dirname(__FILE__) . '/../includes/functions.php');
 
-$id = $_GET['comment_id'];
+$id = $_POST['comment_id'];
 
 $query = "SELECT * FROM comments WHERE id = :id";
 $selectStmt = $con->prepare($query);

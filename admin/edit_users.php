@@ -39,7 +39,7 @@
         }
     }
 
-    $currentPage = 'admin';
+    $currentPage = 'edit_user';
 
     require('../includes/header.php');
 ?>
@@ -60,7 +60,7 @@
                     </div>
                 </div>
 
-                <div class="card container-fluid">
+                <div class="card container">
                     <div class="card-header"><?php echo "You are now viewing and editing " .$row['fullname']. "'s Profile"; ?></div>
                     <div class="card-body">
                         <?php if(!empty($_SESSION['success_message'])):?>
@@ -240,8 +240,10 @@
             }).then((result) => {
                 if (result.value) {
                     $.ajax({
-                        type: 'GET', 
-                        url: '/thesis-project-manager/src/delete_user.php',
+                        dataType: 'text',
+                        type: 'POST',
+                        contentType: 'application/x-www-form-urlencoded',
+                        url: '../src/delete_user',
                         data: {'user_id' : id},
                         success: function(response) {
                             if(response=="success") {

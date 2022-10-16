@@ -5,9 +5,9 @@ require '../includes/functions.php';
 $user_fullname = $_SESSION['user']['fullname'];
 $image = $_SESSION['user']['image'];
 
-$query = "SELECT * FROM comments WHERE parent_id = 0 ORDER BY id DESC";
+$query = "SELECT * FROM comments WHERE group_id = :id AND parent_id = 0 ORDER BY id DESC";
 $result = $con->prepare($query);
-$result->execute();
+$result->execute(['id' => $_POST['groupid']]);
 $output = '';
 
 $statement = $result->fetchAll();

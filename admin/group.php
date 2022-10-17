@@ -322,8 +322,8 @@
                                             <td><?php echo $row['group_code']; ?></td>
 
                                             <td class="text-center">
-                                                <a href="<?php echo ROOT_FOLDER; ?>/admin/edit_group.php?id=<?php echo $row['groupid']; ?>" class="edit" title="Edit" data-toggle="tooltip"><i class="fa fa-pencil-square "></i></a>                            
-                                                <a href="#" class="delete" onclick="showAlertGroupDelete(<?php echo $row['groupid']; ?>);" title="Delete" data-toggle="tooltip"><i class="fa-sharp fa-solid fa-trash "></i></a>     
+                                                <a href="<?php echo ROOT_FOLDER; ?>/admin/edit_group.php?id=<?php echo $row['groupid']; ?>" class="edit" title="Edit" data-toggle="tooltip"><span class="badge bg-primary text-white">Edit</span></a>                            
+                                                <a href="#" class="delete" onclick="showAlertGroupDelete(<?php echo $row['groupid']; ?>);" title="Delete" data-toggle="tooltip"><span class="badge bg-danger text-white">Delete</span></a>     
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>

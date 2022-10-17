@@ -694,7 +694,7 @@ function adminEditTask($id)
             $updateStmt->bindValue('title', $title, PDO::PARAM_STR);
             $updateStmt->bindValue('detail', $detail, PDO::PARAM_STR);
             $updateStmt->bindValue('duedate', $duedate, PDO::PARAM_STR);
-            $updateStmt->bindValue('assigned', $assigned, PDO::PARAM_STR);
+            $updateStmt->bindValue('assigned', $assigned, PDO::PARAM_INT);
             $updateStmt->bindValue('status', $status, PDO::PARAM_INT);
             $updateStmt->bindValue('id', $id, PDO::PARAM_INT);
             $updateStmt->execute();

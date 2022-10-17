@@ -444,14 +444,14 @@
                 data: str,
                 success: function (response)
                 {
-                    if(!$('#assigned_to').val() || !$('#task_title').val() || !$('#task_detail').val() || !$('#task_start').val() || !$('#task_end').val()) {
+                    if(response=="empty_field") {
                         Swal.fire(
                                     'Error',
                                     'Please fill out all the fields!',
                                     'error'
                                 )
                     }
-                    else if ($('#task_end').val() <= $('#task_start').val()) {
+                    else if (response=="time_conflict") {
                         Swal.fire(
                                     'Error',
                                     'Your end date cannot conflict with start date!',
@@ -619,7 +619,8 @@
             $('#replying_to').hide();
 
             $.ajax({
-                url:"../src/comment_list.php",
+                url:"../src/comment_list",
+                data: {'groupid' : <?php echo $groupid; ?>},
                 method:"POST",
                 success:function(response)
                 {

@@ -24,7 +24,7 @@
             die;
         }
 
-        if($row['taskgroup'] != $_SESSION['user']['group_id'])
+        if($_SESSION['user']['role'] < ROLE_PANELIST && $row['taskgroup'] != $_SESSION['user']['group_id'])
         {
             header("Location: " . ROOT_FOLDER . "/group.php");
             die;
@@ -40,6 +40,57 @@
     <head>
         <?php require('head.php')?>
         <title>Thesis & Capstone Manager - Dashboard</title>
+        <style>
+            #ddArea {
+                height: 200px;
+                border: 2px dashed #ccc;
+                line-height: 200px;
+                text-align: center;
+                font-size: 20px;
+                background: #f9f9f9;
+                margin-bottom: 15px;
+            }
+
+            .drag_over {
+                color: #000;
+                border-color: #000;
+            }
+
+            .thumbnail {
+                width: 100px;
+                height: 100px;
+                padding: 2px;
+                margin: 2px;
+                border: 2px solid lightgray;
+                border-radius: 3px;
+                float: left;
+            }
+
+            .d-none {
+                display: none;
+            }
+
+            table.table tr th, table.table tr td {
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                background-color: rgba(240, 240, 240, 0.1) !important
+            }
+
+            table.table td:last-child {
+                width: 130px;
+            }
+
+            table.table td a.edit {
+                color: #2196F3;
+            }
+
+            table.table td a.delete {
+                color: #ff0000;
+            }
+
+            table.table td i {
+                font-size: 19px;
+            }
+        </style>
     </head>
 
     <body>
@@ -115,6 +166,12 @@
                                             <dt><b class="border-bottom border-danger">Due Date (Deadline)</b></dt>
                                             <dd class="mt-2">
                                                 <?php echo getweekDay($row['taskdue']) . ', ' .  $row['taskdue']; ?>
+
+                                                <?php if(time() >= strtotime($row['taskdue'])): ?>
+                                                <dd class="text-danger">
+                                                    <strong>This task is past-due!</strong>
+                                                </dd>
+                                                <?php endif; ?>
                                             </dd>
                                         </dl>
                                     </div>
@@ -124,8 +181,35 @@
 
                         <hr>
 
+                        <h4 class="text-start border-bottom border-3 border-danger" style="font-family: 'Times New Roman'; font-weight: bold;">View File Submission / Upload or Download Files</h4>
                         <div class="row mx-auto d-flex justify-content-evenly mb-4">
-                            <div class="col-md-12">      
+                            <div class="col-md-12">
+                                <?php if($row['taskassignedto'] == $_SESSION['user']['id']): ?>
+                                    <?php if(time() < strtotime($row['taskdue'])): ?>
+                                        <div id="ddArea">
+                                            Drag and Drop Files Here or
+                                            <a class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
+                                                Select File(s)
+                                            </a>
+                                        </div>
+                                        <input type="file" class="d-none" id="selectfile" multiple />
+                                        
+                                        <div class="progress" id="progress_bar" style="display:none; ">
+                                            <div class="progress-bar" id="progress_bar_process" role="progressbar" style="width:0%">0%</div>
+                                        </div>
+                                    <?php else : ?>
+
+                                        This task is past-due, You can no longer upload a file! Contact your Adviser as soon as possible.
+
+                                    <?php endif; ?>
+
+                                <?php else: ?>
+
+                                    This task is not assigned to you, You are only allowed to view and download files.
+
+                                <?php endif; ?>
+
+                                <div id="file_content"></div>
                             </div>
                         </div>
                     </div>
@@ -133,4 +217,131 @@
             </div>
         </div>
     </body>
+    
+    <script>
+        $(document).ready(function() {
+            listFiles();
+
+            $("#ddArea").on("dragover", function() {
+                $(this).addClass("drag_over");
+                return false;
+            });
+
+            $("#ddArea").on("dragleave", function() {
+                $(this).removeClass("drag_over");
+                return false;
+            });
+
+            $("#ddArea").on("click", function(e) {
+                file_explorer();
+            });
+
+            $("#ddArea").on("drop", function(e) {
+                e.preventDefault();
+                $(this).removeClass("drag_over");
+                var formData = new FormData();
+                var files = e.originalEvent.dataTransfer.files;
+                for (var i = 0; i < files.length; i++) {
+                    formData.append("file[]", files[i]);
+                }
+                uploadFormData(formData);
+            });
+
+            function file_explorer() {
+                document.getElementById("selectfile").click();
+                document.getElementById("selectfile").onchange = function() {
+                    files = document.getElementById("selectfile").files;
+                    var formData = new FormData();
+
+                    for (var i = 0; i < files.length; i++) {
+                    formData.append("file[]", files[i]);
+                    }
+                    uploadFormData(formData);
+                };
+            }
+
+            function uploadFormData(form_data) {
+                document.getElementById('progress_bar').style.display = 'block';
+
+                var ajax_request = new XMLHttpRequest();
+                ajax_request.open("POST", "src/file_upload");
+
+                ajax_request.upload.addEventListener('progress', function(event){
+                    var percent_completed = Math.round((event.loaded / event.total) * 100);
+                    document.getElementById('progress_bar_process').style.width = percent_completed + '%';
+                    document.getElementById('progress_bar_process').innerHTML = percent_completed + '% completed';
+                
+                    if(percent_completed >= 100)
+                    {
+                        listFiles();
+                    }
+                });
+
+                ajax_request.addEventListener('load', function(event){
+                    document.getElementById('selectfile').value = '';
+                });
+
+                ajax_request.send(form_data);
+            }
+        });
+
+        function listFiles() {
+            $.ajax({
+                dataType: 'text',
+                type: 'POST',
+                contentType: 'application/x-www-form-urlencoded',
+                url:"src/file_list",
+                data: {
+                    'assigned_to' : <?php echo $row['taskassignedto']; ?>,
+                    'groupid' : <?php echo $_SESSION['user']['group_id']; ?>
+                },
+                success:function(response)
+                {
+                    $('#file_content').html(response);
+                }
+            })
+        }
+
+        function showAlertTaskDelete(id) {
+            swal({
+                title: 'Are you sure?',
+                text: "You won't be able to undo this action.",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Delete'
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        dataType: 'text',
+                        type: 'POST',
+                        contentType: 'application/x-www-form-urlencoded',
+                        url: 'src/delete_file',
+                        data: {
+                            'file_id' : id,
+                            'group_id' : <?php echo $_SESSION['user']['group_id'] ?>
+                        },
+                        success: function(response) {
+                            if(response=="success") {
+                                Swal.fire(
+                                    'Deleted',
+                                    'You have deleted the uploaded file.',
+                                    'success'
+                                ).then(function() {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    'Something went wrong on deleting the file.',
+                                    'error'
+                                )
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    </script>
 </html>

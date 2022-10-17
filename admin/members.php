@@ -281,7 +281,7 @@
                                         </td>
                                         <td><?php echo getUserRole($row['role']); ?></td>
                                         <td class="text-center">
-                                            <a href="<?php echo ROOT_FOLDER; ?>/admin/edit_users.php?id=<?php echo $row['id']; ?>" class="edit" title="Edit" data-toggle="tooltip"><i class="fa fa-pencil-square "></i></a>                             
+                                            <a href="<?php echo ROOT_FOLDER; ?>/admin/edit_users.php?id=<?php echo $row['id']; ?>" class="edit" title="Edit" data-toggle="tooltip"><span class="badge bg-primary text-white">Edit</span></a>                             
                                         </td>
                                     </tr>   
 

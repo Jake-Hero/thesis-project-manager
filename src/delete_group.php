@@ -30,10 +30,19 @@ if($selectStmt->rowCount() > 0)
     $updateStmt->bindValue('id', $id);
     $updateStmt->execute();
 
+    $query = "DELETE FROM uploads WHERE group_id = :id";
+    $updateStmt = $con->prepare($query);
+    $updateStmt->bindValue('id', $id);
+    $updateStmt->execute();
+
     $query = "DELETE FROM groups WHERE groupid = :id";
     $updateStmt = $con->prepare($query);
     $updateStmt->bindValue('id', $id);
     $updateStmt->execute();
+
+    foreach (glob("../uploads/group_" . $id . "*.*") as $filename) {
+        unlink($filename);
+    }
 
     echo "success";
     exit();

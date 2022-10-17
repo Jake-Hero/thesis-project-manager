@@ -18,6 +18,10 @@ if($selectStmt->rowCount() > 0)
     $updateStmt->bindValue('id', $id);
     $updateStmt->execute();
 
+    foreach (glob("../uploads/group_" . $id . "/task_" . $id . "*.*") as $filename) {
+        unlink($filename);
+    }
+
     echo "success";
     die;
 }

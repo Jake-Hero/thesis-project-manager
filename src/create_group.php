@@ -47,7 +47,9 @@ if($select_stm->rowCount() > 0)
         log_group($groupid, $_SESSION['user']['fullname'] . " created the thesis group.");
         log_group($groupid, $_SESSION['user']['fullname'] . " has assigned " . getFullName($row['id']) . " as the group leader.");
 
-        header("Location: " . ROOT_FOLDER . "/admin/edit_group.php?id=" .$con->lastInsertId());
+        mkdir("../uploads/group_" . $groupid );
+
+        header("Location: " . ROOT_FOLDER . "/admin/edit_group.php?id=" . $groupid);
     }
 }
 else 

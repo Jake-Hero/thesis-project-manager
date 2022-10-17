@@ -1,8 +1,10 @@
 <?php
+require 'includes/functions.php';
+
 if(isset($_GET['file'])){
 
     $fileName  = basename($_GET['file']);
-    $filePath  = "uploads/".$fileName;
+    $filePath  = "uploads/group_" . $_SESSION['user']['group_id'] . '/' . $fileName;
     
     if(!empty($fileName) && file_exists($filePath)){
         header("Cache-Control: public");
@@ -11,14 +13,13 @@ if(isset($_GET['file'])){
         header("Content-Type: application/zip");
         header("Content-Transfer-Encoding: binary");
         readfile($filePath);
-        exit;
     } else {
-        exit;
+        die;
     }
 } else {
     header("Location: " . ROOT_FOLDER . "/index.php");
-    exit;
+    die;
 }
 
-die;
+exit();
 ?>

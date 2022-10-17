@@ -329,7 +329,7 @@
                                     <?php endwhile; ?>
                                     <?php else: ?>
                                         <tr class="table-light">
-                                            <td colspan="5" class="text-center">No groups were found in the database, Create one first!</td>
+                                            <td colspan="6" class="text-center">No groups were found in the database, Create one first!</td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>

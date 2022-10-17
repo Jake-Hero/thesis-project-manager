@@ -40,9 +40,11 @@ if($selectStmt->rowCount() > 0)
     $updateStmt->bindValue('id', $id);
     $updateStmt->execute();
 
-    foreach (glob("../uploads/group_" . $id . "*.*") as $filename) {
+    foreach (glob("../uploads/group_" . $id . "/*.*_group_" . $id . "*.*") as $filename) {
         unlink($filename);
     }
+
+    rmdir("../uploads/group_" . $id);
 
     echo "success";
     exit();

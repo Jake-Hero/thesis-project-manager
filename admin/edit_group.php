@@ -157,6 +157,11 @@
 
         <div class="grey-wrapper">
             <div class="container-fluid mt-4 mb-5">
+                <div class="row">
+                    <div class="col mb-3">
+                        <a href="<?php echo ROOT_FOLDER . "/admin/group.php"; ?>"><button type="button" class="btn btn-warning btn-md">Go Back to the List</button></a>
+                    </div>
+                </div>
 
                 <div class="card">
                     <div class="card-header text-black-50" style="background-color: #FFD700; font-family: cursive;"><?php echo "You are now viewing and editing Thesis Title/Group: " .$row['group_title']; ?></div>

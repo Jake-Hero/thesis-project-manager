@@ -3,11 +3,11 @@
 
     foreach($_FILES['file']['name'] as $keys => $values)
     {
-        $file_name =  $_FILES['file']['name'][$keys];
+        $ext = pathinfo($_FILES['file']['name'][$keys], PATHINFO_EXTENSION);
         $tmp_name = $_FILES['file']['tmp_name'][$keys];
 
-        $file_name = "group_" . $_SESSION['user']['group_id'] . "_" . $file_name;
-        $file_up_name = "../uploads/" . $file_name;
+        $file_name = "task_" . $_SESSION['taskid'] . "_group_" . $_SESSION['user']['group_id'] . "_" . uniqid() . "." . $ext;
+        $file_up_name = "../uploads/group_" . $_SESSION['user']['group_id'] . '/' . $file_name;
 
         $query = "INSERT INTO uploads(group_id, file_date, file_name, file_uploaded_by) VALUES(:id, :date, :name, :uploaded_by)";
         $insertStmt = $con->prepare($query);

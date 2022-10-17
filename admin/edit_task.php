@@ -41,6 +41,7 @@
         }
     }
 
+    $_SESSION['taskid'] = $taskid;
     $currentPage = 'edit_task';
 
     require('../includes/header.php');
@@ -52,15 +53,50 @@
         <?php require('../head.php')?>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js" integrity="sha512-K/oyQtMXpxI4+K0W7H25UopjM8pzq0yrVdFdG21Fh5dBe91I40pDd9A4lzNlHPHBIP2cwZuoxaUSX0GJSObvGA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css" integrity="sha512-MQXduO8IQnJVq1qmySpN87QQkiR1bZHtorbJBD0tzy7/0U9+YIC93QWHeGTEoojMVHWWNkoCp8V6OzVSYrX0oQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <title>Thesis & Capstone Manager - Edit Task</title>      
+        <title>Thesis & Capstone Manager - Edit Task</title>   
+        <style>
+            #ddArea {
+                height: auto;
+                width: auto;
+            }
+
+            table.table tr th, table.table tr td {
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                background-color: rgba(240, 240, 240, 0.1) !important
+            }
+
+            table.table td:last-child {
+                width: 130px;
+            }
+
+            table.table td a.edit {
+                color: #2196F3;
+            }
+
+            table.table td a.delete {
+                color: #ff0000;
+            }
+
+            table.table td i {
+                font-size: 19px;
+            }
+
+            #file_content
+            { 
+                height: 110vh; 
+                overflow-x: scroll; 
+                overflow-y: auto;
+                width: 100%; 
+            }
+        </style>   
     </head>
 
     <body> 
         <div class="grey-wrapper">
-            <div class="container mt-4 mb-5">
+            <div class="container-fluid mt-4 mb-5">
                 <div class="row">
                     <div class="col mb-3">
-                        <button onclick="history.back()" type="submit" class="btn btn-warning btn-md">Go Back to the List</button>
+                        <a href="<?php echo ROOT_FOLDER . "/admin/edit_group.php?id=" . $groupid; ?>"><button type="button" class="btn btn-warning btn-md">Go Back to the Group</button></a>
                     </div>
                 </div>
 
@@ -88,7 +124,9 @@
                         <?php endif; ?>
 
                         <div class="row">
-                            <div class="col-md-6 border-end">
+                            <div class="col-md-5 col-md-offset-1 border-end">
+                            <h4 class="text-center border-bottom border-3 border-danger" style="font-family: 'Times New Roman'; font-weight: bold;">Edit Task</h4>
+
                                 <div class="p-3">
                                     <form method="post" enctype="multipart/form-data">
 
@@ -162,8 +200,18 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-7">
+                                <h4 class="text-center border-bottom border-3 border-danger" style="font-family: 'Times New Roman'; font-weight: bold;">File Management</h4>
+                                
+                                <div id="ddArea" class="mt-3 mb-2 text-end">
+                                    <a class="btn btn-warning btn-sm" type="submit"><i class="fa-sharp fa-solid fa-plus"></i> Upload File</a>
+                                    <input type="file" class="d-none" id="selectfile" multiple />
+                                </div>                                        
+                                <div class="progress" id="progress_bar" style="display:none; ">
+                                    <div class="progress-bar" id="progress_bar_process" role="progressbar" style="width:0%">0%</div>
+                                </div>
 
+                                <div id="file_content"></div>
                             </div>
                         </div>
                     </div>
@@ -173,6 +221,25 @@
     </body>
 
     <script>
+        $(document).ready(function() {
+            listFiles();
+
+            $("#ddArea").on("click", function(e) {
+                file_explorer();
+            });
+
+            $("#ddArea").on("drop", function(e) {
+                e.preventDefault();
+
+                var formData = new FormData();
+                var files = e.originalEvent.dataTransfer.files;
+                for (var i = 0; i < files.length; i++) {
+                    formData.append("file[]", files[i]);
+                }
+                uploadFormData(formData);
+            });
+        });
+
         var taskStart = $("#task_start").flatpickr({
             static: true,
             enableTime: true,
@@ -232,6 +299,59 @@
                     });
                 }
             });
+        }
+
+        function file_explorer() {
+            document.getElementById("selectfile").click();
+            document.getElementById("selectfile").onchange = function() {
+                files = document.getElementById("selectfile").files;
+                var formData = new FormData();
+
+                for (var i = 0; i < files.length; i++) {
+                formData.append("file[]", files[i]);
+                }
+                uploadFormData(formData);
+            };
+        }
+
+        function uploadFormData(form_data) {
+            document.getElementById('progress_bar').style.display = 'block';
+
+            var ajax_request = new XMLHttpRequest();
+            ajax_request.open("POST", "../src/file_upload");
+
+            ajax_request.upload.addEventListener('progress', function(event){
+                var percent_completed = Math.round((event.loaded / event.total) * 100);
+                document.getElementById('progress_bar_process').style.width = percent_completed + '%';
+                document.getElementById('progress_bar_process').innerHTML = percent_completed + '% completed';
+            
+                if(percent_completed >= 100)
+                {
+                    listFiles();
+                }
+            });
+
+            ajax_request.addEventListener('load', function(event){
+                document.getElementById('selectfile').value = '';
+            });
+
+            ajax_request.send(form_data);
+        }
+
+        function listFiles() {
+            $.ajax({
+                dataType: 'text',
+                type: 'POST',
+                contentType: 'application/x-www-form-urlencoded',
+                url:"../src/admin_file_list",
+                data: {
+                    'groupid' : <?php echo $groupid; ?>
+                },
+                success:function(response)
+                {
+                    $('#file_content').html(response);
+                }
+            })
         }
     </script>
 </html>

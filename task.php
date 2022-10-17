@@ -31,6 +31,7 @@
         }
     }
 
+    $_SESSION['taskid'] = $taskid;
     $currentPage = 'view_task';
     require('includes/header.php');
 ?>
@@ -300,48 +301,6 @@
                     $('#file_content').html(response);
                 }
             })
-        }
-
-        function showAlertTaskDelete(id) {
-            swal({
-                title: 'Are you sure?',
-                text: "You won't be able to undo this action.",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Delete'
-            }).then((result) => {
-                if (result.value) {
-                    $.ajax({
-                        dataType: 'text',
-                        type: 'POST',
-                        contentType: 'application/x-www-form-urlencoded',
-                        url: 'src/delete_file',
-                        data: {
-                            'file_id' : id,
-                            'group_id' : <?php echo $_SESSION['user']['group_id'] ?>
-                        },
-                        success: function(response) {
-                            if(response=="success") {
-                                Swal.fire(
-                                    'Deleted',
-                                    'You have deleted the uploaded file.',
-                                    'success'
-                                ).then(function() {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire(
-                                    'Error',
-                                    'Something went wrong on deleting the file.',
-                                    'error'
-                                )
-                            }
-                        }
-                    });
-                }
-            });
         }
     </script>
 </html>

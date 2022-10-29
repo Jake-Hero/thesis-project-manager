@@ -123,6 +123,12 @@
                         </div>
                         <?php endif; ?>
 
+                        <?php if(time() >= strtotime($row['taskdue'])): ?>
+                        <h4 class="mb-3 text-danger text-center">
+                            <strong>NOTICE: This task is past-due.</strong>
+                        </h4>
+                        <?php endif; ?>
+
                         <div class="row">
                             <div class="col-md-5 col-md-offset-1 border-end">
                             <h4 class="text-center border-bottom border-3 border-danger" style="font-family: 'Times New Roman'; font-weight: bold;">Edit Task</h4>

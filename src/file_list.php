@@ -1,8 +1,8 @@
 <?php
 require '../includes/functions.php';
 
-$selectStmt = $con->prepare('SELECT * FROM uploads WHERE group_id = :id ORDER BY file_id DESC');
-$selectStmt->execute(['id' => $_POST['groupid']]);
+$selectStmt = $con->prepare('SELECT * FROM uploads WHERE task_id = :t_id AND group_id = :id ORDER BY file_id DESC');
+$selectStmt->execute(['t_id' => $_POST['task_id'], 'id' => $_POST['groupid']]);
 $result = $selectStmt->fetchAll();
 
 $output = '';

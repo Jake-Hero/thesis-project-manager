@@ -14,11 +14,11 @@
 <link rel="stylesheet" href="<?php echo ROOT_FOLDER . '/css/style.css'; ?>">
 
 <!-- Website Icon -->
-<link rel="icon" type="image/png" href="favicon.png">
+<link rel="icon" type="image/png" href="<?php echo ROOT_FOLDER . '/favicon.png'; ?>">
 <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css"></head>
 
 <!-- Font Awesome -->
-<script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
 
 <!-- JQuery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

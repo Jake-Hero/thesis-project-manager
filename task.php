@@ -293,6 +293,7 @@
                 contentType: 'application/x-www-form-urlencoded',
                 url:"src/file_list",
                 data: {
+                    'task_id' : <?php echo $taskid; ?>,
                     'assigned_to' : <?php echo $row['taskassignedto']; ?>,
                     'groupid' : <?php echo $_SESSION['user']['group_id']; ?>
                 },

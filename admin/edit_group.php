@@ -209,7 +209,7 @@
 
                                             <?php endif; ?>
 
-                                            <label for="" class="border-bottom border-info border-4 text-center mt-4">Members</label>
+                                            <label for="" class="border-bottom border-info border-4 mt-4">Members</label>
 
                                             <div class="card">
                                                 <div class="card-body" id="members">
@@ -240,7 +240,20 @@
                                                     </div>
                                                 </div>
                                             </div>  
+
+                                            <label for="" class="border-bottom border-info border-4 mt-4">Group Code</label>
+                                            <div class="card text-center">
+                                                <div class="mt-2 d-flex justify-content-center">
+                                                    <div id="code_spinner" class="loader"></div>
+                                                    <div id="group_code"></div>
+                                                </div>
+
+                                                <div class="mt-2 mb-2">
+                                                    <button id="refresh_code" type="button" class="btn btn-sm btn-warning mx-auto">Refresh</button>
+                                                </div>
+                                            </div>
                                         </div>  
+
                                     </div>
 
                                     <div class="col-md-5 border-end border-bottom">
@@ -325,7 +338,7 @@
                             </div>
                         </div>
 
-                        <div class="row mx-auto">
+                        <div class="row">
                             <div class="col-lg-6">
                                 <div class="card">
                                     <div class="card-header text-black-50" style="background-color: #A020F0; font-family: 'Lemon/Milk', sans-serif;">Group Info</div>
@@ -371,6 +384,7 @@
                                                 <button type="button" id="replying_hide" class="btn-close"></button>
                                             </div>
 
+                                            <input type="hidden" name="groupid" id="groupid" value="<?php echo $groupid; ?>" />
                                             <input type="hidden" name="comment_id" id="commentId" />
                                             <input type="hidden" name="author" value="<?php echo $_SESSION['user']['fullname'] ?>" />
 
@@ -382,6 +396,7 @@
                                                 </button>
                                             </div>
                                         </form>
+                                        <div id="comment_spinner" class="loader"></div>
                                         <div id="view_comment"></div>
                                     </div>
                                 </div>
@@ -398,7 +413,7 @@
             static: true,
             enableTime: true,
             minDate: "today",
-            dateFormat: "F j, Y h:i K",
+            dateFormat: "y-m-d H:i",
             onChange: function(selectedDates) {
                 taskEnd.flatpickr({
                     disable: new Date(selectedDates)
@@ -410,7 +425,7 @@
             static: true,
             enableTime: true,
             minDate: "today",
-            dateFormat: "F j, Y h:i K"
+            dateFormat: "y-m-d H:i"
         });
 
         function selectName(val) {
@@ -427,6 +442,21 @@
             $("#remove_member").val(val);
             $("#show-remove-member").html("");
         }
+
+        $("#refresh_code").click(function () {
+            $.ajax({
+                dataType: 'text',
+                    type: 'POST',
+                    url: "../src/refresh_code",
+                    data: {
+                        groupid: <?php echo $groupid; ?>
+                    },
+                    success: function (response)
+                    {
+                        displayCode();
+                    }
+                });
+        });
 
         $("#createbtn").click(function (e) {
             e.preventDefault();
@@ -566,8 +596,8 @@
                 }).then((result) => {
                     if (result.value) {
                         $.ajax({
-                            type: 'GET', 
-                            url: '../src/comment_delete.php',
+                            type: 'POST', 
+                            url: '../src/comment_delete',
                             data: {'comment_id' : commentId},
                             success: function(response) {
                                 if(response=="success") {
@@ -594,9 +624,9 @@
             var str = $("#form_comment").serialize();
             if($("#comment").val()) {
                 $.ajax({
-                    url: "../src/comment_add.php",
+                    url: "../src/comment_add",
                     data: str,
-                    type: 'get',
+                    type: 'POST',
                     success: function (response)
                     {
                         var result = eval('(' + response + ')');
@@ -617,7 +647,29 @@
 
         $(document).ready(function () {
             listComment();
+            displayCode();
+
+            $('#code_spinner').hide();
+            $('#comment_spinner').hide();
         });
+
+        function displayCode() {
+            $.ajax({
+                url:"../src/display_code",
+                data: {'groupid' : <?php echo $groupid; ?>},
+                method:"POST",
+                beforeSend : function () {  
+                    $('#code_spinner').show(); 
+                },
+                success:function(response)
+                {
+                    $('#group_code').html(response);
+                },
+                complete : function () {  
+                    $('#code_spinner').hide(); 
+                },
+            })
+        }
 
         function listComment() {
             $('#replying_to').show();
@@ -627,10 +679,16 @@
                 url:"../src/comment_list",
                 data: {'groupid' : <?php echo $groupid; ?>},
                 method:"POST",
+                beforeSend : function () {  
+                    $('#comment_spinner').show(); 
+                },
                 success:function(response)
                 {
                     $('#view_comment').html(response);
-                }
+                },
+                complete : function () {  
+                    $('#comment_spinner').hide(); 
+                },
             })
         }
     </script>

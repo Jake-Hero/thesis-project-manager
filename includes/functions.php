@@ -265,6 +265,7 @@ function sendVerificationCode($email = NULL)
     if($select_stm->rowCount() > 0)
     {
         $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+        
 
         if($row['expiry'] < $now)
         {

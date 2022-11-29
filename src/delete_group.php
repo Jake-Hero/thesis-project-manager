@@ -15,6 +15,11 @@ if($selectStmt->rowCount() > 0)
     $updateStmt->bindValue('id', $id);
     $updateStmt->execute();
 
+    $query = "DELETE FROM grades WHERE groupid = :id";
+    $updateStmt = $con->prepare($query);
+    $updateStmt->bindValue('id', $id);
+    $updateStmt->execute();
+
     $query = "DELETE FROM group_logs WHERE groupid = :id";
     $updateStmt = $con->prepare($query);
     $updateStmt->bindValue('id', $id);

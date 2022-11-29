@@ -33,6 +33,7 @@
                             <a href="<?php echo ROOT_FOLDER . "/admin/index.php"; ?>"><li class="list-group-item bg-warning">Admin Dashboard</li></a>
                             <a href="<?php echo ROOT_FOLDER . "/admin/members.php"; ?>"><li class="list-group-item bg-warning">Members List</li></a>
                             <a href="<?php echo ROOT_FOLDER . "/admin/group.php"; ?>"><li class="list-group-item bg-warning">Group List</li></a>
+                            <a href="<?php echo ROOT_FOLDER . "/admin/grades.php"; ?>"><li class="list-group-item bg-warning">Grading</li></a>
                         </ul>
                     </div>
 

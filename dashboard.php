@@ -43,6 +43,15 @@
                 background-color: #EEEEEE;
             }
 
+            .fc-event-today {
+                background: #000000;
+            }
+
+            .fc .fc-toolbar-title
+            {
+                color: #FFFFFF;
+            }
+
             .fc-day-today {
                 background: #FFF !important;
             } 
@@ -119,8 +128,50 @@
                         </div>
                     </div>
 
-                    <div class="col-md-3" style="background-color: #FFFFFF">
-                        test</div>
+                    <div class="col-md-3">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header text-white" style="background-color: #800000; font-family: 'Lemon/Milk', sans-serif;">
+                                    Group Deadlines
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group">
+                                    <?php
+                                        $selectStmt = $con->prepare('SELECT * FROM tasks WHERE taskgroup = :id ORDER BY taskid DESC;');
+                                        $selectStmt->execute(['id' => $groupid]);
+
+                                        if($selectStmt->rowCount() > 0):
+                                            while($rows = $selectStmt->fetch(PDO::FETCH_ASSOC)): 
+                                        ?>
+
+                                        <a href="<?php echo ROOT_FOLDER;?>/task.php?id=<?php echo $rows['taskid']; ?>" title="View" data-toggle="tootlip">
+                                            <li class="list-group-item">
+                                                <?php 
+                                                    echo $rows['tasktitle'];
+                                                ?>
+                                            </li>
+                                        </a>
+
+                                        <?php endwhile; ?>
+                                        <?php else: ?>
+                                            <li class="list-group-item">No deadlines as of the moment.</li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col mt-5">
+                            <div class="card">
+                                <div class="card-header text-white" style="background-color: #800000; font-family: 'Lemon/Milk', sans-serif;">
+                                    Comments
+                                </div>
+                                <div class="card-body">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>       
             </div>
         </div>
@@ -146,8 +197,9 @@
                 themeSystem: 'bootstrap',
 
                 events: events,
-                eventColor: '#A020F0',
-                eventBackgroundColor: '#A020F0',
+                eventColor: '#FFD700',
+                eventBackgroundColor: '#FFD700',
+                eventTextColor: '#000000',
                 eventClick: function(info) {
                     var _details = $('#event-details-modal');
                     var id = info.event.id;

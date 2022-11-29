@@ -40,6 +40,14 @@ if($select_stm->rowCount() > 0)
         $insert_stm->execute(['creation' => date("Y-m-d H:i:s"), 'leader' => $row['id'], 'title' => $_POST['group_title'], 'code' => $code]);
         $groupid = $con->lastInsertId();
 
+        $query = "INSERT INTO grades (groupid, semester) VALUES(:groupid, 1)";
+        $insert_stm = $con->prepare($query);
+        $insert_stm->execute(['groupid' => $groupid]);
+
+        $query = "INSERT INTO grades (groupid, semester) VALUES(:groupid, 2)";
+        $insert_stm = $con->prepare($query);
+        $insert_stm->execute(['groupid' => $groupid]);
+
         $query = "UPDATE users SET group_id = :groupid WHERE id = :leader";
         $updateStmt = $con->prepare($query);
         $updateStmt->execute(['groupid' => $groupid, 'leader' => $row['id']]);

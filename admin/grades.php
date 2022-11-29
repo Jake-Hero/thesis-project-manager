@@ -5,7 +5,7 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/group.php");
+        header("Location: " . ROOT_FOLDER . "/grades.php");
         die;
     }
 
@@ -15,7 +15,7 @@
     }
     else
     {
-        header("Location: " . ROOT_FOLDER . "/admin/group.php?page=1");
+        header("Location: " . ROOT_FOLDER . "/admin/grades.php?page=1");
         die;
     }
 
@@ -29,7 +29,7 @@
     $prev_page = $page_number - 1;
     $next_page = $page_number + 1;
 
-    $currentPage = 'group';
+    $currentPage = 'grades';
     require('../includes/header.php');
 ?>
 
@@ -94,45 +94,6 @@
     </head>
 
     <body>
-        <div class="modal fade" id="modalCreateGroup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-
-                    <div class="modal-header text-center">
-                        <h4 class="modal-title w-100 font-weight-bold">Create Group</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-
-                    <form id="create_form" method="post" enctype="multipart/form-data">
-                        <div class="modal-body mx-3">
-                            <p>
-                                You are now about to create a new Thesis Group, please fill up the form.
-                            </p>
-
-                            <div class="form-group has-error md-form mt-5 mb-4">
-                                <label data-error="wrong" data-success="right" for="group_title">Research (Thesis) Title</label>
-                                <input type="text" id="group_title" name="group_title" class="form-control validate" placeholder="Title">
-                            </div>
-
-                            <div class="form-group has-error md-form mb-4">
-                                <label data-error="wrong" data-success="right" for="group_leader">Leader</label>
-                                <input type="text" id="group_leader" name="group_leader" class="form-control validate" placeholder="Search..." autocomplete="off" required>
-                                <div class="list-group" id="show-list" style="overflow: hidden;">
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="modal-footer d-flex justify-content-center">
-                            <button type="submit" id="createbtn" class="btn btn-warning">Create</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <div class="grey-wrapper">
             <div class="mt-4 mb-4 container">
                 <div class="card">
@@ -153,9 +114,9 @@
                                                 <div class="row">
                                                     <div class="col">
                                                         <select name="sort" class="form-select me-2" aria-label="Default select example">
-                                                            <option>Sort group</option>
-                                                            <option value="a-z" <?php if(isset($_GET['sort']) && $_GET['sort'] == "a-z") echo 'selected' ?>>Sort by Group Name (A-Z)</option>
-                                                            <option value="z-a" <?php if(isset($_GET['sort']) && $_GET['sort'] == "z-a") echo 'selected' ?>>Sort by Group Name (Z-A)</option>
+                                                            <option>Sort</option>
+                                                            <option value="first" <?php if(isset($_GET['sort']) && $_GET['sort'] == "a-z") echo 'selected' ?>>Sort by Group Name (A-Z)</option>
+                                                            <option value="second" <?php if(isset($_GET['sort']) && $_GET['sort'] == "z-a") echo 'selected' ?>>Sort by Group Name (Z-A)</option>
                                                             <option value="id_desc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "id_desc") echo 'selected' ?>>Sort by Group ID (Highest to Lowest)</option>
                                                             <option value="id_asc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "id_asc") echo 'selected' ?>>Sort by Group ID (Lowest to Highest)</option>
                                                         </select>
@@ -187,14 +148,6 @@
                                         </form>
                                     </div>
                                 </div>
-
-                                <div class="row d-flex justify-content-between align-items-center">
-                                    <div class="col-lg-4"></div>
-
-                                    <div class="col-lg-2">
-                                        <a href="" data-toggle="modal" data-target="#modalCreateGroup"><button class="btn text-light" style="background-color: #A020F0;" type="submit"><i class="fa-sharp fa-solid fa-plus"></i> Create Group</button></a>
-                                    </div>
-                                </div>
                             </div>
 
                             <table class="table table-hover">
@@ -202,9 +155,6 @@
                                     <tr class="table-light text-center">
                                         <th scope="col">ID</th>
                                         <th scope="col" class="w-50">Title</th>
-                                        <th scope="col">Leader</th>
-                                        <th scope="col">Members</th>
-                                        <th scope="col">Join Code</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -308,22 +258,8 @@
                                         <tr class="table-light text-center">
                                             <td><?php echo $row['groupid']; ?></td>
                                             <td><?php echo '<strong>' .$row['group_title']. '</strong>'; ?></td>
-                                            <td><?php echo ($row['group_leader'] >= 1) ? getFullName($row['group_leader']) : "No Leader"; ?></td>
-                                            <td>
-                                                <?php 
-                                                    $countStmt = $con->prepare('SELECT COUNT(*) FROM users WHERE group_id = :groupid');
-                                                    $countStmt->execute(['groupid' => $row['groupid']]);
-                                                    $count = $countStmt->fetchColumn();
-
-                                                    echo $count;
-                                                ?>
-                                            </td>
-
-                                            <td><?php echo $row['group_code']; ?></td>
-
                                             <td class="text-center">
-                                                <a href="<?php echo ROOT_FOLDER; ?>/admin/edit_group.php?id=<?php echo $row['groupid']; ?>" class="edit" title="Edit" data-toggle="tooltip"><span class="badge bg-primary text-white">Edit</span></a>                            
-                                                <a href="#" class="delete" onclick="showAlertGroupDelete(<?php echo $row['groupid']; ?>);" title="Delete" data-toggle="tooltip"><span class="badge bg-danger text-white">Delete</span></a>     
+                                                <a href="<?php echo ROOT_FOLDER; ?>/admin/edit_grade.php?id=<?php echo $row['groupid']; ?>&semester=1" class="edit" title="Give Grade" data-toggle="tooltip"><span class="badge bg-primary text-white">Give Grade</span></a>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>
@@ -350,7 +286,7 @@
                                             <li class="page-item <?php if($page_number <= 1) echo 'disabled'; ?>">
                                                 <a class="page-link"
                                                     href="<?php 
-                                                            echo ROOT_FOLDER. '/admin/group.php';
+                                                            echo ROOT_FOLDER. '/admin/grades.php';
 
                                                             if($page_number <= 1)
                                                             { 
@@ -379,7 +315,7 @@
                                             <li class="page-item <?php if($page_number == $i) echo 'active'; ?>">
                                                 <a class="page-link" href="
                                                 <?php 
-                                                    echo ROOT_FOLDER. '/admin/group.php?page=' .$i;
+                                                    echo ROOT_FOLDER. '/admin/grades.php?page=' .$i;
                                                     
                                                     if(isset($_GET['sort']))
                                                         echo '&sort=' .$_GET['sort'];
@@ -394,7 +330,7 @@
                                                 <a class="page-link"
                                                     href="
                                                     <?php 
-                                                        echo ROOT_FOLDER. '/admin/group.php'; 
+                                                        echo ROOT_FOLDER. '/admin/grades.php'; 
                                                         if($page_number >= $total_pages)
                                                         {
                                                             echo '?page=1'; 

@@ -101,7 +101,7 @@
 
             #task-content
             { 
-                height: 50vh; 
+                height: 55vh; 
                 overflow-x: scroll; 
                 overflow-y: auto;
                 width: 100%; 
@@ -137,7 +137,7 @@
             <div class="grey-wrapper">
                 <div class="container-fluid header mt-4 mb-3">    
                     <div class="row mx-auto d-flex justify-content-evenly mb-4">
-                        <div class="col-md-12">
+                        <div class="col-md-8">
                             <?php if(!empty($_SESSION['success_message'])):?>
                             <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
                                 <i class="fas fa-check-circle"></i>
@@ -148,7 +148,6 @@
                             </div>
                             <?php endif; ?>
   
-                            <h3 class="border-bottom border-3 border-warning" style="font-family: 'Times New Roman'; font-weight: bold;">Group Activity</h3>
                             <div class="card">
                                 <div class="card-header text-white" style="background-color: #800000; font-family: 'Lemon/Milk', sans-serif;">Active Tasks</div>
                                 <div id="task-content" class="card-body">
@@ -204,11 +203,29 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-md-4">
+                            <?php
+                                $selectStmt = $con->prepare('SELECT * FROM grades WHERE semester = 1 AND groupid = :groupid');
+                                $selectStmt->bindValue(':groupid', $groupid, PDO::PARAM_INT);
+                                $selectStmt->execute();
+                            ?>
+
+                            <div class="card">                            
+                                <div class="card-header text-black-50" style="background-color: #A020F0; font-family: 'Lemon/Milk', sans-serif;">View Grades</div>
+                                <select id="semester" class="form-select me-2">
+                                    <option value="1">First Semester</option>
+                                    <option value="2">Second Semester</option>
+                                </select>
+                                <div id="grades" class="card-body">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row mx-auto">
-                        <div class="col-lg-6">
-                            <div class="card">
+                        <div class="col-lg-8">
+                            <div class="card">                            
                                 <div class="card-header text-black-50" style="background-color: #A020F0; font-family: 'Lemon/Milk', sans-serif;">Group Info</div>
                                 <div id="group-content" class="card-body">
                                     <div class="row">
@@ -310,7 +327,7 @@
                             </div>  
                         </div>
 
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <div class="card">
                                 <div class="card-header text-black-50" style="background-color: #FFD700; font-family: 'Lemon/Milk', sans-serif;">Panelist Comments</div>
                                 <div id="comment-content" class="card-body">
@@ -468,7 +485,22 @@
 
     $(document).ready(function () {
         listComment();
+        listGrades(1);
     });
+
+    function listGrades(semester) {
+        $.ajax({
+            dataType: 'text',
+            type: 'POST',
+            contentType: 'application/x-www-form-urlencoded',
+            url:"src/grade_display",
+            data: {'groupid' : <?php echo $groupid; ?>, 'semester' : semester},
+            success:function(response)
+            {
+                $('#grades').html(response);
+            }
+        })
+    }
 
     function listComment() {
         $('#replying_to').show();

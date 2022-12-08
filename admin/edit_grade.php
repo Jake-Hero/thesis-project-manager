@@ -69,30 +69,50 @@
                 if(!empty($_POST['prelims'])) {
                     $_SESSION['success_message'] = "Grade for Prelims has been updated!";
 
-                    $query = "UPDATE grades SET prelims = :grade WHERE groupid = :id AND semester = :sem";
+                    if($_GET['semester'] == 1) {
+                        $query = "UPDATE grades SET first_prelims = :grade WHERE groupid = :id";
+                    } else {
+                        $query = "UPDATE grades SET second_prelims = :grade WHERE groupid = :id";
+                    }
+
                     $updateStmt = $con->prepare($query);
-                    $updateStmt->execute(['grade' => $_POST['prelims'], 'id' => $groupid, 'sem' => $_GET['semester']]);
+                    $updateStmt->execute(['grade' => $_POST['prelims'], 'id' => $groupid]);
                 }
                 if(!empty($_POST['midterms'])) {
                     $_SESSION['success_message'] = "Grade for Midterms has been updated!";
 
-                    $query = "UPDATE grades SET midterms = :grade WHERE groupid = :id AND semester = :sem";
+                    if($_GET['semester'] == 1) {
+                        $query = "UPDATE grades SET first_midterms = :grade WHERE groupid = :id";
+                    } else {
+                        $query = "UPDATE grades SET second_midterms = :grade WHERE groupid = :id";
+                    }
+
                     $updateStmt = $con->prepare($query);
-                    $updateStmt->execute(['grade' => $_POST['midterms'], 'id' => $groupid, 'sem' => $_GET['semester']]);
+                    $updateStmt->execute(['grade' => $_POST['midterms'], 'id' => $groupid]);
                 }
                 if(!empty($_POST['semis'])) {
                     $_SESSION['success_message'] = "Grade for Semis has been updated!";
 
-                    $query = "UPDATE grades SET semis = :grade WHERE groupid = :id AND semester = :sem";
+                    if($_GET['semester'] == 1) {
+                        $query = "UPDATE grades SET first_semis = :grade WHERE groupid = :id";
+                    } else {
+                        $query = "UPDATE grades SET second_semis = :grade WHERE groupid = :id";
+                    }
+
                     $updateStmt = $con->prepare($query);
-                    $updateStmt->execute(['grade' => $_POST['semis'], 'id' => $groupid, 'sem' => $_GET['semester']]);
+                    $updateStmt->execute(['grade' => $_POST['semis'], 'id' => $groupid]);
                 }
                 if(!empty($_POST['finals'])) {
                     $_SESSION['success_message'] = "Grade for Finals has been updated!";
 
-                    $query = "UPDATE grades SET finals = :grade WHERE groupid = :id AND semester = :sem";
+                    if($_GET['semester'] == 1) {
+                        $query = "UPDATE grades SET first_finals = :grade WHERE groupid = :id";
+                    } else {
+                        $query = "UPDATE grades SET second_finals = :grade WHERE groupid = :id";
+                    }
+
                     $updateStmt = $con->prepare($query);
-                    $updateStmt->execute(['grade' => $_POST['finals'], 'id' => $groupid, 'sem' => $_GET['semester']]);
+                    $updateStmt->execute(['grade' => $_POST['finals'], 'id' => $groupid]);
                 }
             }
         }
@@ -197,20 +217,11 @@
                                 <hr>
 
                                 <form method="post" enctype="multipart/form-data">
-                                    <?php if($_GET['semester'] == 1): ?>
-                                        <?php
-                                            $selectStmt = $con->prepare('SELECT * FROM grades WHERE semester = :semester AND groupid = :groupid');
-                                            $selectStmt->bindValue(':groupid', $groupid, PDO::PARAM_INT);
-                                            $selectStmt->bindValue(':semester', $_GET['semester'], PDO::PARAM_INT);
-                                            $selectStmt->execute();
-                                        ?>
-                                    <?php else: ?>
-                                        <?php
-                                            $selectStmt = $con->prepare('SELECT * FROM grades WHERE semester = 2 AND groupid = :groupid');
-                                            $selectStmt->bindValue(':groupid', $groupid, PDO::PARAM_INT);
-                                            $selectStmt->execute();
-                                        ?>
-                                    <?php endif; ?>
+                                    <?php
+                                        $selectStmt = $con->prepare('SELECT * FROM grades WHERE groupid = :groupid');
+                                        $selectStmt->bindValue(':groupid', $groupid, PDO::PARAM_INT);
+                                        $selectStmt->execute();
+                                    ?>
 
                                     <table class="table table-hover">
                                         <thead>
@@ -224,28 +235,56 @@
                                             <?php while($row = $selectStmt->fetch()): ?>
                                             <tr class="table-light text-center">
                                                 <td>Pre-Lim</td>
-                                                <td><?php echo $row['prelims']; ?>%</td>
+                                                <td>
+                                                    <?php 
+                                                        if($_GET['semester'] == 1)
+                                                            echo $row['first_prelims']; 
+                                                        else
+                                                            echo $row['second_prelims'];
+                                                    ?>%
+                                                </td>
                                                 <td>
                                                     <input type="text" id="prelims" name="prelims" class="form-control" placeholder="Enter Grade">
                                                 </td>
                                             </tr>                                            
                                             <tr class="table-light text-center">
                                                 <td>Midterms</td>
-                                                <td><?php echo $row['midterms']; ?>%</td>
+                                                <td>
+                                                    <?php 
+                                                        if($_GET['semester'] == 1)
+                                                            echo $row['first_midterms']; 
+                                                        else
+                                                            echo $row['second_midterms'];
+                                                    ?>%
+                                                </td>
                                                 <td>
                                                     <input type="text" id="midterms" name="midterms" class="form-control" placeholder="Enter Grade">
                                                 </td>
                                             </tr>                                            
                                             <tr class="table-light text-center">
                                                 <td>Semi-Finals</td>
-                                                <td><?php echo $row['semis']; ?>%</td>
+                                                <td>
+                                                    <?php 
+                                                        if($_GET['semester'] == 1)
+                                                            echo $row['first_semis']; 
+                                                        else
+                                                            echo $row['second_semis'];
+                                                    ?>%
+                                                </td>
                                                 <td>
                                                     <input type="text" id="semis" name="semis" class="form-control" placeholder="Enter Grade">
                                                 </td>
                                             </tr>                                            
                                             <tr class="table-light text-center">
                                                 <td>Finals</td>
-                                                <td><?php echo $row['finals']; ?>%</td>
+                                                <td>
+                                                    <?php 
+                                                        if($_GET['semester'] == 1)
+                                                            echo $row['first_finals']; 
+                                                        else
+                                                            echo $row['second_finals'];
+                                                    ?>%
+                                                </td>
                                                 <td>
                                                     <input type="text" id="finals" name="finals" class="form-control" placeholder="Enter Grade">
                                                 </td>
@@ -255,7 +294,10 @@
                                                 <td class="fw-bold">Overall</td>
                                                 <td colspan="2">
                                                 <?php 
-                                                    $avg = ($row['prelims'] + $row['midterms'] + $row['semis'] + $row['finals']) / 4;
+                                                    if($_GET['semester'] == 1)
+                                                        $avg = ($row['first_prelims'] + $row['first_midterms'] + $row['first_semis'] + $row['first_finals']) / 4;
+                                                    else
+                                                        $avg = ($row['second_prelims'] + $row['second_midterms'] + $row['second_semis'] + $row['second_finals']) / 4;
 
                                                     echo $avg; 
                                                 

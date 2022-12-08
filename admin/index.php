@@ -20,7 +20,13 @@
 <html>
     <head>
         <?php require('../head.php')?>
-        <title>Thesis & Capstone Manager - Admin Panel</title>    
+        <title>Thesis & Capstone Manager - Admin Panel</title>  
+        
+        <style>
+            .list-group-item.active {
+                color: black;
+            }
+        </style>
     </head>
 
     <body> 
@@ -30,10 +36,10 @@
 
                     <div class="col-md-2">
                         <ul class="list-group">
-                            <a href="<?php echo ROOT_FOLDER . "/admin/index.php"; ?>"><li class="list-group-item bg-warning">Admin Dashboard</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/members.php"; ?>"><li class="list-group-item bg-warning">Members List</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/group.php"; ?>"><li class="list-group-item bg-warning">Group List</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/grades.php"; ?>"><li class="list-group-item bg-warning">Grading</li></a>
+                            <a href="<?php echo ROOT_FOLDER . "/admin/index.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
+                            <a href="<?php echo ROOT_FOLDER . "/admin/members.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
+                            <a href="<?php echo ROOT_FOLDER . "/admin/group.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
+                            <a href="<?php echo ROOT_FOLDER . "/admin/grades.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
                         </ul>
                     </div>
 

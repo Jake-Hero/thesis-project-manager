@@ -1,7 +1,7 @@
 <?php
     $errors = array();
 
-    require "includes/functions.php";
+    require "libs/functions.php";
 
     is_user_valid();
 

@@ -1,5 +1,5 @@
 <?php
-    require "../includes/functions.php";
+    require "../libs/functions.php";
     is_user_login();
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
@@ -13,7 +13,7 @@
     // Visit Detection
     recordUserVisit();
 
-    require('../includes/header.php');
+    require('../libs/header.php');
 ?>
 
 <!DOCTYPE html>

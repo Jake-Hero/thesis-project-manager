@@ -1,5 +1,5 @@
 <?php
-    require "includes/functions.php";
+    require "libs/functions.php";
     
     is_user_valid();
     is_user_login();
@@ -8,7 +8,7 @@
     recordUserVisit();
 
     $currentPage = 'dashboard';
-    require('includes/header.php');
+    require('libs/header.php');
 
     $event_array = array();
 

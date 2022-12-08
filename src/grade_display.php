@@ -1,6 +1,6 @@
 <?php
 
-require '../includes/functions.php';
+require '../libs/functions.php';
 
 $user_fullname = $_SESSION['user']['fullname'];
 $image = $_SESSION['user']['image'];

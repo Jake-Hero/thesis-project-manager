@@ -1,5 +1,5 @@
 <?php
-    require "../includes/functions.php";
+    require "../libs/functions.php";
     is_user_valid();
     is_user_login();
 
@@ -25,7 +25,7 @@
     $next_page = $page_number + 1;
 
     $currentPage = 'grades';
-    require('../includes/header.php');
+    require('../libs/header.php');
 ?>
 
 <!DOCTYPE html>

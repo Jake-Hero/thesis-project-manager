@@ -1,5 +1,5 @@
 <?php
-require '../includes/functions.php';
+require '../libs/functions.php';
 
 if (isset($_POST['query'])) {
     $inpText = $_POST['query'];

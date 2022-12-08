@@ -1,5 +1,5 @@
 <?php 
-require realpath(dirname(__FILE__) . '/../includes/functions.php');
+require realpath(dirname(__FILE__) . '/../libs/functions.php');
 
 if(is_user_login(false))
 {

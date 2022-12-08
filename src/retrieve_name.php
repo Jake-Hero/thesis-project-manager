@@ -1,6 +1,6 @@
 <?php
 
-require '../includes/functions.php';
+require '../libs/functions.php';
 
 $query = "SELECT fullname FROM users WHERE id = :id";
 $result = $con->prepare($query);

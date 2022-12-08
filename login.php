@@ -1,5 +1,5 @@
 <?php
-    require "includes/functions.php";
+    require "libs/functions.php";
 
     is_user_valid();
     $errors = array('fullname'=>'','email'=>'','username'=>'');

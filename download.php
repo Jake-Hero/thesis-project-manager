@@ -1,5 +1,5 @@
 <?php
-require 'includes/functions.php';
+require 'libs/functions.php';
 
 if(isset($_GET['file'])){
 

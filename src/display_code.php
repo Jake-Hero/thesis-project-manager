@@ -1,6 +1,6 @@
 <?php
 
-require '../includes/functions.php';
+require '../libs/functions.php';
 
 $query = "SELECT group_code FROM groups WHERE groupid = :id";
 $result = $con->prepare($query);

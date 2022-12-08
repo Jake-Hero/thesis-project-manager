@@ -1,6 +1,6 @@
 <?php
 
-require '../includes/functions.php';
+require '../libs/functions.php';
 
 $date = date("Y-m-d H:i:s");
 

@@ -1,6 +1,6 @@
 <?php
 
-require '../includes/functions.php';
+require '../libs/functions.php';
 
 if(!empty($_POST['group_title']))
 {    

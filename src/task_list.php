@@ -1,5 +1,5 @@
 <?php
-require '../includes/functions.php';
+require '../libs/functions.php';
 
 $event_array = array();
 

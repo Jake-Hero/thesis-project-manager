@@ -1,7 +1,7 @@
 <?php
     $errors = array();
 
-    require "includes/functions.php";
+    require "libs/functions.php";
 
     is_user_valid();
     is_user_login();
@@ -86,7 +86,7 @@
         }
     }
 
-    require('includes/header.php');
+    require('libs/header.php');
 ?>
 
 <!DOCTYPE html>

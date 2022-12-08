@@ -1,6 +1,6 @@
 <?php
 
-require '../includes/functions.php';
+require '../libs/functions.php';
 
 $query = "SELECT comments.*, users.image FROM comments INNER JOIN users ON comments.posted_by = users.fullname WHERE comments.group_id = :id ORDER BY id DESC LIMIT 10;";
 $result = $con->prepare($query);

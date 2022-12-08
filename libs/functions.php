@@ -7,8 +7,9 @@ error_reporting(E_ALL);
 
 date_default_timezone_set('Asia/Manila');
 
-define ('PROJECT_NAME', 'thesis-project-manager');
-define ('ROOT_FOLDER', DIRECTORY_SEPARATOR . PROJECT_NAME);
+define ('PROJECT_NAME', 'thesis-manager.infinityfreeapp.com');
+//define ('PROJECT_NAME', 'thesis-project-manager');
+define ('ROOT_FOLDER', DIRECTORY_SEPARATOR);
 
 require_once realpath(dirname(__FILE__) . '/../config/db.php');
 require realpath(dirname(__FILE__) . '/../config/mail.php');

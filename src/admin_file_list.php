@@ -1,5 +1,5 @@
 <?php
-require '../includes/functions.php';
+require '../libs/functions.php';
 
 $selectStmt = $con->prepare('SELECT * FROM uploads WHERE group_id = :id ORDER BY file_id DESC');
 $selectStmt->execute(['id' => $_POST['groupid']]);

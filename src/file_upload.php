@@ -1,5 +1,5 @@
 <?php
-    require '../includes/functions.php';
+    require '../libs/functions.php';
 
     foreach($_FILES['file']['name'] as $keys => $values)
     {

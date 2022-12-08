@@ -1,5 +1,5 @@
 <?php
-    require "includes/functions.php";
+    require "libs/functions.php";
     is_user_valid();
     is_user_login();
 
@@ -54,7 +54,7 @@
     $selectStmt->execute();
 
     $currentPage = 'group';
-    require('includes/header.php');
+    require('libs/header.php');
 ?>
 
 <!DOCTYPE html>

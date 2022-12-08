@@ -1,10 +1,10 @@
 <?php
     $count = 0;
-    require "includes/functions.php";
+    require "libs/functions.php";
     is_user_valid();
     is_user_login();
 
-    require('includes/header.php');
+    require('libs/header.php');
 
     if($_SERVER['REQUEST_METHOD'] == 'POST')
     {

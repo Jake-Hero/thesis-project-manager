@@ -86,6 +86,51 @@
         }
     }
 
+    $vars['code'] = rand(pow(10, 5-1), pow(10, 5)-1);
+    $email = $_SESSION['user']['email'];
+    $vars['expiry'] = time() + (60 * 5); // 5 minutes expiration
+
+    $query = "SELECT * FROM verified WHERE email = :email";
+    $select_stm = $con->prepare($query);
+    $select_stm->bindValue(':email', $email);
+    $select_stm->execute();
+
+    if($select_stm->rowCount() > 0)
+    {
+        $row = $select_stm->fetch(PDO::FETCH_ASSOC);
+        
+        if($row['expiry'] < $now)
+        {
+            $query = "UPDATE verified SET code = :code, expiry = :expiry, email = :email WHERE email = :email";
+            $insert_stm = $con->prepare($query);
+            $insert_stm->execute(['code' => $vars['code'], 'expiry' => $vars['expiry'], 'email' => $email]);
+
+            unset($_SESSION['error_message']);
+            $_SESSION['message'] = "A code was sent to your email address. Check your <strong>inbox</strong> or the <strong>spam folder</strong>.";
+            $message = "Your verification code is: ". $vars['code'];
+            $message.= "\r\n\nPlease ignore this E-Mail if you aren't the one who requested for this code.";
+            $message.= "\r\nThis message is automated, Please do not reply to this email.";
+            $message = nl2br($message);
+            
+            send_mail($vars['email'], "Verify your account! - Verification Code", $message);  
+        }
+    }
+    else 
+    {
+        $query = "INSERT INTO verified (code, expiry, email) VALUES(:code, :expiry, :email)";
+        $insert_stm = $con->prepare($query);
+        $insert_stm->execute(['code' => $vars['code'], 'expiry' => $vars['expiry'], 'email' => $email]);
+
+        unset($_SESSION['error_message']);
+        $_SESSION['message'] = "A code was sent to your email address. Check your <strong>inbox</strong> or the <strong>spam folder</strong>.";
+        $message = "Your verification code is: ". $vars['code'];
+        $message.= "\r\n\nPlease ignore this E-Mail if you aren't the one who requested for this code.";
+        $message.= "\r\nThis message is automated, Please do not reply to this email.";
+        $message = nl2br($message);
+
+        send_mail($email, "Verify your account! - Verification Code", $message);  
+    }
+
     require('libs/header.php');
 ?>
 

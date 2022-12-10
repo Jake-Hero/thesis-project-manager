@@ -267,7 +267,7 @@ function sendVerificationCode($email = NULL)
     {
         $row = $select_stm->fetch(PDO::FETCH_ASSOC);
         
-        if(!($row['expiry'] < $now))
+        if($row['expiry'] < $now)
         {
             $vars['expiry'] = time() + (60 * 5); // 5 minutes expiration
 
@@ -278,6 +278,10 @@ function sendVerificationCode($email = NULL)
             unset($_SESSION['error_message']);
             $_SESSION['message'] = "A code was sent to your email address. Check your <strong>inbox</strong> or the <strong>spam folder</strong>.";
             $message = "Your verification code is: ". $vars['code'];
+            $message.= "\r\n\nPlease ignore this E-Mail if you aren't the one who requested for this code.";
+            $message.= "\r\nThis message is automated, Please do not reply to this email.";
+            $message = nl2br($message);
+            
             send_mail($vars['email'], "Verify your account! - Verification Code", $message);                  
         }
         else 
@@ -297,6 +301,10 @@ function sendVerificationCode($email = NULL)
 
         $_SESSION['message'] = "A code was sent to your email address. Check your <strong>inbox</strong> or the <strong>spam folder</strong>.";
         $message = "Your verification code is: ". $vars['code'];
+        $message.= "\r\n\nPlease ignore this E-Mail if you aren't the one who requested for this code.";
+        $message.= "\r\nThis message is automated, Please do not reply to this email.";
+        $message = nl2br($message);
+
         send_mail($vars['email'], "Verify your account! - Verification Code", $message);  
     }
     return $errors;

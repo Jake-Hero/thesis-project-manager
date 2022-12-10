@@ -11,7 +11,7 @@ function send_mail($recipient,$subject,$message)
   $mail = new PHPMailer();
   //$mail->IsSMTP();
 
-  $mail->SMTPDebug  = true;  
+  $mail->SMTPDebug  = FALSE;  
   $mail->SMTPAuth   = TRUE;
   $mail->SMTPSecure = "ssl";
   $mail->Port       = 465;

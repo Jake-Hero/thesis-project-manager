@@ -1,10 +1,10 @@
 <?php
     $count = 0;
-    require "libs/functions.php";
+    require "./libs/functions.php";
     is_user_valid();
     is_user_login();
 
-    require('libs/header.php');
+    require('./libs/header.php');
 
     if($_SERVER['REQUEST_METHOD'] == 'POST')
     {
@@ -18,7 +18,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('head.php')?>
+        <?php require('./head.php')?>
         <title>Thesis & Capstone Manager - Dashboard</title>
     </head>
 
@@ -40,7 +40,7 @@
                         <div class="alert alert-warning d-flex align-items-center fade show">
                             <i class='fas fa-exclamation-triangle'></i>
                             <div class ="mx-3">
-                                Your email address is not verified. <a href="<?php echo ROOT_FOLDER; ?>/verify.php" class="alert-link">Click here</a> to verify your account.
+                                Your email address is not verified. <a href="./verify.php" class="alert-link">Click here</a> to verify your account.
                             </div>
                         </div>
                         <?php endif; ?>
@@ -74,7 +74,7 @@
                                         </div>
                                     </div>
                                 
-                                    <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$_SESSION['user']['image'] ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
+                                    <img src="<?php echo './assets/profile_pictures/' .$_SESSION['user']['image'] ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
                                     <span class="text-black-50 mt-2">Preview Profile Picture</span>
                                 </div>
                             </div>

@@ -5,13 +5,13 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        header("Location: ../dashboard.php");
         die;
     }
 
     if(!isset($_GET['id']))
     {
-        header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
+        header("Location: ./members.php?page=1");
         die;
     }
 
@@ -26,7 +26,7 @@
 
         if(!$row)
         {
-            header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
+            header("Location: ./members.php?page=1");
             die;
         }
 	}
@@ -41,7 +41,7 @@
 
     $currentPage = 'edit_user';
 
-    require('../libs/header.php');
+    require('./header.php');
 ?>
 
 <!DOCTYPE html>
@@ -56,7 +56,7 @@
             <div class="container mt-4 mb-5">
                 <div class="row">
                     <div class="col mb-3">
-                        <a href="<?php echo ROOT_FOLDER . "/admin/members.php"; ?>"><button type="button" class="btn btn-warning btn-md">Go Back to the List</button></a>
+                        <a href="./members.php"><button type="button" class="btn btn-warning btn-md">Go Back to the List</button></a>
                     </div>
                 </div>
 
@@ -99,7 +99,7 @@
                                         </div>
                                     </div>
                                 
-                                    <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$row['image'] ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
+                                    <img src="<?php echo '../assets/profile_pictures/' .$row['image'] ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
                                     <span class="text-black-50 mt-2">Profile Picture</span>
                                 </div>
                             </div>
@@ -243,7 +243,7 @@
                         dataType: 'text',
                         type: 'POST',
                         contentType: 'application/x-www-form-urlencoded',
-                        url: '../src/delete_user',
+                        url: '../src/delete_user.php',
                         data: {'user_id' : id},
                         success: function(response) {
                             if(response=="success") {
@@ -252,7 +252,7 @@
                                     'You have deleted the user.',
                                     'success'
                                 ).then(function() {
-                                    window.location.href = "/thesis-project-manager/admin/members.php?page=1";
+                                    window.location.href = "./members.php?page=1";
                                 });
                             } else {
                                 Swal.fire(

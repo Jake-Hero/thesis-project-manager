@@ -4,7 +4,7 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        header("Location: ../dashboard.php");
         die;
     }
 
@@ -13,7 +13,7 @@
     // Visit Detection
     recordUserVisit();
 
-    require('../libs/header.php');
+    require('./header.php');
 ?>
 
 <!DOCTYPE html>
@@ -36,10 +36,10 @@
 
                     <div class="col-md-2">
                         <ul class="list-group">
-                            <a href="<?php echo ROOT_FOLDER . "/admin/index.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/members.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/group.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/grades.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
+                            <a href="./index.php"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
+                            <a href="./members.php"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
+                            <a href="./group.php"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
+                            <a href="./grades.php"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
                         </ul>
                     </div>
 
@@ -229,7 +229,7 @@
                                         <div class="d-flex justify-content-between px-md-1">
                                             <div class="text-start">
                                                 <p class="mb-0">
-                                                    <a href="<?php echo ROOT_FOLDER; ?>/admin/members.php?page=1">Click me to view all the registered users in this website.</a>
+                                                    <a href="./members.php?page=1">Click me to view all the registered users in this website.</a>
                                                 </p>
 
                                                 <p class="mb-0">

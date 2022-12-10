@@ -9,20 +9,20 @@ function send_mail($recipient,$subject,$message)
 {
 
   $mail = new PHPMailer();
-  $mail->IsSMTP();
+  //$mail->IsSMTP();
 
-  $mail->SMTPDebug  = false;  
+  $mail->SMTPDebug  = true;  
   $mail->SMTPAuth   = TRUE;
-  $mail->SMTPSecure = "tls";
-  $mail->Port       = 587;
-  $mail->Host       = "smtp.gmail.com";
+  $mail->SMTPSecure = "ssl";
+  $mail->Port       = 465;
+  $mail->Host       = "smtp.hostinger.com";
 
-  $mail->Username   = "ronaldlacsonpla@gmail.com";
-  $mail->Password   = "qjwiftsrolnprpgg";
+  $mail->Username   = "donotreply@thesiscapstonemanager.com";
+  $mail->Password   = "Thesis7415@";
 
   $mail->IsHTML(true);
   $mail->AddAddress($recipient, $subject);
-  $mail->SetFrom("ronaldlacsonpla@gmail.com", "Thesis & Capstone Manager");
+  $mail->SetFrom("donotreply@thesiscapstonemanager.com", "Thesis Capstone Manager");
   $mail->Subject = $subject;
   $content = $message;
 

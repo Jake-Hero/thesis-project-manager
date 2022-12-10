@@ -5,13 +5,13 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        header("Location: ./dashboard.php");
         die;
     }
 
     if(!isset($_GET['id']))
     {
-        header("Location: " . ROOT_FOLDER . "/admin/group.php");
+        header("Location: ./group.php");
         die;
     }
 
@@ -28,7 +28,7 @@
 
         if(!$row)
         {
-            header("Location: " . ROOT_FOLDER . "/admin/group.php");
+            header("Location: ./group.php");
             die;
         }
 	}
@@ -44,7 +44,7 @@
     $_SESSION['taskid'] = $taskid;
     $currentPage = 'edit_task';
 
-    require('../libs/header.php');
+    require('./header.php');
 ?>
 
 <!DOCTYPE html>
@@ -96,7 +96,7 @@
             <div class="container-fluid mt-4 mb-5">
                 <div class="row">
                     <div class="col mb-3">
-                        <a href="<?php echo ROOT_FOLDER . "/admin/edit_group.php?id=" . $groupid; ?>"><button type="button" class="btn btn-warning btn-md">Go Back to the Group</button></a>
+                        <a href="<?php echo "./edit_group.php?id=" . $groupid; ?>"><button type="button" class="btn btn-warning btn-md">Go Back to the Group</button></a>
                     </div>
                 </div>
 
@@ -283,7 +283,7 @@
                         dataType: 'text',
                         type: 'POST',
                         contentType: 'application/x-www-form-urlencoded',
-                        url: '../src/delete_task',
+                        url: '../src/delete_task.php',
                         data: {'taskid' : taskid},
                         success: function(response) {
                             if(response=="success") {
@@ -292,7 +292,7 @@
                                     'You have deleted the task.',
                                     'success'
                                 ).then(function() {
-                                    window.location.href = "/thesis-project-manager/admin/edit_group.php?id=" + groupid;
+                                    window.location.href = "./edit_group.php?id=" + groupid;
                                 });
                             } else {
                                 Swal.fire(
@@ -324,7 +324,7 @@
             document.getElementById('progress_bar').style.display = 'block';
 
             var ajax_request = new XMLHttpRequest();
-            ajax_request.open("POST", "../src/file_upload");
+            ajax_request.open("POST", "../src/file_upload.php");
 
             ajax_request.upload.addEventListener('progress', function(event){
                 var percent_completed = Math.round((event.loaded / event.total) * 100);
@@ -349,7 +349,7 @@
                 dataType: 'text',
                 type: 'POST',
                 contentType: 'application/x-www-form-urlencoded',
-                url:"../src/admin_file_list",
+                url:"../src/admin_file_list.php",
                 data: {
                     'groupid' : <?php echo $groupid; ?>
                 },

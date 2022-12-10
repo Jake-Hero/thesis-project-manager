@@ -5,13 +5,13 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        header("Location: ../dashboard.php");
         die;
     }
 
     if(!isset($_GET['id']))
     {
-        header("Location: " . ROOT_FOLDER . "/admin/group.php");
+        header("Location: ./group.php");
         die;
     }
 
@@ -26,7 +26,7 @@
 
         if(!$row)
         {
-            header("Location: " . ROOT_FOLDER . "/admin/group.php");
+            header("Location: ./group.php");
             die;
         }
 	}
@@ -41,7 +41,7 @@
 
     $currentPage = 'group';
 
-    require('../libs/header.php');
+    require('./header.php');
 ?>
 
 <!DOCTYPE html>
@@ -159,7 +159,7 @@
             <div class="container-fluid mt-4 mb-5">
                 <div class="row">
                     <div class="col mb-3">
-                        <a href="<?php echo ROOT_FOLDER . "/admin/group.php"; ?>"><button type="button" class="btn btn-warning btn-md">Go Back to the List</button></a>
+                        <a href="./group.php"><button type="button" class="btn btn-warning btn-md">Go Back to the List</button></a>
                     </div>
                 </div>
 
@@ -203,7 +203,7 @@
                                             <label for="" class="border-bottom border-dark text-center mt-4">Thesis Leader</label>
                                             
                                             <div class="text-center mt-3">
-                                                <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$rows['image'] ?>" class="rounded-circle shadow-sm border-info img-sm mr-3" style="width: 40px; height: 40px;" alt="Avatar" />
+                                                <img src="<?php echo '../assets/profile_pictures/' .$rows['image'] ?>" class="rounded-circle shadow-sm border-info img-sm mr-3" style="width: 40px; height: 40px;" alt="Avatar" />
                                                 <p class="border-bottom border-light mt-2"><?php echo $rows['fullname']; ?></p>        
                                             </div>
 
@@ -224,7 +224,7 @@
                                                         ?>
 
                                                         <div class="col text-center">
-                                                            <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$rows['image'] ?>" class="rounded-circle shadow-sm border-info img-sm mr-3" style="width: 40px; height: 40px;" alt="Avatar" />
+                                                            <img src="<?php echo '../assets/profile_pictures/' .$rows['image'] ?>" class="rounded-circle shadow-sm border-info img-sm mr-3" style="width: 40px; height: 40px;" alt="Avatar" />
                                                             <p><?php echo $rows['fullname']; ?></p>
                                                         </div>
                                                         
@@ -308,7 +308,7 @@
                                                 while($rows = $selectStmt->fetch(PDO::FETCH_ASSOC)): 
                                             ?>
 
-                                            <a href="<?php echo ROOT_FOLDER;?>/admin/edit_task.php?id=<?php echo $rows['taskid']; ?>" title="Edit" data-toggle="tootlip">
+                                            <a href="./edit_task.php?id=<?php echo $rows['taskid']; ?>" title="Edit" data-toggle="tootlip">
                                                 <li class="list-group-item">
                                                     <?php 
                                                         echo $rows['tasktitle'] . ' '; 
@@ -389,10 +389,10 @@
                                             <input type="hidden" name="author" value="<?php echo $_SESSION['user']['fullname'] ?>" />
 
                                             <div class="input-group">
-                                                <img id="commentPic" src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$_SESSION['user']['image'] ?>" id="preview" class="rounded-circle mt-3 mx-2" style="width: 40px; height: 40px;" alt="Avatar" />
+                                                <img id="commentPic" src="<?php echo '../assets/profile_pictures/' .$_SESSION['user']['image'] ?>" id="preview" class="rounded-circle mt-3 mx-2" style="width: 40px; height: 40px;" alt="Avatar" />
                                                 <textarea class="form-control mx-3" name="comment" id="comment" placeholder="Your comment here"></textarea>
                                                 <button id="publishBtn" class="btn" type="button">
-                                                    <img src="<?php echo ROOT_FOLDER . '/assets/images/send_button.svg'; ?>" style="height: 32px; width: 32px;">
+                                                    <img src="<?php echo '../assets/images/send_button.svg'; ?>" style="height: 32px; width: 32px;">
                                                 </button>
                                             </div>
                                         </form>
@@ -447,7 +447,7 @@
             $.ajax({
                 dataType: 'text',
                     type: 'POST',
-                    url: "../src/refresh_code",
+                    url: "../src/refresh_code.php",
                     data: {
                         groupid: <?php echo $groupid; ?>
                     },
@@ -475,7 +475,7 @@
                 dataType: 'text',
                 type: 'POST',
                 contentType: 'application/x-www-form-urlencoded',
-                url: "../src/create_task",
+                url: "../src/create_task.php",
                 data: str,
                 success: function (response)
                 {
@@ -508,7 +508,7 @@
                     dataType: 'text',
                     type: 'POST',
                     contentType: 'application/x-www-form-urlencoded',
-                    url: "../src/search_leader", // reuse.
+                    url: "../src/search_leader.php", // reuse.
                     data: {
                         query: searchText,
                     },
@@ -528,7 +528,7 @@
                     dataType: 'text',
                     type: 'POST',
                     contentType: 'application/x-www-form-urlencoded',
-                    url: "../src/search_add_member",
+                    url: "../src/search_add_member.php",
                     data: {
                         query: searchText,
                     },
@@ -548,7 +548,7 @@
                     dataType: 'text',
                     type: 'POST',
                     contentType: 'application/x-www-form-urlencoded',
-                    url: "../src/search_member",
+                    url: "../src/search_member.php",
                     data: {
                         id: <?php echo $groupid; ?>,
                         query: searchText,
@@ -597,7 +597,7 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST', 
-                            url: '../src/comment_delete',
+                            url: '../src/comment_delete.php',
                             data: {'comment_id' : commentId},
                             success: function(response) {
                                 if(response=="success") {
@@ -624,7 +624,7 @@
             var str = $("#form_comment").serialize();
             if($("#comment").val()) {
                 $.ajax({
-                    url: "../src/comment_add",
+                    url: "../src/comment_add.php",
                     data: str,
                     type: 'POST',
                     success: function (response)
@@ -655,7 +655,7 @@
 
         function displayCode() {
             $.ajax({
-                url:"../src/display_code",
+                url:"../src/display_code.php",
                 data: {'groupid' : <?php echo $groupid; ?>},
                 method:"POST",
                 beforeSend : function () {  
@@ -676,7 +676,7 @@
             $('#replying_to').hide();
 
             $.ajax({
-                url:"../src/comment_list",
+                url:"../src/comment_list.php",
                 data: {'groupid' : <?php echo $groupid; ?>},
                 method:"POST",
                 beforeSend : function () {  

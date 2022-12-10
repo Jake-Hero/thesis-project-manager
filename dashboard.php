@@ -1,5 +1,5 @@
 <?php
-    require "libs/functions.php";
+    require "./libs/functions.php";
     
     is_user_valid();
     is_user_login();
@@ -8,7 +8,7 @@
     recordUserVisit();
 
     $currentPage = 'dashboard';
-    require('libs/header.php');
+    require('./libs/header.php');
 
     $event_array = array();
 
@@ -35,8 +35,8 @@
     <head>
         <?php require('head.php')?>
         <title>Thesis & Capstone Manager - Dashboard</title> 
-        <link rel="stylesheet" href="fullcalendar/lib/main.min.css">
-        <script src="fullcalendar/lib/main.min.js"></script>
+        <link rel="stylesheet" href="./fullcalendar/lib/main.min.css">
+        <script src="./fullcalendar/lib/main.min.js"></script>
 
         <style>
             #calendar .fc-view {
@@ -155,7 +155,7 @@
                                             <div class='jumbotron border-bottom border-3 mb-3'>
                                                 <div class='container bg-light' style='background-image: var(--bs-gradient);'>
 
-                                                    <a href="<?php echo ROOT_FOLDER;?>/task.php?id=<?php echo $rows['taskid']; ?>" title="View" data-toggle="tootlip">
+                                                    <a href="task.php?id=<?php echo $rows['taskid']; ?>" title="View" data-toggle="tootlip">
 
                                                         <small>
                                                             <?php
@@ -293,7 +293,7 @@
                             dataType: 'text',
                             type: 'POST',
                             contentType: 'application/x-www-form-urlencoded',
-                            url:"src/retrieve_name",
+                            url:"./src/retrieve_name.php",
                             data: {'userid' : scheds[id].taskassignedto},
                             success:function(response)
                             {
@@ -304,7 +304,7 @@
                             dataType: 'text',
                             type: 'POST',
                             contentType: 'application/x-www-form-urlencoded',
-                            url:"src/retrieve_name",
+                            url:"./src/retrieve_name.php",
                             data: {'userid' : scheds[id].taskadmin},
                             success:function(response)
                             {
@@ -326,7 +326,7 @@
                 dataType: 'text',
                 type: 'POST',
                 contentType: 'application/x-www-form-urlencoded',
-                url:"src/dashboard_comment",
+                url:"./src/dashboard_comment.php",
                 data: {'groupid' : <?php echo $groupid; ?>},
                 success:function(response)
                 {

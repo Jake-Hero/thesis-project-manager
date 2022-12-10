@@ -1,12 +1,12 @@
 <?php
-    require "libs/functions.php";
+    require "./libs/functions.php";
 
     is_user_valid();
     $errors = array('fullname'=>'','email'=>'','username'=>'');
 
     if(is_user_login(false))
     {
-        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        header("Location: ./dashboard.php");
         die;
     }
 
@@ -22,7 +22,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('head.php')?>
+        <?php require('./head.php')?>
         <title>Thesis & Capstone Manager - Login</title>
     </head>
 
@@ -101,10 +101,10 @@
 
                                 <div class="align-items-center">
                                     <div class="row mt-3">
-                                        <a href="<?php echo ROOT_FOLDER; ?>/forgot_password.php" class="text-danger"><strong>Forgot your password?</strong></a>
+                                        <a href="./forgot_password.php" class="text-danger"><strong>Forgot your password?</strong></a>
                                     </div>
                                     <div class="row mt-2">
-                                        <a href="<?php echo ROOT_FOLDER; ?>/signup.php" class="text-danger"><strong>Don't have an account?</strong></a>
+                                        <a href="./signup.php" class="text-danger"><strong>Don't have an account?</strong></a>
                                     </div>
                                 </div>
                             </form>

@@ -5,12 +5,11 @@
 	$db_password = '';
     $db_name = 'thesis-manager';
 
-    /* live
-    $db_host = 'sql307.epizy.com';
-	$db_username = 'epiz_33161552';
-	$db_password = 'GvYhwtGxDI';
-    $db_name = 'epiz_33161552_1';
-    */
+    /* live /
+    $db_host = 'localhost';
+	$db_username = 'u811891609_root';
+	$db_password = 'Thesismanager7415';
+    $db_name = 'u811891609_thesismanager';*/
 
     try {
         $con = new PDO("mysql:host={$db_host};dbname={$db_name}", $db_username, $db_password);

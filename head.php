@@ -11,10 +11,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <!-- Custom Style Files -->
-<link rel="stylesheet" href="<?php echo ROOT_FOLDER . '/css/style.css'; ?>">
+<link rel="stylesheet" href="./css/style.css">
 
 <!-- Website Icon -->
-<link rel="icon" type="image/png" href="<?php echo ROOT_FOLDER . '/favicon.png'; ?>">
+<link rel="icon" type="image/png" href="../favicon.png">
 <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css"></head>
 
 <!-- Font Awesome -->
@@ -24,8 +24,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <!-- Custom JS files -->
-<script type="text/javascript" src="<?php echo ROOT_FOLDER . '/js/custom.js'; ?>"></script>
-<script type="text/javascript" src="<?php echo ROOT_FOLDER . '/js/lastseen.js'; ?>"></script>
+<script type="text/javascript" src="./js/custom.js"></script>
+<script type="text/javascript" src="./js/lastseen.js"></script>
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.11/dist/sweetalert2.all.js"></script>

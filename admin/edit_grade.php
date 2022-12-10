@@ -5,13 +5,13 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        header("Location: ../dashboard.php");
         die;
     }
 
     if(!isset($_GET['id']))
     {
-        header("Location: " . ROOT_FOLDER . "/admin/grades.php");
+        header("Location: ./grades.php");
         die;
     }
 
@@ -28,26 +28,26 @@
 
         if(!$row)
         {
-            header("Location: " . ROOT_FOLDER . "/admin/grades.php");
+            header("Location: ./grades.php");
             die;
         }
     }
 
     if(!isset($_GET['semester']))
     {
-        header("Location: " . ROOT_FOLDER . "/admin/edit_grade.php?id=" . $_GET['id'] . "&semester=1");
+        header("Location: ./edit_grade.php?id=" . $_GET['id'] . "&semester=1");
         die;        
     }
 
     if($_GET['semester'] < 1)
     {
-        header("Location: " . ROOT_FOLDER . "/admin/edit_grade.php?id=" . $_GET['id'] . "&semester=1");
+        header("Location: ./edit_grade.php?id=" . $_GET['id'] . "&semester=1");
         die;        
     }
 
     if($_GET['semester'] > 2)
     {
-        header("Location: " . ROOT_FOLDER . "/admin/edit_grade.php?id=" . $_GET['id'] . "&semester=2");
+        header("Location: ./edit_grade.php?id=" . $_GET['id'] . "&semester=2");
         die;        
     }
 
@@ -120,7 +120,7 @@
 
     $currentPage = 'edit_grade';
 
-    require('../libs/header.php');
+    require('./header.php');
 ?>
 
 <!DOCTYPE html>
@@ -176,7 +176,7 @@
             <div class="container-fluid mt-4 mb-5">
                 <div class="row">
                     <div class="col mb-3">
-                        <a href="<?php echo ROOT_FOLDER . "/admin/grades.php"; ?>"><button type="button" class="btn btn-warning btn-md">Go Back to the List</button></a>
+                        <a href="./grades.php"><button type="button" class="btn btn-warning btn-md">Go Back to the List</button></a>
                     </div>
                 </div>
 
@@ -208,8 +208,8 @@
                                 <div class="mt-2">
                                     <div class="col-md-3">
                                         <select id="redirect_select" class="form-select me-2">
-                                            <option value="<?php echo 'http://localhost/' . ROOT_FOLDER . '/admin/edit_grade.php?id=' . $groupid . '&semester=1'; ?>" <?php if(isset($_GET['semester']) && $_GET['semester'] == 1) echo 'selected' ?>>First Semester</option>
-                                            <option value="<?php echo 'http://localhost/' . ROOT_FOLDER . '/admin/edit_grade.php?id=' . $groupid . '&semester=2'; ?>" <?php if(isset($_GET['semester']) && $_GET['semester'] == 2) echo 'selected' ?>>Second Semester</option>
+                                            <option value="<?php echo './edit_grade.php?id=' . $groupid . '&semester=1'; ?>" <?php if(isset($_GET['semester']) && $_GET['semester'] == 1) echo 'selected' ?>>First Semester</option>
+                                            <option value="<?php echo './edit_grade.php?id=' . $groupid . '&semester=2'; ?>" <?php if(isset($_GET['semester']) && $_GET['semester'] == 2) echo 'selected' ?>>Second Semester</option>
                                         </select>
                                     </div>
                                 </div>

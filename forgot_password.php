@@ -1,13 +1,13 @@
 <?php
     $errors = array();
 
-    require "libs/functions.php";
+    require "./libs/functions.php";
 
     is_user_valid();
 
     if(is_user_login(false))
     {
-        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        header("Location: ./dashboard.php");
         die;
     }
 
@@ -81,7 +81,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('head.php')?>
+        <?php require('./head.php')?>
         <title>Thesis & Capstone Manager - Forgot Password</title>
     </head>
 
@@ -119,7 +119,7 @@
 
                                 <div class="d-flex justify-content-center align-items-center">
                                     <div class="mt-3">
-                                        <a href="<?php echo ROOT_FOLDER; ?>/login.php" class="text-danger"><strong>Go back to Login Page</strong></a>
+                                        <a href="./login.php" class="text-danger"><strong>Go back to Login Page</strong></a>
                                     </div>
                                 </div>
 

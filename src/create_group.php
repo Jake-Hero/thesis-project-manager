@@ -53,7 +53,7 @@ if($select_stm->rowCount() > 0)
 
         mkdir("../uploads/group_" . $groupid );
 
-        header("Location: " . ROOT_FOLDER . "/admin/edit_group.php?id=" . $groupid);
+        header("Location: ../admin/edit_group.php?id=" . $groupid);
     }
 }
 else 

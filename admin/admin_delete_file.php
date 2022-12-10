@@ -23,7 +23,7 @@ if(isset($_GET['file']))
 
             unlink($filePath);
 
-            header("Location: " . ROOT_FOLDER . "/admin/edit_task.php?id=" . $_SESSION['taskid']);
+            header("Location: ./edit_task.php?id=" . $_SESSION['taskid']);
             die;
         }
     }
@@ -31,7 +31,7 @@ if(isset($_GET['file']))
         die;
     }
 } else {
-    header("Location: " . ROOT_FOLDER . "/index.php");
+    header("Location: ../index.php");
     die;
 }
 

@@ -16,7 +16,7 @@ if($result->rowCount() > 0)
         $output .= "
                     <div class='jumbotron border-bottom border-3 mb-3'>
                         <div class='container bg-light' style='background-image: var(--bs-gradient);'>
-                            <img id='commentPic' src='" . ROOT_FOLDER . '/assets/profile_pictures/' .$row['image'] ."' id='preview' class='rounded-circle mt-3 mx-2' style='width: 40px; height: 40px;' alt='Avatar' />
+                            <img id='commentPic' src='./assets/profile_pictures/" .$row['image'] . "' id='preview' class='rounded-circle mt-3 mx-2' style='width: 40px; height: 40px;' alt='Avatar' />
                             <b>".$row['posted_by']."</b>
                             
                             <div class='mt-3'>

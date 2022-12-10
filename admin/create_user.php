@@ -5,7 +5,7 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        header("Location: ../dashboard.php");
         die;
     }
 
@@ -19,7 +19,7 @@
 
     $currentPage = 'admin';
 
-    require('../libs/header.php');
+    require('./header.php');
 ?>
 
 <!DOCTYPE html>
@@ -55,7 +55,7 @@
 
                             <div class="col-md-3 border-end">
                                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
-                                    <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/default_profile.jpg' ?>" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
+                                    <img src="../assets/profile_pictures/default_profile.jpg" id="preview" class="rounded-circle border border-light btn-lg" style="width: 150px; height: 150px;" alt="Avatar" />
                                     <span class="text-black-50 mt-2">Profile Picture</span>
                                 </div>
                             </div>

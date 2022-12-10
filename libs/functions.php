@@ -7,9 +7,9 @@ error_reporting(E_ALL);
 
 date_default_timezone_set('Asia/Manila');
 
-define ('PROJECT_NAME', 'thesis-manager.infinityfreeapp.com');
-//define ('PROJECT_NAME', 'thesis-project-manager');
-define ('ROOT_FOLDER', DIRECTORY_SEPARATOR);
+//define ('PROJECT_NAME', 'thesis-manager.infinityfreeapp.com');
+define ('PROJECT_NAME', 'thesis-project-manager');
+define ('ROOT_FOLDER', DIRECTORY_SEPARATOR . PROJECT_NAME);
 
 require_once realpath(dirname(__FILE__) . '/../config/db.php');
 require realpath(dirname(__FILE__) . '/../config/mail.php');
@@ -188,7 +188,7 @@ function signup_user($data)
             </script>        
         ';
 
-        header("Location: " . ROOT_FOLDER . "/login.php");
+        header("Location: ./login.php");
     }
     return $errors;
 }
@@ -228,7 +228,7 @@ function login_user($data)
                     sendVerificationCode($row['email']);
                 }*/
 
-                header("Location: " . ROOT_FOLDER . "/dashboard.php");
+                header("Location: ./dashboard.php");
             }
             else 
             {
@@ -267,8 +267,7 @@ function sendVerificationCode($email = NULL)
     {
         $row = $select_stm->fetch(PDO::FETCH_ASSOC);
         
-
-        if($row['expiry'] < $now)
+        if(!($row['expiry'] < $now))
         {
             $vars['expiry'] = time() + (60 * 5); // 5 minutes expiration
 
@@ -276,7 +275,7 @@ function sendVerificationCode($email = NULL)
             $insert_stm = $con->prepare($query);
             $insert_stm->execute($vars);
 
-            unset($_SESSION['message_error']);
+            unset($_SESSION['error_message']);
             $_SESSION['message'] = "A code was sent to your email address. Check your <strong>inbox</strong> or the <strong>spam folder</strong>.";
             $message = "Your verification code is: ". $vars['code'];
             send_mail($vars['email'], "Verify your account! - Verification Code", $message);                  
@@ -285,7 +284,7 @@ function sendVerificationCode($email = NULL)
         {
             unset($_SESSION['message']);
             $timeLapse = ($row['expiry'] - $now) / 60 % 60;
-            $_SESSION['message_error'] = "A code was already sent to your email. Please wait for <strong>" .$timeLapse. " minutes</strong> before requesting for a new code.";
+            $_SESSION['error_message'] = "A code was already sent to your email. Please wait for <strong>" .$timeLapse. " minutes</strong> before requesting for a new code.";
         }
     }
     else
@@ -338,7 +337,7 @@ function is_user_valid()
 
         if($selectStmt->rowCount() < 1)
         {
-            header("Location: " . ROOT_FOLDER . "/logout.php");
+            header("Location: ./logout.php");
             die;
         }
         else
@@ -351,18 +350,19 @@ function is_user_valid()
 
 function is_user_login($redirect = true)
 {
-    if(isset($_SESSION['user']) && isset($_SESSION['logged_in']))
-        return true;
-
-    if($redirect)
+    if(!(isset($_SESSION['user']) && isset($_SESSION['logged_in']))) 
     {
-        header("Location: " . ROOT_FOLDER . "/index.php");
-        die;
+        if($redirect)
+        {
+            header("Location: ./index.php");
+            die;
+        }
+        else
+        {
+            return false;
+        }
     }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 function profileSave()
@@ -579,7 +579,7 @@ function createUserProfile()
             $insert_stm->bindValue('role', $_POST['role']);
             $insert_stm->execute();
         
-            header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1&search=" . $_POST['email']);
+            header("Location: ./admin/members.php?page=1&search=" . $_POST['email']);
         }
     }
     return true;
@@ -600,11 +600,11 @@ function uploadnewImages($name)
 
     if(!in_array($imgExt, $validExt))
     {
-        alert("Invalid file extension (jpg, jpeg, png is only allowed!)");
+        echo '<script>alert("Invalid file extension (jpg, jpeg, png is only allowed!)");';
     }
     else if($imgSize > 1200000)
     {
-        alert("File size is too large!");
+        echo '<script>alert("File size is too large!");</script>';
     }
     else 
     {
@@ -712,7 +712,7 @@ function adminEditTask($id)
     }
     else 
     {
-        header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
+        header("Location: ./admin/members.php?page=1");
     }
     return $row;
 }
@@ -852,7 +852,7 @@ function adminEditProfile($str)
     }
     else 
     {
-        header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
+        header("Location: ./admin/members.php?page=1");
     }
     return $row;
 }
@@ -875,11 +875,11 @@ function adminuploadImages(array $row)
 
     if(!in_array($imgExt, $validExt))
     {
-        alert("Invalid file extension (jpg, jpeg, png is only allowed!)");
+        echo '<script>alert("Invalid file extension (jpg, jpeg, png is only allowed!)");';
     }
-    else if($imgSize > 1200000)
+    else if($imgSize > 5000000)
     {
-        alert("File size is too large!");
+        echo '<script>alert("File size is too large!");';
     }
     else 
     {
@@ -892,8 +892,8 @@ function adminuploadImages(array $row)
         $q = $con->prepare($query);
         $q->execute($arr);
 
-        $tmp_path = "../assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
-        $real_path = "../assets/profile_pictures/" .$arr['newImgName'];
+        $tmp_path = "./assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
+        $real_path = "./assets/profile_pictures/" .$arr['newImgName'];
 
         move_uploaded_file($tmpName, $tmp_path);
         resize_image($tmp_path, $real_path);
@@ -923,11 +923,11 @@ function uploadImages()
 
     if(!in_array($imgExt, $validExt))
     {
-        alert("Invalid file extension (jpg, jpeg, png is only allowed!)");
+        echo '<script>alert("Invalid file extension (jpg, jpeg, png is only allowed!)");</script>';
     }
     else if($imgSize > 1200000)
     {
-        alert("File size is too large!");
+        echo '<script>alert("File size is too large!");</script>';
     }
     else 
     {
@@ -940,8 +940,8 @@ function uploadImages()
         $q = $con->prepare($query);
         $q->execute($arr);
 
-        $tmp_path = "assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
-        $real_path = "assets/profile_pictures/" .$arr['newImgName'];
+        $tmp_path = "./assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
+        $real_path = "./assets/profile_pictures/" .$arr['newImgName'];
 
         move_uploaded_file($tmpName, $tmp_path);
         resize_image($tmp_path, $real_path);
@@ -1176,7 +1176,7 @@ function adminEditGroup($id)
     }
     else 
     {
-        header("Location: " . ROOT_FOLDER . "/admin/group.php?page=1");
+        header("Location: ./admin/group.php?page=1");
     }
     return $row;
 }

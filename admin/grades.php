@@ -5,7 +5,7 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/grades.php");
+        header("Location: ./grades.php");
         die;
     }
 
@@ -15,7 +15,7 @@
     }
     else
     {
-        header("Location: " . ROOT_FOLDER . "/admin/grades.php?page=1");
+        header("Location: ./grades.php?page=1");
         die;
     }
 
@@ -25,14 +25,14 @@
     $next_page = $page_number + 1;
 
     $currentPage = 'grades';
-    require('../libs/header.php');
+    require('./header.php');
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
         <?php require('../head.php')?>
-        <link rel="stylesheet" href="<?php echo ROOT_FOLDER . '/css/fade.css'; ?>">
+        <link rel="stylesheet" href="../css/fade.css">
         <title>Thesis & Capstone Manager - Group</title>
 
         <style>
@@ -98,10 +98,10 @@
                 <div class="row">
                     <div class="col-md-2">
                         <ul class="list-group">
-                            <a href="<?php echo ROOT_FOLDER . "/admin/index.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/members.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/group.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/grades.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
+                            <a href="./index.php"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
+                            <a href="./members.php"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
+                            <a href="./group.php"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
+                            <a href="./grades.php"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
                         </ul>
                     </div>
 
@@ -285,7 +285,7 @@
                                                         %
                                                     </td>
                                                     <td class="text-center">
-                                                        <a href="<?php echo ROOT_FOLDER; ?>/admin/edit_grade.php?id=<?php echo $row['groupid']; ?>&semester=1" class="edit" title="Give Grade" data-toggle="tooltip"><span class="badge bg-primary text-white">Give Grade</span></a>
+                                                        <a href="./edit_grade.php?id=<?php echo $row['groupid']; ?>&semester=1" class="edit" title="Give Grade" data-toggle="tooltip"><span class="badge bg-primary text-white">Give Grade</span></a>
                                                     </td>
                                                 </tr>
                                             <?php endwhile; ?>
@@ -312,7 +312,7 @@
                                                     <li class="page-item <?php if($page_number <= 1) echo 'disabled'; ?>">
                                                         <a class="page-link"
                                                             href="<?php 
-                                                                    echo ROOT_FOLDER. '/admin/grades.php';
+                                                                    echo './grades.php';
 
                                                                     if($page_number <= 1)
                                                                     { 
@@ -341,7 +341,7 @@
                                                     <li class="page-item <?php if($page_number == $i) echo 'active'; ?>">
                                                         <a class="page-link" href="
                                                         <?php 
-                                                            echo ROOT_FOLDER. '/admin/grades.php?page=' .$i;
+                                                            echo './grades.php?page=' .$i;
                                                             
                                                             if(isset($_GET['sort']))
                                                                 echo '&sort=' .$_GET['sort'];
@@ -356,7 +356,7 @@
                                                         <a class="page-link"
                                                             href="
                                                             <?php 
-                                                                echo ROOT_FOLDER. '/admin/grades.php'; 
+                                                                echo './grades.php'; 
                                                                 if($page_number >= $total_pages)
                                                                 {
                                                                     echo '?page=1'; 

@@ -5,7 +5,7 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        header("Location: ../dashboard.php");
         die;
     }
 
@@ -15,7 +15,7 @@
     }
     else
     {
-        header("Location: " . ROOT_FOLDER . "/admin/members.php?page=1");
+        header("Location: ./members.php?page=1");
         die;
     }
 
@@ -26,7 +26,7 @@
 
     $currentPage = 'members';
 
-    require('../libs/header.php');
+    require('./header.php');
 ?>
 
 <!DOCTYPE html>
@@ -104,10 +104,10 @@
                 <div class="row">
                     <div class="col-md-2">
                         <ul class="list-group">
-                            <a href="<?php echo ROOT_FOLDER . "/admin/index.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/members.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/group.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/grades.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
+                            <a href="./index.php"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
+                            <a href="./members.php"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
+                            <a href="./group.php"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
+                            <a href="./grades.php"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
                         </ul>
                     </div>
 
@@ -169,7 +169,7 @@
                                             <div class="col-lg-4"></div>
 
                                             <div class="col-lg-2 offset-lg-1">
-                                                <a href="<?php echo ROOT_FOLDER;?>/admin/create_user.php"><button class="btn btn-warning"><i class="fa-sharp fa-solid fa-plus"></i> Add New User</button></a>
+                                                <a href="./create_user.php"><button class="btn btn-warning"><i class="fa-sharp fa-solid fa-plus"></i> Add New User</button></a>
                                             </div>
                                         </div>
                                     </div>
@@ -285,7 +285,7 @@
 
                                             <tr class="table-light">
                                                 <td class="text-center">    
-                                                    <img src="<?php echo ROOT_FOLDER; ?>/assets/profile_pictures/<?php echo $row['image']; ?>" class="rounded-circle btn-lg" height="60" alt="Avatar" />
+                                                    <img src="../assets/profile_pictures/<?php echo $row['image']; ?>" class="rounded-circle btn-lg" height="60" alt="Avatar" />
                                                 </td>
                                                 <td><?php echo $row['fullname']; ?></td>
                                                 <td><?php echo $row['username']; ?></td>
@@ -296,7 +296,7 @@
                                                 </td>
                                                 <td><?php echo getUserRole($row['role']); ?></td>
                                                 <td class="text-center">
-                                                    <a href="<?php echo ROOT_FOLDER; ?>/admin/edit_users.php?id=<?php echo $row['id']; ?>" class="edit" title="Edit" data-toggle="tooltip"><span class="badge bg-primary text-white">Edit</span></a>                             
+                                                    <a href="./edit_users.php?id=<?php echo $row['id']; ?>" class="edit" title="Edit" data-toggle="tooltip"><span class="badge bg-primary text-white">Edit</span></a>                             
                                                 </td>
                                             </tr>   
 
@@ -324,7 +324,7 @@
                                                     <li class="page-item <?php if($page_number <= 1){ echo 'disabled'; } ?>">
                                                         <a class="page-link"
                                                             href="<?php 
-                                                                    echo ROOT_FOLDER. '/admin/members.php'; 
+                                                                    echo './members.php'; 
                                                                     
                                                                     if($page_number <= 1)
                                                                     { 
@@ -352,7 +352,7 @@
                                                     <li class="page-item <?php if($page_number == $i) {echo 'active'; } ?>">
                                                         <a class="page-link" href="
                                                         <?php 
-                                                            echo ROOT_FOLDER. '/admin/members.php?page=' .$i;
+                                                            echo './members.php?page=' .$i;
                                                             
                                                             if(isset($_GET['sort']))
                                                                 echo '&sort=' .$_GET['sort'];
@@ -367,7 +367,7 @@
                                                         <a class="page-link"
                                                             href="
                                                             <?php 
-                                                                echo ROOT_FOLDER. '/admin/members.php'; 
+                                                                echo './members.php'; 
                                                                 if($page_number >= $total_pages)
                                                                 {
                                                                     echo '?page=1'; 

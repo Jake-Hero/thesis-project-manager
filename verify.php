@@ -1,14 +1,14 @@
 <?php
     $errors = array();
 
-    require "libs/functions.php";
+    require "./libs/functions.php";
 
     is_user_valid();
     is_user_login();
 
     if(is_user_verified())
     {
-        header("Location: " . ROOT_FOLDER . "/dashboard.php");
+        header("Location: ./dashboard.php");
         die;
     }
 
@@ -22,7 +22,7 @@
         {
             if(is_user_verified())
             {
-                header("Location: " . ROOT_FOLDER . "/dashboard.php");
+                header("Location: ./dashboard.php");
                 die;
             }
             else
@@ -66,7 +66,7 @@
                             </script>                        
                         ";
 
-                        header("Location: " . ROOT_FOLDER . "/profile.php");
+                        header("Location: ./profile.php");
                     }
                     else 
                     {
@@ -109,7 +109,15 @@
                                     <div class="alert alert-danger d-flex align-items-center fade show">
                                         <i class='fas fa-exclamation-triangle'></i>
                                         <div class ="mx-3">
-                                            <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
+                                            <?php echo $_SESSION['error_message']; ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php if(!empty($_SESSION['message'])): ?>
+                                    <div class="alert alert-success d-flex align-items-center fade show">
+                                        <div class ="mx-3">
+                                            <?php echo $_SESSION['message']; unset($_SESSION['message']); ?>
                                         </div>
                                     </div>
                                 <?php endif; ?>
@@ -121,7 +129,7 @@
 
                                 <div class="d-flex justify-content-center align-items-center">
                                     <div class="mt-3">
-                                        <a href="<?php echo ROOT_FOLDER; ?>/profile.php" class="text-danger"><strong>Go back to Edit My Profile</strong></a>
+                                        <a href="./profile.php" class="text-danger"><strong>Go back to Edit My Profile</strong></a>
                                     </div>
                                 </div>
 

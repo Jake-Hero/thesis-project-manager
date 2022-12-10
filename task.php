@@ -265,7 +265,7 @@
                 document.getElementById('progress_bar').style.display = 'block';
 
                 var ajax_request = new XMLHttpRequest();
-                ajax_request.open("POST", "src/file_upload");
+                ajax_request.open("POST", "./src/file_upload.php");
 
                 ajax_request.upload.addEventListener('progress', function(event){
                     var percent_completed = Math.round((event.loaded / event.total) * 100);
@@ -291,7 +291,7 @@
                 dataType: 'text',
                 type: 'POST',
                 contentType: 'application/x-www-form-urlencoded',
-                url:"src/file_list",
+                url:"src/file_list.php",
                 data: {
                     'task_id' : <?php echo $taskid; ?>,
                     'assigned_to' : <?php echo $row['taskassignedto']; ?>,

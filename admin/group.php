@@ -5,7 +5,7 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/group.php");
+        header("Location: ../group.php");
         die;
     }
 
@@ -15,7 +15,7 @@
     }
     else
     {
-        header("Location: " . ROOT_FOLDER . "/admin/group.php?page=1");
+        header("Location: group.php?page=1");
         die;
     }
 
@@ -30,14 +30,14 @@
     $next_page = $page_number + 1;
 
     $currentPage = 'group';
-    require('../libs/header.php');
+    require('./header.php');
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
         <?php require('../head.php')?>
-        <link rel="stylesheet" href="<?php echo ROOT_FOLDER . '/css/fade.css'; ?>">
+        <link rel="stylesheet" href="./css/fade.css'; ?>">
         <title>Thesis & Capstone Manager - Group</title>
 
         <style>
@@ -142,10 +142,10 @@
                 <div class="row">
                     <div class="col-md-2">
                         <ul class="list-group">
-                            <a href="<?php echo ROOT_FOLDER . "/admin/index.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/members.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/group.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
-                            <a href="<?php echo ROOT_FOLDER . "/admin/grades.php"; ?>"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
+                            <a href="./index.php"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
+                            <a href="./members.php"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
+                            <a href="./group.php"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
+                            <a href="./grades.php"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
                         </ul>
                     </div>
 
@@ -337,7 +337,7 @@
                                                     <td><?php echo $row['group_code']; ?></td>
 
                                                     <td class="text-center">
-                                                        <a href="<?php echo ROOT_FOLDER; ?>/admin/edit_group.php?id=<?php echo $row['groupid']; ?>" class="edit" title="Edit" data-toggle="tooltip"><span class="badge bg-primary text-white">Edit</span></a>                            
+                                                        <a href="./edit_group.php?id=<?php echo $row['groupid']; ?>" class="edit" title="Edit" data-toggle="tooltip"><span class="badge bg-primary text-white">Edit</span></a>                            
                                                         <a href="#" class="delete" onclick="showAlertGroupDelete(<?php echo $row['groupid']; ?>);" title="Delete" data-toggle="tooltip"><span class="badge bg-danger text-white">Delete</span></a>     
                                                     </td>
                                                 </tr>
@@ -365,7 +365,7 @@
                                                     <li class="page-item <?php if($page_number <= 1) echo 'disabled'; ?>">
                                                         <a class="page-link"
                                                             href="<?php 
-                                                                    echo ROOT_FOLDER. '/admin/group.php';
+                                                                    echo './group.php';
 
                                                                     if($page_number <= 1)
                                                                     { 
@@ -394,7 +394,7 @@
                                                     <li class="page-item <?php if($page_number == $i) echo 'active'; ?>">
                                                         <a class="page-link" href="
                                                         <?php 
-                                                            echo ROOT_FOLDER. '/admin/group.php?page=' .$i;
+                                                            echo './group.php?page=' .$i;
                                                             
                                                             if(isset($_GET['sort']))
                                                                 echo '&sort=' .$_GET['sort'];
@@ -409,7 +409,7 @@
                                                         <a class="page-link"
                                                             href="
                                                             <?php 
-                                                                echo ROOT_FOLDER. '/admin/group.php'; 
+                                                                echo './group.php'; 
                                                                 if($page_number >= $total_pages)
                                                                 {
                                                                     echo '?page=1'; 
@@ -459,7 +459,7 @@
                     dataType: 'text',
                     type: 'POST',
                     contentType: 'application/x-www-form-urlencoded',
-                    url: "../src/search_leader",
+                    url: "../src/search_leader.php",
                     data: {
                         query: searchText,
                     },
@@ -481,7 +481,7 @@
                 dataType: 'text',
                 type: 'POST',
                 contentType: 'application/x-www-form-urlencoded',
-                url: "../src/create_group",
+                url: "../src/create_group.php",
                 data: str,
                 success: function (response)
                 {
@@ -529,7 +529,7 @@
                         dataType: 'text',
                         type: 'POST',
                         contentType: 'application/x-www-form-urlencoded',
-                        url: '../src/delete_group',
+                        url: '../src/delete_group.php',
                         data: {'group_id' : id},
                         success: function(response) {
                             if(response=="success") {

@@ -168,9 +168,12 @@
 
         <div class="grey-wrapper">
             <div class="container-fluid mt-4 mb-5">
-                <div class="row">
-                    <div class="col mb-3">
+                <div class="row mb-3">
+                    <div class="col">
                         <a href="./group.php"><button type="button" class="btn btn-warning btn-md">Go Back to the List</button></a>
+                    </div>
+                    <div class="col">
+                        <a href="./grades.php"><button type="button" class="btn btn-warning btn-md">Go to Grading</button></a>
                     </div>
                 </div>
 

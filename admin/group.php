@@ -151,12 +151,6 @@
         <div class="grey-wrapper">
             <div class="mt-4 mb-4 container-fluid">
                 <div class="row">
-                    <div class="col mb-3">
-                        <a href="./grades.php"><button type="button" class="btn btn-warning btn-md">Go to Grading</button></a>
-                    </div>
-                </div>
-
-                <div class="row">
                     <div class="col-md-2">
                         <ul class="list-group">
                             <?php if($_SESSION['user']['role'] >= ROLE_ADMIN): ?>

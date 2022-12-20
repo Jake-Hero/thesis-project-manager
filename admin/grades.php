@@ -5,7 +5,7 @@
 
     if($_SESSION['user']['role'] < ROLE_ADVISOR)
     {
-        header("Location: ./grades.php");
+        header("Location: ../dashboard.php");
         die;
     }
 
@@ -25,24 +25,41 @@
     $next_page = $page_number + 1;
 
     $currentPage = 'grades';
+
     require('./header.php');
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('../head.php')?>
-        <link rel="stylesheet" href="../css/fade.css">
-        <title>Thesis & Capstone Manager - Group</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="nope!" onload="this.media='all'">
+        <link rel="stylesheet" href="../css/style.css">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script type="text/javascript" src="../js/lastseen.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.11/dist/sweetalert2.all.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+        <script src="../bootstrap/js/bootstrap.min.js"></script>
+
+        <title>Thesis & Capstone Manager - Admin Panel</title>      
 
         <style>
             .list-group-item.active {
                 color: black;
             }
 
+            table.table th i {
+                font-size: 13px;
+                margin: 0 5px;
+                cursor: pointer;
+            }
+
             table.table tr th, table.table tr td {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                background-color: rgba(240, 240, 240, 0.1) !important;
+                border-color: #e9e9e9;
+                font-size: 90%;
             }
 
             table.table td:last-child {
@@ -92,9 +109,9 @@
         </style>
     </head>
 
-    <body>
+    <body> 
         <div class="grey-wrapper">
-            <div class="mt-4 mb-4 container-fluid">
+            <div class="mt-4 mb-4 container-fluid">  
                 <div class="row">
                     <div class="col-md-2">
                         <ul class="list-group">
@@ -107,11 +124,11 @@
 
                     <div class="col">
                         <div class="card">
-                            <div class="card-header border-bottom border-5 border-warning">Groups</div>
+                            <div class="card-header border-bottom border-5 border-success">Administrative Panel - Members</div>
                             <div class="card-body">
                                 <div class="table table-responsive w-100 d-block d-md-table">
                                     <div class="table-title border-bottom border-3 mb-3">
-                                        <div class="mb-4 row d-flex justify-content-between align-items-center">
+                                        <div class="row d-flex justify-content-between align-items-center">
                                             <div class="col-lg-4">
                                                 <div class="form-check mb-0">
                                                     <form action="" method="get">
@@ -124,15 +141,15 @@
                                                         <div class="row">
                                                             <div class="col">
                                                                 <select name="sort" class="form-select me-2" aria-label="Default select example">
-                                                                    <option>Sort</option>
-                                                                    <option value="first" <?php if(isset($_GET['sort']) && $_GET['sort'] == "a-z") echo 'selected' ?>>Sort by Group Name (A-Z)</option>
-                                                                    <option value="second" <?php if(isset($_GET['sort']) && $_GET['sort'] == "z-a") echo 'selected' ?>>Sort by Group Name (Z-A)</option>
-                                                                    <option value="id_desc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "id_desc") echo 'selected' ?>>Sort by Group ID (Highest to Lowest)</option>
-                                                                    <option value="id_asc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "id_asc") echo 'selected' ?>>Sort by Group ID (Lowest to Highest)</option>
+                                                                    <option>Sort users</option>
+                                                                    <option value="a-z" <?php if(isset($_GET['sort']) && $_GET['sort'] == "a-z") echo 'selected' ?>>Sort by Full Name (A-Z)</option>
+                                                                    <option value="z-a" <?php if(isset($_GET['sort']) && $_GET['sort'] == "z-a") echo 'selected' ?>>Sort by Full Name (Z-A)</option>
+                                                                    <option value="id_desc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "id_desc") echo 'selected' ?>>Sort by User ID (Highest to Lowest)</option>
+                                                                    <option value="id_asc" <?php if(isset($_GET['sort']) && $_GET['sort'] == "id_asc") echo 'selected' ?>>Sort by User ID (Lowest to Highest)</option>
                                                                 </select>
                                                             </div>
                                                             <div class="col">
-                                                                <button class="btn text-white" style="background-color: #A020F0;" type="submit"><i class="fa-solid fa-filter"></i> Sort</button>
+                                                                <button class="btn btn-warning" type="submit"><i class="fa-solid fa-filter"></i> Sort</button>
                                                             </div>
                                                         </div>
                                                     </form>
@@ -152,32 +169,41 @@
                                                             <input type="text" name="search" class="col-sm-10 form-control" placeholder="<?php if(isset($_GET['search'])) echo $_GET['search'];?>">
                                                         </div>
                                                         <div class="col">
-                                                            <button class="btn text-white" style="background-color: #A020F0;" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</search>
+                                                            <button class="btn btn-warning" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</search>
                                                         </div>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
-
                                     <table class="table table-hover">
                                         <thead>
                                             <tr class="table-light text-center">
-                                                <th scope="col">ID</th>
-                                                <th scope="col" class="w-50">Title</th>
-                                                <th scope="col">First Grading</th>
-                                                <th scope="col">Second Grading</th>
-                                                <th scope="col">Action</th>
+                                                <th scope="col"></th>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Group</th>
+                                                <th scope="col">Adviser</th>
+                                                <th scope="col">Pre-Oral</th>
+                                                <th scope="col">Oral Defense</th>
+                                                <th scope="col" class="text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php 
+                                            <?php
                                             if(isset($_GET['sort']) && isset($_GET['search']))
                                             {
                                                 $search = '%' . $_GET['search'] . '%';
 
-                                                $query = "SELECT COUNT(*) FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ";
+                                                if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                    $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword";
+                                                else
+                                                    $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword";
+                                                
                                                 $selectStmt = $con->prepare($query);
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
+
                                                 $selectStmt->bindValue(':keyword', $search);
                                                 $selectStmt->execute();
                                                 
@@ -187,21 +213,39 @@
                                                 switch($_GET['sort'])
                                                 {
                                                     case "a-z":
-                                                        $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid WHERE CONCAT(groups.group_title, groups.group_code) LIKE :keyword  ORDER BY groups.group_title ASC LIMIT :offset, :no_of_records');                                    
+                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');                                    
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "z-a":
-                                                        $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid WHERE CONCAT(groups.group_title, groups.group_code) LIKE :keyword  ORDER BY groups.group_title DESC LIMIT :offset, :no_of_records');                                    
+                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_desc":
-                                                        $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid WHERE CONCAT(groups.group_title, groups.group_code) LIKE :keyword  ORDER BY groups.groupid DESC LIMIT :offset, :no_of_records');                                    
+                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_asc":
-                                                        $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid WHERE CONCAT(groups.group_title, groups.group_code) LIKE :keyword  ORDER BY groups.groupid ASC LIMIT :offset, :no_of_records'); 
+                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
                                                         break;
                                                     default: 
-                                                        $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid WHERE CONCAT(groups.group_title, groups.group_code) LIKE :keyword  ORDER BY groups.groupid ASC LIMIT :offset, :no_of_records');
+                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records');
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records');
                                                         break;
                                                 }
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
 
                                                 $selectStmt->bindParam(':keyword', $search);
                                             }
@@ -209,90 +253,148 @@
                                             {
                                                 $search = '%' . $_GET['search'] . '%';
 
-                                                $query = "SELECT COUNT(*) FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ";
+                                                if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                    $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword";
+                                                else
+                                                    $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword";
+                                                
                                                 $selectStmt = $con->prepare($query);
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
+
                                                 $selectStmt->bindValue(':keyword', $search);
                                                 $selectStmt->execute();
                                                 
                                                 $total_rows = $selectStmt->fetchColumn();
                                                 $total_pages = ceil($total_rows / $no_of_records_per_page);
-                                            
-                                                $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid WHERE CONCAT(groups.group_title, groups.group_code) LIKE :keyword  LIMIT :offset, :no_of_records');
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt = $con->prepare("SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword LIMIT :offset, :no_of_records");
+                                                else
+                                                    $selectStmt = $con->prepare("SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword LIMIT :offset, :no_of_records");
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
+
                                                 $selectStmt->bindParam(':keyword', $search);
                                             }
                                             else if(isset($_GET['sort']))
                                             {
-                                                $query = "SELECT COUNT(*) FROM groups";
-                                                $selectStmt = $con->prepare($query);
-                                                $selectStmt->execute();
-                                                
-                                                $total_rows = $selectStmt->fetchColumn();
-                                                $total_pages = ceil($total_rows / $no_of_records_per_page);
+                                                if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by = :id";
+                                                else
+                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by >= 1";
 
-                                                switch($_GET['sort'])
-                                                {
-                                                    case "a-z":
-                                                        $selectStmt = $con->prepare('SELECTgroups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid ORDER BY groups.group_title ASC LIMIT :offset, :no_of_records');                                    
-                                                        break;
-                                                    case "z-a":
-                                                        $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid ORDER BY groups.group_title DESC LIMIT :offset, :no_of_records');                                    
-                                                        break;
-                                                    case "id_desc":
-                                                        $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid ORDER BY groups.groupid DESC LIMIT :offset, :no_of_records');                                    
-                                                        break;
-                                                    case "id_asc":
-                                                        $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid ORDER BY groups.groupid ASC LIMIT :offset, :no_of_records'); 
-                                                        break;
-                                                    default: 
-                                                        $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid ORDER BY groups.groupid ASC LIMIT :offset, :no_of_records');
-                                                        break;
-                                                }
-                                            }
-                                            else 
-                                            {
-                                                $query = "SELECT COUNT(*) FROM groups";
                                                 $selectStmt = $con->prepare($query);
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
+
                                                 $selectStmt->execute();
                                                 
                                                 $total_rows = $selectStmt->fetchColumn();
                                                 $total_pages = ceil($total_rows / $no_of_records_per_page);      
 
-                                                $selectStmt = $con->prepare('SELECT groups.*, grades.* FROM groups INNER JOIN grades ON groups.groupid = grades.groupid ORDER BY groups.groupid ASC LIMIT :offset, :no_of_records');
+                                                switch($_GET['sort'])
+                                                {
+                                                    case "a-z":
+                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');  
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');                                    
+                                                        break;
+                                                    case "z-a":
+                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
+                                                        break;
+                                                    case "id_desc":
+                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
+                                                        break;
+                                                    case "id_asc":
+                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
+                                                        break;
+                                                    default: 
+                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.id ASC LIMIT :offset, :no_of_records');
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 ORDER BY u.id ASC LIMIT :offset, :no_of_records');
+                                                        break;
+                                                }
                                             }
+                                            else 
+                                            {
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by = :id";
+                                                else
+                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by >= 1";
+
+                                                $selectStmt = $con->prepare($query);
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
+
+                                                $selectStmt->execute();
+                                                
+                                                $total_rows = $selectStmt->fetchColumn();
+                                                $total_pages = ceil($total_rows / $no_of_records_per_page);      
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.id ASC LIMIT :offset, :no_of_records');
+                                                else
+                                                    $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE u.advised_by >= 1 ORDER BY u.id ASC LIMIT :offset, :no_of_records');
+                                            }
+                                                
+                                            if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                $selectStmt->bindValue(':id', $_SESSION['user']['id'], PDO::PARAM_INT);
 
                                             $selectStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
                                             $selectStmt->bindValue(':no_of_records', $no_of_records_per_page, PDO::PARAM_INT);
                                             $selectStmt->execute();
 
                                             if($selectStmt->rowCount() > 0):
-                                            while($row = $selectStmt->fetch()): 
+                                            while($row = $selectStmt->fetch(PDO::FETCH_ASSOC)): 
                                             ?>
-                                                <tr class="table-light text-center">
-                                                    <td><?php echo $row['groupid']; ?></td>
-                                                    <td><?php echo '<strong>' .$row['group_title']. '</strong>'; ?></td>
-                                                    <td>
-                                                        <?php
-                                                        $avg = ($row["first_prelims"] + $row['first_midterms'] + $row['first_semis'] + $row['first_finals']) / 4;
-                                                        echo $avg;
-                                                        ?>
-                                                        %
-                                                    </td>
-                                                    <td>
-                                                        <?php
-                                                        $avg = ($row["second_prelims"] + $row['second_midterms'] + $row['second_semis'] + $row['second_finals']) / 4;
-                                                        echo $avg;
-                                                        ?>
-                                                        %
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <a href="./edit_grade.php?id=<?php echo $row['groupid']; ?>&semester=1" class="edit" title="Give Grade" data-toggle="tooltip"><span class="badge bg-primary text-white">Give Grade</span></a>
-                                                    </td>
-                                                </tr>
+
+                                            <tr class="table-light text-center">
+                                                <td>    
+                                                    <img src="../assets/profile_pictures/<?php echo $row['image']; ?>" class="rounded-circle btn-lg" height="60" alt="Avatar" />
+                                                </td>
+                                                <td><?php echo $row['fullname']; ?></td>
+                                                <td><?php echo $row['group_title']; ?></td>
+                                                <td><?php echo getFullName($row['advised_by']); ?></td>
+                                                <td>
+                                                    <?php
+                                                    $total = ($row["pre_rubrics_1"] + $row['pre_rubrics_2'] + $row['pre_rubrics_3'] + $row['pre_rubrics_4'] + $row['pre_rubrics_5'] + $row['pre_rubrics_6']);
+                                                    echo getGradeConversion(1, $total);
+                                                    ?>
+                                                    %
+                                                </td>                                                
+                                                <td>
+                                                    <?php
+                                                    $total = ($row["oral_rubrics_1"] + $row['oral_rubrics_2'] + $row['oral_rubrics_3'] + $row['oral_rubrics_4'] + $row['oral_rubrics_5'] + $row['oral_rubrics_6'] + $row['oral_rubrics_7']);
+                                                    echo getGradeConversion(2, $total);
+                                                    ?>
+                                                    %
+                                                </td>
+                                                <td class="text-center">
+                                                    <a href="./edit_grade.php?id=<?php echo $row['id']; ?>" class="edit" title="Give Grade" data-toggle="tooltip"><span class="badge bg-primary text-white">Give Grade</span></a>                             
+                                                </td>
+                                            </tr>   
+
                                             <?php endwhile; ?>
                                             <?php else: ?>
-                                                <tr class="table-light">
-                                                    <td colspan="6" class="text-center">No groups were found in the database, Create one first!</td>
-                                                </tr>
+                                            <tr class="table-light">
+                                                <td colspan="7" class="text-center">No user is assigned to an adviser currently.</td>
+                                            </tr>
                                             <?php endif; ?>
                                         </tbody>
                                     </table>
@@ -309,11 +411,11 @@
                                         <div class="text-center">
                                             <nav aria-label="Page navigation example mt-5">
                                                 <ul class="pagination justify-content-center">
-                                                    <li class="page-item <?php if($page_number <= 1) echo 'disabled'; ?>">
+                                                    <li class="page-item <?php if($page_number <= 1){ echo 'disabled'; } ?>">
                                                         <a class="page-link"
                                                             href="<?php 
-                                                                    echo './grades.php';
-
+                                                                    echo './members.php'; 
+                                                                    
                                                                     if($page_number <= 1)
                                                                     { 
                                                                         echo '?page=1'; 
@@ -326,7 +428,7 @@
                                                                     } 
                                                                     else 
                                                                     { 
-                                                                        echo '?page=' . $prev_page; 
+                                                                        echo "?page=" . $prev_page; 
                                                                         
                                                                         if(isset($_GET['sort']))
                                                                             echo '&sort=' .$_GET['sort'];
@@ -334,14 +436,13 @@
                                                                         if(isset($_GET['search']))
                                                                             echo '&search=' .$_GET['search'];
                                                                     } 
-                                                                ?>">Previous
-                                                        </a>
+                                                                ?>">Previous</a>
                                                     </li>
                                                     <?php for($i = 1; $i <= $total_pages; $i++ ): ?>
-                                                    <li class="page-item <?php if($page_number == $i) echo 'active'; ?>">
+                                                    <li class="page-item <?php if($page_number == $i) {echo 'active'; } ?>">
                                                         <a class="page-link" href="
                                                         <?php 
-                                                            echo './grades.php?page=' .$i;
+                                                            echo './members.php?page=' .$i;
                                                             
                                                             if(isset($_GET['sort']))
                                                                 echo '&sort=' .$_GET['sort'];
@@ -352,11 +453,11 @@
                                                         ?>"> <?= $i; ?> </a>
                                                     </li>
                                                     <?php endfor; ?>
-                                                    <li class="page-item <?php if($page_number >= $total_pages) echo 'disabled'; ?>">
+                                                    <li class="page-item <?php if($page_number >= $total_pages) { echo 'disabled'; } ?>">
                                                         <a class="page-link"
                                                             href="
                                                             <?php 
-                                                                echo './grades.php'; 
+                                                                echo './members.php'; 
                                                                 if($page_number >= $total_pages)
                                                                 {
                                                                     echo '?page=1'; 

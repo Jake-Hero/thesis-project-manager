@@ -4,7 +4,7 @@ require "libs/functions.php";
 
 if(is_user_login(false))
 {
-    header("Location: " . ROOT_FOLDER . "/dashboard.php");
+    header("Location: ./dashboard.php");
     die;
 }
 
@@ -51,10 +51,10 @@ if(!empty($_SESSION['error_load'])): ?>
         </div>
 
         <div class="text-center">
-            <a href="<?php echo ROOT_FOLDER; ?>/forgot_password.php" class="text-danger">Click here to get redirected to Forgot Password page.</a>
+            <a href="./forgot_password.php" class="text-danger">Click here to get redirected to Forgot Password page.</a>
         </div>
 
-        <?php header('Refresh: 3; URL=' . ROOT_FOLDER . '/forgot_password.php'); ?>
+        <?php header('Refresh: 3; URL=./forgot_password.php'); ?>
     </div>
 
 <?php 
@@ -99,7 +99,7 @@ if(isset($_POST['submit']))
                 </script>   
             ';
 
-            header("Location: " . ROOT_FOLDER . "/login.php");
+            header("Location: ./login.php");
         }
         else 
         {
@@ -112,6 +112,7 @@ if(isset($_POST['submit']))
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="shortcut icon" type="image/jpg" href="./favicon.ico"/>
         <?php require('head.php')?>
         <title>Thesis & Capstone Manager - Reset Password</title>
     </head>

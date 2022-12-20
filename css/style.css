@@ -1,4 +1,10 @@
-@import url(//db.onlinewebfonts.com/c/67137b5f6928edc941186baaab5a664b?family=Lemon/Milk);
+@font-face {
+  font-family: "Lemon/Milk";
+  src: url("../fonts/Lemon_Milk.otf") format("woff");
+  src: url("../fonts/Lemon_Milk.otf") format("opentype");
+  src: url("../fonts/Lemon_Milk.otf") format("truetype");
+  font-display: swap
+}
 
 .loader {
   border: 5px solid #C0C0C0;

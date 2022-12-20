@@ -35,18 +35,14 @@ if($select_stm->rowCount() > 0)
     {
         $code = bin2hex(random_bytes(6));
 
-        $query = "INSERT INTO groups (creation, group_leader, group_title, group_code) VALUES(:creation, :leader, :title, :code)";
+        $query = "INSERT INTO groups (creation, created_by, group_leader, group_title, group_code) VALUES(:creation, :id, :leader, :title, :code)";
         $insert_stm = $con->prepare($query);
-        $insert_stm->execute(['creation' => date("Y-m-d H:i:s"), 'leader' => $row['id'], 'title' => $_POST['group_title'], 'code' => $code]);
+        $insert_stm->execute(['creation' => date("Y-m-d H:i:s"), 'id' => $_SESSION['user']['id'], 'leader' => $row['id'], 'title' => $_POST['group_title'], 'code' => $code]);
         $groupid = $con->lastInsertId();
 
-        $query = "INSERT INTO grades (groupid) VALUES(:groupid)";
-        $insert_stm = $con->prepare($query);
-        $insert_stm->execute(['groupid' => $groupid]);
-
-        $query = "UPDATE users SET group_id = :groupid WHERE id = :leader";
+        $query = "UPDATE users SET group_id = :groupid, advised_by = :id WHERE id = :leader";
         $updateStmt = $con->prepare($query);
-        $updateStmt->execute(['groupid' => $groupid, 'leader' => $row['id']]);
+        $updateStmt->execute(['groupid' => $groupid, 'id' => $_SESSION['user']['id'], 'leader' => $row['id']]);
     
         log_group($groupid, $_SESSION['user']['fullname'] . " created the thesis group.");
         log_group($groupid, $_SESSION['user']['fullname'] . " has assigned " . getFullName($row['id']) . " as the group leader.");

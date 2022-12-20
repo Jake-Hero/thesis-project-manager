@@ -24,6 +24,8 @@
                 <li class="nav-item <?php if($currentPage == 'group') echo 'fw-bold'; ?>">
                 <?php if($_SESSION['user']['role'] >= ROLE_ADVISOR): ?>
                     <a class="nav-link active" href="./admin/group.php">Group</a>
+                <?php elseif($_SESSION['user']['role'] == ROLE_PANELIST): ?>
+                    <a class="nav-link active" href="./panelist_group.php">Group</a>
                 <?php else: ?>
                     <a class="nav-link active" href="./group.php">Group</a>                    
                 <?php endif; ?>

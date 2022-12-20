@@ -7,15 +7,10 @@ error_reporting(E_ALL);
 
 date_default_timezone_set('Asia/Manila');
 
-//define ('PROJECT_NAME', 'thesis-manager.infinityfreeapp.com');
-define ('PROJECT_NAME', 'thesis-project-manager');
-define ('ROOT_FOLDER', DIRECTORY_SEPARATOR . PROJECT_NAME);
-
 require_once realpath(dirname(__FILE__) . '/../config/db.php');
-require realpath(dirname(__FILE__) . '/../config/mail.php');
-
-require "mobile_detection.php";
-require "browser_detection.php";
+require_once realpath(dirname(__FILE__) . '/../config/mail.php');
+require_once "mobile_detection.php";
+require_once "browser_detection.php";
 
 define("ROLE_STUDENT", 0);
 define("ROLE_PANELIST", 1);
@@ -125,6 +120,11 @@ function signup_user($data)
     global $con;
     $errors = array();
 
+    $uppercase = preg_match('@[A-Z]@', $data['password']);
+    $lowercase = preg_match('@[a-z]@', $data['password']);
+    $number    = preg_match('@[0-9]@', $data['password']);
+    $specialChars = preg_match('@[^\w]@', $data['password']);
+
     // Field Errors
     if(!preg_match('/^[a-zA-Z ]+$/', $data['fullname']))
         $errors['fullname'] = "Enter a valid full name!";
@@ -132,8 +132,10 @@ function signup_user($data)
         $errors['username'] = "Enter a valid username!";
     if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL))
         $errors['email'] = "Enter a valid email address!";
-    if(strlen(trim($data['password'])) < 4)
+    if(strlen(trim($data['password'])) < 8)
         $errors['password'] = "Your password must be longer than 4 characters.";
+    if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($data['password']) < 8) 
+        $errors['password'] = "Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character.";
 
     if(isset($data['username']) && isset($data['email']) && !empty($data['username']) && !empty($data['email']))
     {    
@@ -167,9 +169,10 @@ function signup_user($data)
         $insert_stm->bindValue('email', $email); 
         $insert_stm->bindValue('pass', $hashed_password);
         $insert_stm->execute();
-        
+        $userid = $con->lastInsertId();
+
         $_SESSION['username'] = $data['username'];
-        $_SESSION['userid'] = $con->lastInsertId();
+        $_SESSION['userid'] = $userid;
         $_SESSION['logged_in'] = true;
         $_SESSION['profilepic'] = 'default_profile.jpg'; 
         $_SESSION['role'] = 0;
@@ -187,6 +190,32 @@ function signup_user($data)
                 })
             </script>        
         ';
+
+        $query = "INSERT INTO grades (userid) VALUES(:id)";
+        $insert_stm = $con->prepare($query);
+        $insert_stm->execute(['id' => $userid]);
+
+        $vars['code'] = rand(pow(10, 5-1), pow(10, 5)-1);
+        $vars['email'] = $email;
+        $vars['expiry'] = time() + (60 * 5); // 5 minutes expiration
+    
+        $query = "INSERT INTO verified (code, expiry, email) VALUES(:code, :expiry, :email)";
+        $insert_stm = $con->prepare($query);
+        $insert_stm->execute($vars);
+
+        $message = "Welcome to Thesis & Capstone Manager!";
+        $message.= "\r\n\n";
+        $message.= "You have just recently signed up, to get you started please verify your account!";
+        $message.= "\r\n\n";
+        $message.= "Your verification code is: ". $vars['code'];
+        $message.= "\r\n\n";
+        $message.= "You may type this verification code after logging in, via 'Edit My Profile'."; 
+        $message.= "\r\nThis code will expire and is only valid for <strong>5 minutes</strong>";
+        $message.= "\r\n\nPlease ignore this E-Mail if you aren't the one who requested for this code.";
+        $message.= "\r\nThis message is automated, Please do not reply to this email.";
+        $message = nl2br($message);
+        
+        send_mail($email, "Welcome to Thesis & Capstone Manager", $message);
 
         header("Location: ./login.php");
     }
@@ -278,6 +307,7 @@ function sendVerificationCode($email = NULL)
             unset($_SESSION['error_message']);
             $_SESSION['message'] = "A code was sent to your email address. Check your <strong>inbox</strong> or the <strong>spam folder</strong>.";
             $message = "Your verification code is: ". $vars['code'];
+            $message.= "\r\nThis code will expire and is only valid for <strong>5 minutes</strong>";
             $message.= "\r\n\nPlease ignore this E-Mail if you aren't the one who requested for this code.";
             $message.= "\r\nThis message is automated, Please do not reply to this email.";
             $message = nl2br($message);
@@ -301,6 +331,7 @@ function sendVerificationCode($email = NULL)
 
         $_SESSION['message'] = "A code was sent to your email address. Check your <strong>inbox</strong> or the <strong>spam folder</strong>.";
         $message = "Your verification code is: ". $vars['code'];
+        $message.= "\r\nThis code will expire and is only valid for <strong>5 minutes</strong>";
         $message.= "\r\n\nPlease ignore this E-Mail if you aren't the one who requested for this code.";
         $message.= "\r\nThis message is automated, Please do not reply to this email.";
         $message = nl2br($message);
@@ -381,6 +412,11 @@ function profileSave()
     $username = $_SESSION['user']['username'];
     $password = $_POST['verifypassword'];        
 
+    $uppercase = preg_match('@[A-Z]@', $_POST['password']);
+    $lowercase = preg_match('@[a-z]@', $_POST['password']);
+    $number    = preg_match('@[0-9]@', $_POST['password']);
+    $specialChars = preg_match('@[^\w]@', $_POST['password']);
+
     $query = "SELECT id, email, password FROM users WHERE username = :username limit 1;";
     $select_stm = $con->prepare($query);
     $select_stm->execute(['username' => $username]);
@@ -388,8 +424,11 @@ function profileSave()
 
     if(password_verify($password, $row['password']))
     { // if verify password matches the password
-        // if a user uploaded a profile picture
-        if(!empty($_POST['email']) > 0 && $_POST['email'] == $row['email'])
+        if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($password) < 8) 
+        {
+            $_SESSION['error_message'] = "Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character.";
+        }
+        else if(!empty($_POST['email']) > 0 && $_POST['email'] == $row['email'])
         {
             $_SESSION['error_message'] = "Your new email cannot be the same as your old one!";
         }        
@@ -587,10 +626,94 @@ function createUserProfile()
             $insert_stm->bindValue('role', $_POST['role']);
             $insert_stm->execute();
         
-            header("Location: ./admin/members.php?page=1&search=" . $_POST['email']);
+            header("Location: ../admin/members.php?page=1&search=" . $_POST['email']);
         }
     }
     return true;
+}
+
+function getGradeConversion($type, $score)
+{
+    switch($type)
+    {
+        case 1: // Pre Oral 
+            $table = array(
+                30 => 100,
+                29 => 99,
+                28 => 97,
+                27 => 95,
+                26 => 94,
+                25 => 92,
+                24 => 90,
+                23 => 89,
+                22 => 87,
+                21 => 85,
+                20 => 84,
+                19 => 82,
+                18 => 80,
+                17 => 79,
+                16 => 77,
+                15 => 75,
+                14 => 74,
+                13 => 73,
+                12 => 72,
+                11 => 71,
+                10 => 70,
+                9 => 69,
+                8 => 68,
+                7 => 67,
+                6 => 66,
+                5 => 65,
+                4 => 64,
+                3 => 63,
+                2 => 62,
+                1 => 61,
+                0 => 60
+              );
+            break;
+        default: // Oral
+            $table = array(
+                35 => 100,
+                34 => 99,
+                33 => 98,
+                32 => 96,
+                31 => 94,
+                30 => 92,
+                29 => 91,
+                28 => 90,
+                27 => 89,
+                26 => 88,
+                25 => 86,
+                24 => 84,
+                23 => 82,
+                22 => 81,
+                21 => 80,
+                20 => 79,
+                19 => 78,
+                18 => 76,
+                17 => 74,
+                16 => 73,
+                15 => 72,
+                14 => 71,
+                13 => 70,
+                12 => 69,
+                11 => 68,
+                10 => 67,
+                9 => 66,
+                8 => 65,
+                7 => 64,
+                6 => 63,
+                5 => 63,
+                4 => 62,
+                3 => 62,
+                2 => 61,
+                1 => 61,
+                0 => 60
+            );
+            break;
+    }
+
+    return $table[$score];
 }
 
 function uploadnewImages($name)
@@ -851,6 +974,13 @@ function adminEditProfile($str)
                 header("Refresh:0");
                 $_SESSION['success_message'] = "Changes to this profile has been saved!";
             
+                $message = "Your account has been modified by ". $_SESSION['user']['fullname'];
+                $message.= "\r\n\nPlease ignore this E-Mail, this is just to notify you with the changes made in your account.";
+                $message.= "\r\nThis message is automated, Please do not reply to this email.";
+                $message = nl2br($message);
+                
+                send_mail($row['email_verified'], "Account Modified", $message);   
+
                 $query = "SELECT * FROM users WHERE username = :username limit 1;";
                 $select_stm = $con->prepare($query);
                 $select_stm->execute(['username' => $username]);
@@ -1056,7 +1186,7 @@ function adminEditGroup($id)
         {
             if(!empty($_POST['group_leader']))
             {
-                $query = "SELECT id, group_id FROM users WHERE id = :user_id OR fullname = :fullname OR username = :username";
+                $query = "SELECT id, email_verified, group_id FROM users WHERE id = :user_id OR fullname = :fullname OR username = :username";
                 $selectStmt = $con->prepare($query);
                 $selectStmt->bindValue('user_id', $_POST['group_leader'], PDO::PARAM_INT);
                 $selectStmt->bindValue('fullname', $_POST['group_leader']);
@@ -1075,7 +1205,7 @@ function adminEditGroup($id)
 
                 $count = $countStmt->fetchColumn();
 
-                $query = "SELECT id, group_id FROM users WHERE id = :user_id OR fullname = :fullname OR username = :username";
+                $query = "SELECT id, email_verified, group_id FROM users WHERE id = :user_id OR fullname = :fullname OR username = :username";
                 $selectStmt = $con->prepare($query);
                 $selectStmt->bindValue('user_id', $_POST['add_member'], PDO::PARAM_INT);
                 $selectStmt->bindValue('fullname', $_POST['add_member']);
@@ -1088,7 +1218,7 @@ function adminEditGroup($id)
 
             if(!empty($_POST['remove_member']))
             {
-                $query = "SELECT id, group_id FROM users WHERE id = :user_id OR fullname = :fullname OR username = :username";
+                $query = "SELECT id, email_verified, group_id FROM users WHERE id = :user_id OR fullname = :fullname OR username = :username";
                 $deleteMmbrStmt = $con->prepare($query);
                 $deleteMmbrStmt->bindValue('user_id', $_POST['remove_member'], PDO::PARAM_INT);
                 $deleteMmbrStmt->bindValue('fullname', $_POST['remove_member']);
@@ -1099,15 +1229,19 @@ function adminEditGroup($id)
                     $delete_row = $deleteMmbrStmt->fetch();
             }
 
-            if(!empty($_POST['add_member']) && $count >= 5)
+            if(isset($deleteMmbrStmt) && $deleteMmbrStmt->rowCount() < 1 || isset($selectStmt) && $selectStmt->rowCount() < 1)
+            {
+                $_SESSION['error_message'] = "That user doesn't exist!";
+            }
+            else if(isset($_POST['add_member']) && (isset($count) && $count >= 5))
             {
                 $_SESSION['error_message'] = "This thesis group can only have a maximum of five members!";
             }
-            else if((!empty($_POST['group_leader']) && $leader_row['group_id'] > 0) || (!empty($_POST['add_member']) && $add_row['group_id'] > 0))
+            else if((isset($_POST['group_leader']) && (isset($leader_row) && $leader_row['group_id'] > 0)) || (isset($_POST['add_member']) && (isset($add_row) && $add_row['group_id'] > 0)))
             {
                 $_SESSION['error_message'] = "That user is already a leader or member of a thesis group!";
             }
-            else if(!empty($_POST['remove_member']) && $delete_row['group_id'] != $id)
+            else if(isset($_POST['remove_member']) && (isset($delete_row) && $delete_row['group_id'] != $id))
             {
                 $_SESSION['error_message'] = "That user is not a member of this group!";
             }
@@ -1125,39 +1259,63 @@ function adminEditGroup($id)
                 
                 if(!empty($_POST['group_leader']))
                 {
-                    $query = "UPDATE users SET group_id = :id WHERE id = :user_id";
+                    $query = "UPDATE users SET group_id = :id, advised_by = :adviser WHERE id = :user_id";
                     $updateStmt = $con->prepare($query);
                     $updateStmt->bindValue('id', $id, PDO::PARAM_INT);
+                    $updateStmt->bindValue('adviser', $row['created_by'], PDO::PARAM_INT);
                     $updateStmt->bindValue('user_id', $leader_row['id'], PDO::PARAM_INT);
                     $updateStmt->execute();
+
+                    $message = "You have been made the Leader of the group ". $row['group_title'] . ' by ' . $_SESSION['user']['fullname'];
+                    $message.= "\r\n\nPlease ignore this E-Mail, this is just to notify you with the changes made in your account.";
+                    $message.= "\r\nThis message is automated, Please do not reply to this email.";
+                    $message = nl2br($message);
+                    
+                    send_mail($leader_row['email_verified'], "Made a Leader of a Group!", $message);   
+
 
                     log_group($id, $_SESSION['user']['fullname'] . " has given the leader status to " . getFullName($leader_row['id']));
                 }
                 if(!empty($_POST['add_member']))
                 {
-                    $query = "UPDATE users SET group_id = :id WHERE id = :user_id";
+                    $query = "UPDATE users SET group_id = :id, advised_by = :adviser WHERE id = :user_id";
                     $updateStmt = $con->prepare($query);
                     $updateStmt->bindValue('id', $id, PDO::PARAM_INT);
+                    $updateStmt->bindValue('adviser', $row['created_by'], PDO::PARAM_INT);
                     $updateStmt->bindValue('user_id', $add_row['id'], PDO::PARAM_INT);
                     $updateStmt->execute();
+
+                    $message = "You have been added to the group ". $row['group_title'] . ' by ' . $_SESSION['user']['fullname'];
+                    $message.= "\r\n\nPlease ignore this E-Mail, this is just to notify you with the changes made in your account.";
+                    $message.= "\r\nThis message is automated, Please do not reply to this email.";
+                    $message = nl2br($message);
+                    
+                    send_mail($add_row['email_verified'], "Added to the Group", $message);   
 
                     log_group($id, $_SESSION['user']['fullname'] . " has added " . getFullName($add_row['id']) . " to the group.");
                 }
 
                 if(!empty($_POST['remove_member']))
                 {
-                    $query = "UPDATE users SET group_id = 0 WHERE id = :user_id";
+                    $query = "UPDATE users SET group_id = 0, advised_by = 0 WHERE id = :user_id";
                     $updateStmt = $con->prepare($query);
                     $updateStmt->bindValue('user_id', $delete_row['id'], PDO::PARAM_INT);
                     $updateStmt->execute();
 
                     if($row['group_leader'] == $delete_row['id'])
                     {
-                        $query = "UPDATE users SET group_leader = 0 WHERE id = :user_id";
+                        $query = "UPDATE groups SET group_leader = 0 WHERE groupid = :id";
                         $updateStmt = $con->prepare($query);
-                        $updateStmt->bindValue('user_id', $delete_row['id'], PDO::PARAM_INT);
+                        $updateStmt->bindValue('id', $row['groupid'], PDO::PARAM_INT);
                         $updateStmt->execute();
                     }
+
+                    $message = "You have been removed from the group ". $row['group_title'] . ' by ' . $_SESSION['user']['fullname'];
+                    $message.= "\r\n\nPlease ignore this E-Mail, this is just to notify you with the changes made in your account.";
+                    $message.= "\r\nThis message is automated, Please do not reply to this email.";
+                    $message = nl2br($message);
+                    
+                    send_mail($delete_row['email_verified'], "Removed from the Group", $message);   
 
                     log_group($id, $_SESSION['user']['fullname'] . " has removed " . getFullName($delete_row['id']) . " from the group.");
                 }

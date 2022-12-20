@@ -10,6 +10,11 @@ $selectStmt->execute();
 
 if($selectStmt->rowCount() > 0)
 {
+    $query = "DELETE FROM grades WHERE userid = :id";
+    $updateStmt = $con->prepare($query);
+    $updateStmt->bindValue('id', $id);
+    $updateStmt->execute();
+
     $query = "DELETE FROM users WHERE id = :id";
     $updateStmt = $con->prepare($query);
     $updateStmt->bindValue('id', $id);

@@ -36,7 +36,18 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('../head.php')?>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="nope!" onload="this.media='all'">
+        <link rel="stylesheet" href="../css/style.css">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script type="text/javascript" src="../js/lastseen.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.11/dist/sweetalert2.all.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+        <script src="../bootstrap/js/bootstrap.min.js"></script>
+
         <link rel="stylesheet" href="./css/fade.css'; ?>">
         <title>Thesis & Capstone Manager - Group</title>
 
@@ -216,7 +227,8 @@
                                         <thead>
                                             <tr class="table-light text-center">
                                                 <th scope="col">ID</th>
-                                                <th scope="col" class="w-50">Title</th>
+                                                <th scope="col">Title</th>
+                                                <th scope="col">Adviser</th>
                                                 <th scope="col">Leader</th>
                                                 <th scope="col">Members</th>
                                                 <th scope="col">Join Code</th>
@@ -229,9 +241,18 @@
                                             {
                                                 $search = '%' . $_GET['search'] . '%';
 
-                                                $query = "SELECT COUNT(*) FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ";
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $query = "SELECT COUNT(*) FROM groups WHERE CONCAT(group_title, group_code) AND created_by = :id LIKE :keyword ";
+                                                else 
+                                                    $query = "SELECT COUNT(*) FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ";
+                                                
                                                 $selectStmt = $con->prepare($query);
+                                                
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindValue(':id', $_SESSION['user']['id']);
+
                                                 $selectStmt->bindValue(':keyword', $search);
+
                                                 $selectStmt->execute();
                                                 
                                                 $total_rows = $selectStmt->fetchColumn();
@@ -240,21 +261,40 @@
                                                 switch($_GET['sort'])
                                                 {
                                                     case "a-z":
-                                                        $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY group_title ASC LIMIT :offset, :no_of_records');                                    
+                                                        if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) AND created_by = :id LIKE :keyword ORDER BY group_title ASC LIMIT :offset, :no_of_records');                                    
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ORDER BY group_title ASC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "z-a":
-                                                        $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY group_title DESC LIMIT :offset, :no_of_records');                                    
+
+                                                        if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) AND created_by = :id LIKE :keyword ORDER BY group_title DESC LIMIT :offset, :no_of_records');                                    
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ORDER BY group_title DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_desc":
-                                                        $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY groupid DESC LIMIT :offset, :no_of_records');                                    
+                                                        if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) AND created_by = :id LIKE :keyword ORDER BY groupid DESC LIMIT :offset, :no_of_records');                                    
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ORDER BY groupid DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_asc":
-                                                        $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY groupid ASC LIMIT :offset, :no_of_records'); 
+                                                        if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) AND created_by = :id LIKE :keyword  ORDER BY groupid ASC LIMIT :offset, :no_of_records'); 
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY groupid ASC LIMIT :offset, :no_of_records'); 
                                                         break;
                                                     default: 
-                                                        $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY groupid ASC LIMIT :offset, :no_of_records');
+                                                        if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) AND created_by = :id LIKE :keyword  ORDER BY groupid ASC LIMIT :offset, :no_of_records');
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  ORDER BY groupid ASC LIMIT :offset, :no_of_records');
                                                         break;
                                                 }
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
 
                                                 $selectStmt->bindParam(':keyword', $search);
                                             }
@@ -262,21 +302,41 @@
                                             {
                                                 $search = '%' . $_GET['search'] . '%';
 
-                                                $query = "SELECT COUNT(*) FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ";
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $query = "SELECT COUNT(*) FROM groups WHERE CONCAT(group_title, group_code) AND created_by = :id LIKE :keyword ";
+                                                else
+                                                    $query = "SELECT COUNT(*) FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword ";
+                                                
                                                 $selectStmt = $con->prepare($query);
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
+
                                                 $selectStmt->bindValue(':keyword', $search);
                                                 $selectStmt->execute();
                                                 
                                                 $total_rows = $selectStmt->fetchColumn();
                                                 $total_pages = ceil($total_rows / $no_of_records_per_page);
                                             
-                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) LIKE :keyword  LIMIT :offset, :no_of_records');
+                                                $selectStmt = $con->prepare('SELECT * FROM groups WHERE CONCAT(group_title, group_code) AND created_by = :id LIKE :keyword LIMIT :offset, :no_of_records');
+                                                
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
+
                                                 $selectStmt->bindParam(':keyword', $search);
                                             }
                                             else if(isset($_GET['sort']))
                                             {
-                                                $query = "SELECT COUNT(*) FROM groups";
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $query = "SELECT COUNT(*) FROM groups WHERE created_by = :id";
+                                                else
+                                                    $query = "SELECT COUNT(*) FROM groups";
+
                                                 $selectStmt = $con->prepare($query);
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
+
                                                 $selectStmt->execute();
                                                 
                                                 $total_rows = $selectStmt->fetchColumn();
@@ -285,33 +345,62 @@
                                                 switch($_GET['sort'])
                                                 {
                                                     case "a-z":
-                                                        $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY group_title ASC LIMIT :offset, :no_of_records');                                    
+                                                        if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE created_by = :id ORDER BY group_title ASC LIMIT :offset, :no_of_records');    
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY group_title ASC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "z-a":
-                                                        $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY group_title DESC LIMIT :offset, :no_of_records');                                    
+                                                        if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE created_by = :id ORDER BY group_title DESC LIMIT :offset, :no_of_records');   
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY group_title DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_desc":
-                                                        $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY groupid DESC LIMIT :offset, :no_of_records');                                    
+                                                        if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups where created_by = :id ORDER BY groupid DESC LIMIT :offset, :no_of_records');                                    
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY groupid DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_asc":
-                                                        $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY groupid ASC LIMIT :offset, :no_of_records'); 
+                                                        if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE created_by = :id ORDER BY groupid ASC LIMIT :offset, :no_of_records'); 
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY groupid ASC LIMIT :offset, :no_of_records'); 
                                                         break;
                                                     default: 
-                                                        $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY groupid ASC LIMIT :offset, :no_of_records');
+                                                        if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups WHERE created_by = :id ORDER BY groupid ASC LIMIT :offset, :no_of_records');
+                                                        else
+                                                            $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY groupid ASC LIMIT :offset, :no_of_records');
                                                         break;
                                                 }
                                             }
                                             else 
                                             {
-                                                $query = "SELECT COUNT(*) FROM groups";
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $query = "SELECT COUNT(*) FROM groups WHERE created_by = :id";
+                                                else
+                                                    $query = "SELECT COUNT(*) FROM groups";
+
                                                 $selectStmt = $con->prepare($query);
+
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt->bindParam(':id', $_SESSION['user']['id']);
+
                                                 $selectStmt->execute();
                                                 
                                                 $total_rows = $selectStmt->fetchColumn();
                                                 $total_pages = ceil($total_rows / $no_of_records_per_page);      
 
-                                                $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY groupid ASC LIMIT :offset, :no_of_records');
+                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                    $selectStmt = $con->prepare('SELECT * FROM groups WHERE created_by = :id ORDER BY groupid ASC LIMIT :offset, :no_of_records');
+                                                else
+                                                    $selectStmt = $con->prepare('SELECT * FROM groups ORDER BY groupid ASC LIMIT :offset, :no_of_records');
                                             }
+
+                                            if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                $selectStmt->bindParam(':id', $_SESSION['user']['id']);
 
                                             $selectStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
                                             $selectStmt->bindValue(':no_of_records', $no_of_records_per_page, PDO::PARAM_INT);
@@ -323,6 +412,7 @@
                                                 <tr class="table-light text-center">
                                                     <td><?php echo $row['groupid']; ?></td>
                                                     <td><?php echo '<strong>' .$row['group_title']. '</strong>'; ?></td>
+                                                    <td><?php echo getFullName($row['created_by']); ?></td>
                                                     <td><?php echo ($row['group_leader'] >= 1) ? getFullName($row['group_leader']) : "No Leader"; ?></td>
                                                     <td>
                                                         <?php 

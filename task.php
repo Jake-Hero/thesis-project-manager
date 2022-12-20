@@ -1,11 +1,11 @@
 <?php
-    require "libs/functions.php";
+    require "./libs/functions.php";
     is_user_valid();
     is_user_login();
     
     if(!isset($_GET['id']))
     {
-        header("Location: " . ROOT_FOLDER . "/group.php");
+        header("Location: ./group.php");
         die;
     }
 
@@ -20,13 +20,13 @@
 
         if(!$row)
         {
-            header("Location: " . ROOT_FOLDER . "/group.php");
+            header("Location: ./group.php");
             die;
         }
 
         if($_SESSION['user']['role'] < ROLE_PANELIST && $row['taskgroup'] != $_SESSION['user']['group_id'])
         {
-            header("Location: " . ROOT_FOLDER . "/group.php");
+            header("Location: ./group.php");
             die;
         }
     }
@@ -39,7 +39,18 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('head.php')?>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <link href="./bootstrap/css/bootstrap.min.css" rel="stylesheet" media="nope!" onload="this.media='all'">
+        <link rel="stylesheet" href="./css/style.css">
+        <link rel="shortcut icon" type="image/jpg" href="./favicon.ico"/>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script type="text/javascript" src="./js/lastseen.js"></script>
+        <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+        <script src="./bootstrap/js/bootstrap.min.js"></script>
+
         <title>Thesis & Capstone Manager - Dashboard</title>
         <style>
             #ddArea {
@@ -102,25 +113,22 @@
                     <div class="card-header text-white" style="background-color: #800000; font-family: cursive;"><?php echo "Viewing " .$row['tasktitle'] . " assigned to " . getFullName($row['taskassignedto']); ?></div>
                     <div class="card-body">            
                         <div class="row mx-auto d-flex justify-content-evenly mb-4">
-                            <div class="col-md-12">                
+                            <div class="col-md-12">   
+                                <?php if($row['taskassignedto'] == $_SESSION['user']['id'] || $_SESSION['user']['role'] >= ROLE_ADVISOR): ?>
+                                <div class="mb-3">
+                                    <button id="undone" class="btn border"><i class="fa fa-times-circle"></i> Mark as Incomplete</button>
+                                    <button id="pending" class="btn border">Mark as Pending</button>
+                                    <button id="done" class="btn border"><i class="fa fa-check-circle" aria-hidden="true"></i> Mark as Finished</button>
+                                </div>    
+                                <?php endif; ?>
+                            
                                 <div class="row">
                                     <div class="col-sm-6">
                                         <dl>
                                             <dt><b class="border-bottom border-primary">Status</b></dt>
                                             <dd>
-                                                <?php
-                                                switch($row['taskstatus']) {
-                                                    case 0: 
-                                                        echo '<span class="mt-2 badge bg-danger tg-white">Incomplete</span>';
-                                                        break;
-                                                    case 1: 
-                                                        echo '<span class="mt-2 badge bg-warning text-white">In-Progress</span>';
-                                                        break;
-                                                    case 2: 
-                                                        echo '<span class="mt-2 badge bg-success text-white">Complete</span>';
-                                                        break;
-                                                }
-                                                ?>
+                                                <div id="code_spinner" class="loader"></div>
+                                                <div id="task_status"></div>
                                             </dd>
                                         </dl>
 
@@ -220,7 +228,73 @@
     </body>
     
     <script>
+        function displayStatus() {
+            $("#undone").click(function () {
+                $.ajax({
+                    dataType: 'text',
+                        type: 'POST',
+                        url: "./src/refresh_status.php",
+                        data: {
+                            taskid: <?php echo $taskid; ?>,
+                            taskstatus: 0
+                        },
+                        success: function (response)
+                        {
+                            displayStatus();
+                        }
+                    });
+            });
+            $("#pending").click(function () {
+                $.ajax({
+                    dataType: 'text',
+                        type: 'POST',
+                        url: "./src/refresh_status.php",
+                        data: {
+                            taskid: <?php echo $taskid; ?>,
+                            taskstatus: 1
+                        },
+                        success: function (response)
+                        {
+                            displayStatus();
+                        }
+                    });
+            });
+            $("#done").click(function () {
+                $.ajax({
+                    dataType: 'text',
+                        type: 'POST',
+                        url: "./src/refresh_status.php",
+                        data: {
+                            taskid: <?php echo $taskid; ?>,
+                            taskstatus: 2
+                        },
+                        success: function (response)
+                        {
+                            displayStatus();
+                        }
+                    });
+            });
+
+            $.ajax({
+                url:"./src/display_status.php",
+                data: {'taskid' : <?php echo $taskid; ?>},
+                method:"POST",
+                beforeSend : function () {  
+                    $('#code_spinner').show(); 
+                },
+                success:function(response)
+                {
+                    $('#task_status').html(response);
+                },
+                complete : function () {  
+                    $('#code_spinner').hide(); 
+                },
+            })
+        }
+
         $(document).ready(function() {
+            $('#code_spinner').hide();
+            displayStatus();
             listFiles();
 
             $("#ddArea").on("dragover", function() {

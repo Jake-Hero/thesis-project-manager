@@ -98,7 +98,7 @@
     if($select_stm->rowCount() > 0)
     {
         $row = $select_stm->fetch(PDO::FETCH_ASSOC);
-        
+        $now = time();
         if($row['expiry'] < $now)
         {
             $query = "UPDATE verified SET code = :code, expiry = :expiry, email = :email WHERE email = :email";
@@ -112,7 +112,7 @@
             $message.= "\r\nThis message is automated, Please do not reply to this email.";
             $message = nl2br($message);
             
-            send_mail($vars['email'], "Verify your account! - Verification Code", $message);  
+            send_mail($email, "Verify your account! - Verification Code", $message);  
         }
     }
     else 
@@ -137,6 +137,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="shortcut icon" type="image/jpg" href="./favicon.ico"/>
         <?php require('head.php')?>
         <title>Thesis & Capstone Manager - Verification</title>
     </head>
@@ -147,8 +148,8 @@
                 <div class="container py-5 h-100">
                     <div class="row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center h-100">
                         <div class="col-md-6">
-                            <form method="post" enctype="multipart/form-data" class="bg-white px-4 py-3 border border-dark" style="--bs-bg-opacity: .5;">
-                                <h1 class="text-center">Verification Code</h1>
+                            <form method="post" enctype="multipart/form-data" class="bg-white px-4 py-3 border rounded-start rounded-end" style="--bs-bg-opacity: .5;">
+                                <h1 class="border border-bottom text-center" style="font-size: 40px; font-family: 'Lemon/Milk', sans-serif; color: black;">Please Verify Your Account</h1>
 
                                 <?php if(!empty($_SESSION['error_message'])): ?>
                                     <div class="alert alert-danger d-flex align-items-center fade show">
@@ -168,7 +169,7 @@
                                 <?php endif; ?>
 
                                 <div class="col">
-                                    <label for="" class="col col-form-label">Please put your code here</label>
+                                    <label for="" class="text-center col col-form-label">Please put the code that you received from your email here.</label>
                                     <input type="text" name="code" class="col form-control" placeholder="Code">
                                 </div>
 

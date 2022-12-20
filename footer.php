@@ -24,7 +24,7 @@
 
                 <!--Grid column-->
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <img src="./assets/profile_pictures/default_profile.jpg" class="rounded-circle" alt="RV Angel">
+                    <img src="./assets/images/mayuga.png" class="rounded-circle" alt="RV Angel" width="230" height="230">
 
                     <div class="row-lg-3">
                         <p style="margin-top: 5vh;">RV Angel B. Mayuga</p>
@@ -44,7 +44,7 @@
 
                 <!--Grid column-->
                 <div class="col-lg-3 col-md-6 mb-4">
-                    <img src="./assets/profile_pictures/default_profile.jpg" class="rounded-circle" alt="Justine">
+                    <img src="./assets/images/ramos.png" class="rounded-circle" alt="Justine" width="230" height="230">
 
                     <div class="row-lg-3">
                         <p style="margin-top: 5vh;">Justine Rainiel A. Ramos</p>

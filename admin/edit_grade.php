@@ -15,16 +15,16 @@
         die;
     }
 
-    $semester = 1;
+    $grading = 'preoral';
 
     if(isset($_GET['id']))
 	{
-		$groupid = $_GET['id'];
+		$userid = $_GET['id'];
 
-        $query = "SELECT * FROM groups WHERE groupid = :id LIMIT 1;";
-        $selectStm = $con->prepare($query);
-        $selectStm->execute(['id' => $groupid]);
-        $row = $selectStm->fetch(PDO::FETCH_ASSOC);
+        $query = "SELECT g.*, u.id, u.email_verified FROM grades AS g INNER JOIN users AS u ON u.id = g.userid WHERE g.userid = :id LIMIT 1;";
+        $selectStmt = $con->prepare($query);
+        $selectStmt->execute(['id' => $userid]);
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
 
         if(!$row)
         {
@@ -33,21 +33,15 @@
         }
     }
 
-    if(!isset($_GET['semester']))
+    if(!isset($_GET['grading']))
     {
-        header("Location: ./edit_grade.php?id=" . $_GET['id'] . "&semester=1");
+        header("Location: ./edit_grade.php?id=" . $_GET['id'] . "&grading=preoral");
         die;        
     }
 
-    if($_GET['semester'] < 1)
+    if(!($_GET['grading'] == 'preoral' || $_GET['grading'] == 'oral'))
     {
-        header("Location: ./edit_grade.php?id=" . $_GET['id'] . "&semester=1");
-        die;        
-    }
-
-    if($_GET['semester'] > 2)
-    {
-        header("Location: ./edit_grade.php?id=" . $_GET['id'] . "&semester=2");
+        header("Location: ./edit_grade.php?id=" . $_GET['id'] . "&grading=preoral");
         die;        
     }
 
@@ -55,65 +49,90 @@
     {
         if(isset($_POST['submitbtn']))
         {
-            $validFields = array('prelims', 'midterms', 'semis', 'finals');
+            if($_GET['grading'] == 'preoral')
+                $validFields = array('introduction', 'completeness', 'organization', 'speaking', 'presentation', 'qna');
+            else
+                $validFields = array('introduction', 'completeness', 'organization', 'findings', 'speaking', 'presentation', 'qna');
         
             foreach ($validFields as $field) {
-                if(!empty($_POST[$field]) && (!is_float($_POST[$field]) && !is_numeric($_POST[$field]))) {
-                    $_SESSION['error_message'] = "The field must be in integer or decimal form.";
-                } else if(!empty($_POST[$field]) && ($_POST[$field] > 100 || $_POST[$field] < 50)) {
-                    $_SESSION['error_message'] = "The minimum grade that can be given is 50%, while the highest is 100%";
+                if(!empty($_POST[$field]) && (!is_numeric($_POST[$field]))) {
+                    $_SESSION['error_message'] = "The field must be in integer form.";
+                } else if(!empty($_POST[$field]) && ($_POST[$field] > 5 || $_POST[$field] < 1)) {
+                    $_SESSION['error_message'] = "The minimum score that can be given is 1, while the highest is 5";
                 }
             }
 
+            if(empty($_SESSION['error_message']))
+                $_SESSION['success_message'] = "Score & Gradings has been updated!";
+
             if(empty($_SESSION['error_message'])) {
-                if(!empty($_POST['prelims'])) {
-                    $_SESSION['success_message'] = "Grade for Prelims has been updated!";
-
-                    if($_GET['semester'] == 1) {
-                        $query = "UPDATE grades SET first_prelims = :grade WHERE groupid = :id";
+                if(!empty($_POST['introduction'])) {
+                    if($_GET['grading'] == 'preoral') {
+                        $query = "UPDATE grades SET pre_rubrics_1 = :grade WHERE userid = :id";
                     } else {
-                        $query = "UPDATE grades SET second_prelims = :grade WHERE groupid = :id";
+                        $query = "UPDATE grades SET oral_rubrics_1 = :grade WHERE userid = :id";
                     }
 
                     $updateStmt = $con->prepare($query);
-                    $updateStmt->execute(['grade' => $_POST['prelims'], 'id' => $groupid]);
+                    $updateStmt->execute(['grade' => $_POST['introduction'], 'id' => $userid]);
                 }
-                if(!empty($_POST['midterms'])) {
-                    $_SESSION['success_message'] = "Grade for Midterms has been updated!";
-
-                    if($_GET['semester'] == 1) {
-                        $query = "UPDATE grades SET first_midterms = :grade WHERE groupid = :id";
+                if(!empty($_POST['completeness'])) {
+                    if($_GET['grading'] == 'preoral') {
+                        $query = "UPDATE grades SET pre_rubrics_2 = :grade WHERE userid = :id";
                     } else {
-                        $query = "UPDATE grades SET second_midterms = :grade WHERE groupid = :id";
+                        $query = "UPDATE grades SET oral_rubrics_2 = :grade WHERE userid = :id";
                     }
 
                     $updateStmt = $con->prepare($query);
-                    $updateStmt->execute(['grade' => $_POST['midterms'], 'id' => $groupid]);
+                    $updateStmt->execute(['grade' => $_POST['completeness'], 'id' => $userid]);
                 }
-                if(!empty($_POST['semis'])) {
-                    $_SESSION['success_message'] = "Grade for Semis has been updated!";
-
-                    if($_GET['semester'] == 1) {
-                        $query = "UPDATE grades SET first_semis = :grade WHERE groupid = :id";
+                if(!empty($_POST['organization'])) {
+                    if($_GET['grading'] == 'preoral') {
+                        $query = "UPDATE grades SET pre_rubrics_3 = :grade WHERE userid = :id";
                     } else {
-                        $query = "UPDATE grades SET second_semis = :grade WHERE groupid = :id";
+                        $query = "UPDATE grades SET oral_rubrics_3 = :grade WHERE userid = :id";
                     }
 
                     $updateStmt = $con->prepare($query);
-                    $updateStmt->execute(['grade' => $_POST['semis'], 'id' => $groupid]);
+                    $updateStmt->execute(['grade' => $_POST['organization'], 'id' => $userid]);
                 }
-                if(!empty($_POST['finals'])) {
-                    $_SESSION['success_message'] = "Grade for Finals has been updated!";
-
-                    if($_GET['semester'] == 1) {
-                        $query = "UPDATE grades SET first_finals = :grade WHERE groupid = :id";
+                if(!empty($_POST['findings'])) {
+                    $query = "UPDATE grades SET oral_rubrics_7 = :grade WHERE userid = :id";
+                    $updateStmt = $con->prepare($query);
+                    $updateStmt->execute(['grade' => $_POST['findings'], 'id' => $userid]);
+                }
+                if(!empty($_POST['speaking'])) {
+                    if($_GET['grading'] == 'preoral') {
+                        $query = "UPDATE grades SET pre_rubrics_4 = :grade WHERE userid = :id";
                     } else {
-                        $query = "UPDATE grades SET second_finals = :grade WHERE groupid = :id";
+                        $query = "UPDATE grades SET oral_rubrics_4 = :grade WHERE userid = :id";
                     }
 
                     $updateStmt = $con->prepare($query);
-                    $updateStmt->execute(['grade' => $_POST['finals'], 'id' => $groupid]);
+                    $updateStmt->execute(['grade' => $_POST['speaking'], 'id' => $userid]);
                 }
+                if(!empty($_POST['presentation'])) {
+                    if($_GET['grading'] == 'preoral') {
+                        $query = "UPDATE grades SET pre_rubrics_5 = :grade WHERE userid = :id";
+                    } else {
+                        $query = "UPDATE grades SET oral_rubrics_5 = :grade WHERE userid = :id";
+                    }
+
+                    $updateStmt = $con->prepare($query);
+                    $updateStmt->execute(['grade' => $_POST['presentation'], 'id' => $userid]);
+                }
+                if(!empty($_POST['qna'])) {
+                    if($_GET['grading'] == 'preoral') {
+                        $query = "UPDATE grades SET pre_rubrics_6 = :grade WHERE userid = :id";
+                    } else {
+                        $query = "UPDATE grades SET oral_rubrics_6 = :grade WHERE userid = :id";
+                    }
+
+                    $updateStmt = $con->prepare($query);
+                    $updateStmt->execute(['grade' => $_POST['qna'], 'id' => $userid]);
+                }
+
+                header("Refresh: 0;");
             }
         }
     }
@@ -126,7 +145,18 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('../head.php')?>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" media="nope!" onload="this.media='all'">
+        <link rel="stylesheet" href="../css/style.css">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script type="text/javascript" src="../js/lastseen.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.11/dist/sweetalert2.all.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+        <script src="../bootstrap/js/bootstrap.min.js"></script>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js" integrity="sha512-K/oyQtMXpxI4+K0W7H25UopjM8pzq0yrVdFdG21Fh5dBe91I40pDd9A4lzNlHPHBIP2cwZuoxaUSX0GJSObvGA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css" integrity="sha512-MQXduO8IQnJVq1qmySpN87QQkiR1bZHtorbJBD0tzy7/0U9+YIC93QWHeGTEoojMVHWWNkoCp8V6OzVSYrX0oQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <title>Thesis & Capstone Manager - Edit Grade</title>   
@@ -172,6 +202,7 @@
     </head>
 
     <body> 
+        <?php $grading = $_GET['grading']; ?>
         <div class="grey-wrapper">
             <div class="container-fluid mt-4 mb-5">
                 <div class="row">
@@ -181,7 +212,7 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-header text-black-50" style="background-color: #FFD700; font-family: cursive;"><?php echo "You are now viewing the grades of " .$row['group_title']; ?></div>
+                    <div class="card-header text-black-50" style="background-color: #FFD700; font-family: cursive;"><?php echo "You are now viewing the grades of " . getFullName($row['id']); ?></div>
                     <div class="card-body">            
                         <div class="row mx-auto d-flex justify-content-evenly mb-4">
                             <div class="col-md-12">
@@ -208,8 +239,8 @@
                                 <div class="mt-2">
                                     <div class="col-md-3">
                                         <select id="redirect_select" class="form-select me-2">
-                                            <option value="<?php echo './edit_grade.php?id=' . $groupid . '&semester=1'; ?>" <?php if(isset($_GET['semester']) && $_GET['semester'] == 1) echo 'selected' ?>>First Semester</option>
-                                            <option value="<?php echo './edit_grade.php?id=' . $groupid . '&semester=2'; ?>" <?php if(isset($_GET['semester']) && $_GET['semester'] == 2) echo 'selected' ?>>Second Semester</option>
+                                            <option value="<?php echo './edit_grade.php?id=' . $userid . '&grading=preoral'; ?>" <?php if(isset($_GET['grading']) && $_GET['grading'] == 'preoral') echo 'selected' ?>>Pre-Oral Defense</option>
+                                            <option value="<?php echo './edit_grade.php?id=' . $userid . '&grading=oral'; ?>" <?php if(isset($_GET['grading']) && $_GET['grading'] == 'oral') echo 'selected' ?>>Oral Defense</option>
                                         </select>
                                     </div>
                                 </div>
@@ -217,99 +248,153 @@
                                 <hr>
 
                                 <form method="post" enctype="multipart/form-data">
-                                    <?php
-                                        $selectStmt = $con->prepare('SELECT * FROM grades WHERE groupid = :groupid');
-                                        $selectStmt->bindValue(':groupid', $groupid, PDO::PARAM_INT);
-                                        $selectStmt->execute();
-                                    ?>
-
                                     <table class="table table-hover">
                                         <thead>
                                             <tr class="table-light text-center">
-                                                <th scope="col" class="col-md-7">Grading Period</th>
-                                                <th scope="col" class="col-md-2">Current Grade</th>
+                                                <th scope="col" class="col-md-3">Aspect</th>
+                                                <th scope="col" class="col-md-2">Score</th>
                                                 <th scope="col">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php while($row = $selectStmt->fetch()): ?>
                                             <tr class="table-light text-center">
-                                                <td>Pre-Lim</td>
+                                                <td>Introduction</td>
                                                 <td>
                                                     <?php 
-                                                        if($_GET['semester'] == 1)
-                                                            echo $row['first_prelims']; 
+                                                        if($_GET['grading'] == 'preoral')
+                                                            echo $row['pre_rubrics_1'];
                                                         else
-                                                            echo $row['second_prelims'];
-                                                    ?>%
+                                                            echo $row['oral_rubrics_1'];
+                                                    ?>
                                                 </td>
                                                 <td>
-                                                    <input type="text" id="prelims" name="prelims" class="form-control" placeholder="Enter Grade">
+                                                    <input type="text" id="introduction" name="introduction" class="form-control" placeholder="(1 - 5)">
                                                 </td>
                                             </tr>                                            
                                             <tr class="table-light text-center">
-                                                <td>Midterms</td>
+                                                <td>Completeness</td>
                                                 <td>
                                                     <?php 
-                                                        if($_GET['semester'] == 1)
-                                                            echo $row['first_midterms']; 
+                                                        if($_GET['grading'] == 'preoral')
+                                                            echo $row['pre_rubrics_2'];
                                                         else
-                                                            echo $row['second_midterms'];
-                                                    ?>%
+                                                            echo $row['oral_rubrics_2'];
+                                                    ?>
                                                 </td>
                                                 <td>
-                                                    <input type="text" id="midterms" name="midterms" class="form-control" placeholder="Enter Grade">
+                                                    <input type="text" id="completeness" name="completeness" class="form-control" placeholder="(1 - 5)">
                                                 </td>
-                                            </tr>                                            
+                                            </tr>            
+
                                             <tr class="table-light text-center">
-                                                <td>Semi-Finals</td>
+                                                <td>Organization</td>
                                                 <td>
                                                     <?php 
-                                                        if($_GET['semester'] == 1)
-                                                            echo $row['first_semis']; 
+                                                        if($_GET['grading'] == 'preoral')
+                                                            echo $row['pre_rubrics_3'];
                                                         else
-                                                            echo $row['second_semis'];
-                                                    ?>%
+                                                            echo $row['oral_rubrics_3'];
+                                                    ?>
                                                 </td>
                                                 <td>
-                                                    <input type="text" id="semis" name="semis" class="form-control" placeholder="Enter Grade">
+                                                    <input type="text" id="organization" name="organization" class="form-control" placeholder="(1 - 5)">
                                                 </td>
-                                            </tr>                                            
+                                            </tr>    
+
+                                            <?php if($_GET['grading'] == 'oral'): ?>
+
                                             <tr class="table-light text-center">
-                                                <td>Finals</td>
+                                                <td>Findings</td>
+                                                <td><?php echo $row['oral_rubrics_7']; ?></td>
+                                                <td>
+                                                    <input type="text" id="findings" name="findings" class="form-control" placeholder="(1 - 5)">
+                                                </td>
+                                            </tr>  
+
+                                            <?php endif; ?>
+
+                                            <tr class="table-light text-center">
+                                                <td>Speaking Skills</td>
                                                 <td>
                                                     <?php 
-                                                        if($_GET['semester'] == 1)
-                                                            echo $row['first_finals']; 
+                                                        if($_GET['grading'] == 'preoral')
+                                                            echo $row['pre_rubrics_4'];
                                                         else
-                                                            echo $row['second_finals'];
-                                                    ?>%
+                                                            echo $row['oral_rubrics_4'];
+                                                    ?>
                                                 </td>
                                                 <td>
-                                                    <input type="text" id="finals" name="finals" class="form-control" placeholder="Enter Grade">
+                                                    <input type="text" id="speaking" name="speaking" class="form-control" placeholder="(1 - 5)">
                                                 </td>
                                             </tr>
 
                                             <tr class="table-light text-center">
-                                                <td class="fw-bold">Overall</td>
-                                                <td colspan="2">
-                                                <?php 
-                                                    if($_GET['semester'] == 1)
-                                                        $avg = ($row['first_prelims'] + $row['first_midterms'] + $row['first_semis'] + $row['first_finals']) / 4;
-                                                    else
-                                                        $avg = ($row['second_prelims'] + $row['second_midterms'] + $row['second_semis'] + $row['second_finals']) / 4;
-
-                                                    echo $avg; 
-                                                
-                                                ?>%
+                                                <td>Presentation</td>
+                                                <td>
+                                                    <?php 
+                                                        if($_GET['grading'] == 'preoral')
+                                                            echo $row['pre_rubrics_5'];
+                                                        else
+                                                            echo $row['oral_rubrics_5'];
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="presentation" name="presentation" class="form-control" placeholder="(1 - 5)">
                                                 </td>
                                             </tr>
-                                            <?php endwhile; ?>
+
+                                            <tr class="table-light text-center">
+                                                <td>Questions and Answers</td>
+                                                <td>
+                                                    <?php 
+                                                        if($_GET['grading'] == 'preoral')
+                                                            echo $row['pre_rubrics_6'];
+                                                        else
+                                                            echo $row['oral_rubrics_6'];
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="qna" name="qna" class="form-control" placeholder="(1 - 5)">
+                                                </td>
+                                            </tr>
+
+                                            <tr class="table-light text-center">
+                                                <?php
+                                                    if($_GET['grading'] == 'preoral') 
+                                                        $total = ($row["pre_rubrics_1"] + $row['pre_rubrics_2'] + $row['pre_rubrics_3'] + $row['pre_rubrics_4'] + $row['pre_rubrics_5'] + $row['pre_rubrics_6']);
+                                                    else 
+                                                        $total = ($row["oral_rubrics_1"] + $row['oral_rubrics_2'] + $row['oral_rubrics_3'] + $row['oral_rubrics_4'] + $row['oral_rubrics_5'] + $row['oral_rubrics_6'] + $row['oral_rubrics_7']);
+                                                ?>
+
+                                                <td colspan="2" class="fw-bold">
+                                                    <strong>Total Score: </strong>
+                                                    <?php 
+                                                        echo $total;
+                                                    ?>
+                                                </td>
+                                                <td colspan="2" class="fw-bold">
+                                                    <strong>Percentage: </strong>
+                                                    <?php 
+                                                        if($_GET['grading'] == 'preoral') 
+                                                            echo getGradeConversion(1, $total);
+                                                        else
+                                                            echo getGradeConversion(2, $total);
+                                                    ?>
+                                                    %
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
 
                                 <div class="text-center">
-                                    <button type="submit" name="submitbtn" class="btn btn-lg text-white" style="background-color: #A020F0;">Submit</button>
+                                    <div class="row d-flex justify-content-center mt-5 mx-auto">
+                                        <div class="col-md-1">
+                                            <button type="submit" name="submitbtn" class="btn btn-lg text-white" style="background-color: #A020F0;">Submit</button>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button type="button" id="notifybtn" class="btn btn-lg text-white btn-danger" onclick="showAlertGrade(<?php echo $row['id']; ?>);">Notify</button>
+                                        </div>
+                                    </div>
                                 </div>
                                 </form>
                             </div>
@@ -321,6 +406,47 @@
     </body>
 
     <script>
+        function showAlertGrade(id) {
+            swal({
+                title: 'Are you sure?',
+                text: "You are about to release the grades to this user.",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#33AA33',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Notify'
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        dataType: 'text',
+                        type: 'POST',
+                        contentType: 'application/x-www-form-urlencoded',
+                        url: '../src/notify_group.php',
+                        data: {'userid' : id, 
+                               'grading' : "<?php echo $grading; ?>"
+                              },
+                        success: function(response) {
+                            if(response=="success") {
+                                Swal.fire(
+                                    'Notified',
+                                    'You have released the grades through E-Mail to this user.',
+                                    'success'
+                                ).then(function() {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    'Something went wrong on releasing the grades.',
+                                    'error'
+                                )
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
         $('#redirect_select').on('change', function(){
             window.location = $(this).val();
         });

@@ -5,7 +5,13 @@
 
     if($_SESSION['user']['role'] >= ROLE_ADVISOR)
     {
-        header("Location: " . ROOT_FOLDER . "/admin/group.php");
+        header("Location: ./admin/group.php");
+        die;
+    }
+
+    if($_SESSION['user']['role'] == ROLE_PANELIST)
+    {
+        header("Location: ./panelist_group.php");
         die;
     }
 
@@ -36,8 +42,15 @@
                         
                         log_group($rows['groupid'], $_SESSION['user']['fullname'] . " has joined the group via Group Code.");
 
+                        $message = "You have joined the group ". $rows['group_title'] . ' via a Group Code.';
+                        $message.= "\r\n\nPlease ignore this E-Mail, this is just to notify you with the changes made in your account.";
+                        $message.= "\r\nThis message is automated, Please do not reply to this email.";
+                        $message = nl2br($message);
+                        
+                        send_mail($_SESSION['user']['email_verified'], "Joined a Group!", $message);   
+
                         $_SESSION['success_message'] = "You have joined the Research Group " . $rows['group_title'];
-                        header("Location: " . ROOT_FOLDER . "/group.php");
+                        header("Location: ./group.php");
                         die;
                     }
                 } else {
@@ -60,7 +73,18 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('head.php')?>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <link href="./bootstrap/css/bootstrap.min.css" rel="stylesheet" media="nope!" onload="this.media='all'">
+        <link rel="stylesheet" href="./css/style.css">
+        <link rel="shortcut icon" type="image/jpg" href="./favicon.ico"/>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script type="text/javascript" src="./js/custom.js"></script>
+        <script type="text/javascript" src="./js/lastseen.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+        <script src="./bootstrap/js/bootstrap.min.js"></script>
+
         <title>Thesis & Capstone Manager - Group</title>
 
         <style>
@@ -137,7 +161,7 @@
             <div class="grey-wrapper">
                 <div class="container-fluid header mt-4 mb-3">    
                     <div class="row mx-auto d-flex justify-content-evenly mb-4">
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             <?php if(!empty($_SESSION['success_message'])):?>
                             <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
                                 <i class="fas fa-check-circle"></i>
@@ -189,7 +213,7 @@
                                                 <td><?php echo $row['tasktitle'] . ' - ' . $row['taskdetail']; ?></td>
                                                 <td><?php echo getFullName($row['taskassignedto']); ?></td>
                                                 <td><?php echo getweekDay($row['taskdue']) . ', ' . date("F j g:i a", strtotime($row['taskdue'])); ?></td>
-                                                <td><a href="<?php echo ROOT_FOLDER . '/task.php?id=' . $row['taskid']; ?>"><span class="badge bg-primary text-white">View</span></a></td>
+                                                <td><a href="<?php echo './task.php?id=' . $row['taskid']; ?>"><span class="badge bg-primary text-white">View</span></a></td>
                                             </tr>   
         
                                             <?php endwhile; ?>
@@ -200,24 +224,6 @@
                                             <?php endif; ?>
                                         </tbody>
                                     </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <?php
-                                $selectStmt = $con->prepare('SELECT * FROM grades WHERE semester = 1 AND groupid = :groupid');
-                                $selectStmt->bindValue(':groupid', $groupid, PDO::PARAM_INT);
-                                $selectStmt->execute();
-                            ?>
-
-                            <div class="card">                            
-                                <div class="card-header text-black-50" style="background-color: #A020F0; font-family: 'Lemon/Milk', sans-serif;">View Grades</div>
-                                <select id="semester" class="form-select me-2">
-                                    <option value="1">First Semester</option>
-                                    <option value="2">Second Semester</option>
-                                </select>
-                                <div id="grades" class="card-body">
                                 </div>
                             </div>
                         </div>
@@ -247,7 +253,7 @@
                                                     ?>
 
                                                         <a href="" class="edit" title="<?php echo $rows['fullname'] ?>" data-toggle="tooltip">
-                                                            <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$rows['image'] ?>" class="rounded-circle shadow-sm border-info img-sm mr-3" style="width: 40px; height: 40px;" alt="Avatar" />
+                                                            <img src="<?php echo './assets/profile_pictures/' .$rows['image'] ?>" class="rounded-circle shadow-sm border-info img-sm mr-3" style="width: 40px; height: 40px;" alt="Avatar" />
                                                         </a>
 
                                                     <?php else: ?>
@@ -274,7 +280,7 @@
                                                             ?>
                                                             
                                                             <a href="" class="edit" title="<?php echo $rows['fullname'] ?>" data-toggle="tooltip">
-                                                                <img src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$rows['image'] ?>" class="rounded-circle shadow-sm border-info img-sm mr-3" style="width: 40px; height: 40px;" alt="Avatar" />
+                                                                <img src="<?php echo './assets/profile_pictures/' .$rows['image'] ?>" class="rounded-circle shadow-sm border-info img-sm mr-3" style="width: 40px; height: 40px;" alt="Avatar" />
                                                             </a>
 
                                                             <?php endwhile; ?>
@@ -331,6 +337,8 @@
                             <div class="card">
                                 <div class="card-header text-black-50" style="background-color: #FFD700; font-family: 'Lemon/Milk', sans-serif;">Panelist Comments</div>
                                 <div id="comment-content" class="card-body">
+
+                                    <?php if($_SESSION['user']['role'] >= ROLE_PANELIST): ?>
                                     <form id="form_comment">
                                         <div id="replying_to" class="alert alert-dismissible" role="alert" style="display:none;">
                                             <strong></strong>
@@ -342,13 +350,15 @@
                                         <input type="hidden" name="author" value="<?php echo $_SESSION['user']['fullname'] ?>" />
 
                                         <div class="input-group">
-                                            <img id="commentPic" src="<?php echo ROOT_FOLDER . '/assets/profile_pictures/' .$_SESSION['user']['image'] ?>" id="preview" class="rounded-circle mt-3 mx-2" style="width: 40px; height: 40px;" alt="Avatar" />
+                                            <img id="commentPic" src="<?php echo './assets/profile_pictures/' .$_SESSION['user']['image'] ?>" id="preview" class="rounded-circle mt-3 mx-2" style="width: 40px; height: 40px;" alt="Avatar" />
                                             <textarea class="form-control mx-3" name="comment" id="comment" placeholder="Your comment here"></textarea>
                                             <button id="publishBtn" class="btn" type="button">
-                                                <img src="<?php echo ROOT_FOLDER . '/assets/images/send_button.svg'; ?>" style="height: 32px; width: 32px;">
+                                                <img src="<?php echo './assets/images/send_button.svg'; ?>" style="height: 32px; width: 32px;">
                                             </button>
                                         </div>
                                     </form>
+                                    <?php endif; ?>
+
                                     <div id="view_comment"></div>
                                 </div>
                             </div>
@@ -359,12 +369,9 @@
 
         <?php else: ?>
             
-            <div class="grey-wrapper">
+            <div class="wrapper">
                 <div class="container py-5 h-100">
-                    <form method="post" enctype="multipart/form-data" class="px-4 py-3">
-                        <h3 class="text-center border-bottom border-3 border-danger" style="font-family: 'Times New Roman'; font-weight: bold;">You don't have a group yet!</h3>
-                        <p class="text-center">You are not assigned to a group yet, please message your <strong>Adviser</strong>. Your adviser will assign you to a group or give you a group code for you to type in the box below.</p>
-
+                    <form method="post" enctype="multipart/form-data" class="px-4 py-3 bg-white rounded-start rounded-end" style="--bs-bg-opacity: .5;">
                         <?php if(!empty($_SESSION['error_message'])): ?>
                             <div class="alert alert-danger d-flex align-items-center fade show">
                                 <i class='fas fa-exclamation-triangle'></i>
@@ -372,13 +379,27 @@
                                     <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
                                 </div>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?>    
 
-                        <div class="mt-5 row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center">
+                        <h1 class="border border-bottom text-center" style="font-size: 40px; font-family: 'Lemon/Milk', sans-serif; color: black;">Join a Research Group</h1>
+                        
+                        <div class="mt-5">
+                            <p class="text-center">
+                                You are not assigned to a group yet, please message your <strong>Adviser</strong>.<br>
+                                Your adviser will assign you to a group or give you a group code for you to type in the box below.
+                            </p>
+                        </div>
+
+                        <div class="mt-5 mb-5 row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center">
                             <div class="col-md-6">
                                 <div class="col">
                                     <label for="" class="col col-form-label">Please type the group code given to you by your adviser.</label>
-                                    <input type="text" name="join_field" class="col form-control" placeholder="Group Code">
+                                    
+                                    <?php if(is_user_verified()): ?>
+                                        <input type="text" name="join_field" class="col form-control" placeholder="Group Code">
+                                    <?php else: ?>
+                                        <input type="text" id="disabledTextInput" class="form-control" placeholder="Verify your account at Edit My Profile first!" disabled>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div class="row mt-3 mx-auto">
@@ -433,7 +454,7 @@
                         dataType: 'text',
                         type: 'POST',
                         contentType: 'application/x-www-form-urlencoded',
-                        url: 'src/comment_delete',
+                        url: './src/comment_delete.php',
                         data: {'comment_id' : commentId},
                         success: function(response) {
                             if(response=="success") {
@@ -463,7 +484,7 @@
                 dataType: 'text',
                 type: 'POST',
                 contentType: 'application/x-www-form-urlencoded',
-                url: "src/comment_add",
+                url: "./src/comment_add.php",
                 data: str,
                 success: function (response)
                 {
@@ -488,20 +509,6 @@
         listGrades(1);
     });
 
-    function listGrades(semester) {
-        $.ajax({
-            dataType: 'text',
-            type: 'POST',
-            contentType: 'application/x-www-form-urlencoded',
-            url:"src/grade_display",
-            data: {'groupid' : <?php echo $groupid; ?>, 'semester' : semester},
-            success:function(response)
-            {
-                $('#grades').html(response);
-            }
-        })
-    }
-
     function listComment() {
         $('#replying_to').show();
         $('#replying_to').hide();
@@ -510,7 +517,7 @@
             dataType: 'text',
             type: 'POST',
             contentType: 'application/x-www-form-urlencoded',
-            url:"src/comment_list",
+            url:"./src/comment_list.php",
             data: {'groupid' : <?php echo $groupid; ?>},
             success:function(response)
             {

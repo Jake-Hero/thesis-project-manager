@@ -28,15 +28,127 @@
             $event_array[$row['taskid']] = $row;
         }
     }
+
+    if(!is_user_verified())
+    {
+        echo 
+        "
+            <script type=\"text/javascript\">
+                setTimeout(function () { 
+                    swal({
+                        title: \"Verification\",
+                        type: \"warning\",
+                        text: \"You are not verified yet, Please verify your account via 'Edit My Profile'.\",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK'
+                        });
+                }, 500);
+            </script>   
+        "; 
+    }
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('head.php')?>
-        <title>Thesis & Capstone Manager - Dashboard</title> 
+        <meta charset="utf-8">
+        <link rel="shortcut icon" type="image/jpg" href="./favicon.ico"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <link href="./bootstrap/css/bootstrap.min.css" rel="stylesheet" media="nope!" onload="this.media='all'">
+        <link rel="stylesheet" href="./css/style.css">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script type="text/javascript" src="./js/lastseen.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.11/dist/sweetalert2.all.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
         <link rel="stylesheet" href="./fullcalendar/lib/main.min.css">
         <script src="./fullcalendar/lib/main.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+        <script src="./bootstrap/js/bootstrap.min.js"></script>
+
+        <title>Thesis & Capstone Manager - Dashboard</title> 
+
+        <script>
+            var scheds = <?= json_encode($event_array) ?>;
+
+            var calendar;
+            var Calendar = FullCalendar.Calendar;
+            var events = [];
+
+            $(document).ready(function () {
+                listComment();
+
+                if (!!scheds) {
+                    Object.keys(scheds).map(k => {
+                        var row = scheds[k]
+                        events.push({ id: row.taskid, title: row.tasktitle, start: row.taskstart, end: row.taskdue });
+                    })
+                }
+
+                calendar = new Calendar(document.getElementById('calendar'), {
+                    selectable: true,
+                    themeSystem: 'bootstrap',
+
+                    events: events,
+                    eventColor: '#FFD700',
+                    eventBackgroundColor: '#FFD700',
+                    eventTextColor: '#000000',
+                    eventClick: function(info) {
+                        var _details = $('#task-modal');
+                        var id = info.event.id;
+                        if (!!scheds[id]) {
+                            _details.find('#title').text(scheds[id].tasktitle);
+                            _details.find('#description').text(scheds[id].taskdetail);
+                            _details.find('#start').text(scheds[id].sdate);
+                            _details.find('#end').text(scheds[id].edate);
+                            $.ajax({
+                                dataType: 'text',
+                                type: 'POST',
+                                contentType: 'application/x-www-form-urlencoded',
+                                url:"./src/retrieve_name.php",
+                                data: {'userid' : scheds[id].taskassignedto},
+                                success:function(response)
+                                {
+                                    _details.find('#assignedto').text(response);
+                                }
+                            })
+                            $.ajax({
+                                dataType: 'text',
+                                type: 'POST',
+                                contentType: 'application/x-www-form-urlencoded',
+                                url:"./src/retrieve_name.php",
+                                data: {'userid' : scheds[id].taskadmin},
+                                success:function(response)
+                                {
+                                    _details.find('#assignedby').text(response);
+                                }
+                            })
+
+                            _details.modal('show');
+                        }
+                    },
+                    editable: true
+                });
+
+                calendar.render();
+            });
+
+            function listComment() {
+                $.ajax({
+                    dataType: 'text',
+                    type: 'POST',
+                    contentType: 'application/x-www-form-urlencoded',
+                    url:"./src/dashboard_comment.php",
+                    data: {'groupid' : <?php echo $groupid; ?>},
+                    success:function(response)
+                    {
+                        $('#view_comment').html(response);
+                    }
+                })
+            }
+        </script>
 
         <style>
             #calendar .fc-view {
@@ -72,25 +184,6 @@
         <?php if($groupid > 0): ?>
         <div class="wrapper">
             <div class="container-fluid mt-3 mb-3">
-                <?php 
-                    if(!is_user_verified())
-                    {
-                        echo 
-                        "
-                            <script type=\"text/javascript\">
-                            swal({
-                                title: \"Verification\",
-                                type: \"warning\",
-                                text: \"You are not verified yet, Please verify your account via 'Edit My Profile'.\",
-                                allowOutsideClick: false,
-                                showConfirmButton: true,
-                                confirmButtonText: 'OK'
-                                });
-                            </script>   
-                        "; 
-                    }
-                ?>
-
                 <div class="row">
                     <div class="col-md-9">
                         <div id="calendar"></div>
@@ -218,121 +311,36 @@
             </div>
         </div>
         <?php else: ?>
-        <div class="grey-wrapper">
-            <div class="container py-5 h-100">
-                <form method="post" enctype="multipart/form-data" class="px-4 py-3">
-                    <h3 class="text-center border-bottom border-3 border-danger" style="font-family: 'Times New Roman'; font-weight: bold;">You don't have a group yet!</h3>
-                    <p class="text-center">You are not assigned to a group yet, please message your <strong>Adviser</strong>. Your adviser will assign you to a group or give you a group code for you to type in the box below.</p>
+        <div class="wrapper">
+            <div class="container mt-3 mb-3 h-100">
+                <div class="row d-flex justify-content-center align-items-center h-100 bg-white border border-dark rounded-start rounded-end px-5 py-4" style="--bs-bg-opacity: .5;">
+                    <div class="col-lg-8 col-xs-2">
+                        <div class="text-center">
 
-                    <?php if(!empty($_SESSION['error_message'])): ?>
-                        <div class="alert alert-danger d-flex align-items-center fade show">
-                            <i class='fas fa-exclamation-triangle'></i>
-                            <div class ="mx-3">
-                                <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="mt-5 row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center">
-                        <div class="col-md-6">
-                            <div class="col">
-                                <label for="" class="col col-form-label">Please type the group code given to you by your adviser.</label>
-                                <input type="text" name="join_field" class="col form-control" placeholder="Group Code">
+                            <div class="mb-5">
+                                <img src="./assets/images/lpu-ccs-logo.png" alt="LPU-B Logo" width="200" height="200">
                             </div>
 
-                            <div class="row mt-3 mx-auto">
-                                <input type="submit" name="joinBtn" value="Join" class="rounded-pill btn btn-warning border border-light btn-lg">
+                            <h1 style="font-size: 50px; font-family: 'Lemon/Milk', sans-serif; color: white; -webkit-text-stroke: 1px black;">
+                                WELCOME TO COLLEGE OF COMPUTER STUDIES
+                            </h1>
+
+                            <h4 style="font-size: 20px; font-family: 'Sans-serif';">Thesis & Capstone Manager</h5>
+                            <h5 style="font-size: 14px; font-family: 'Sans-serif';">A website for managing your thesis and capstone</h5>
+
+                            <div class="mt-5">
+                                <p style="font-size: 14px; font-family: 'Lemon/Milk', sans-serif;">
+                                    You may click the button below to join a group and get started.
+                                </p>
+                            </div>
+                            <div class="mt-5">
+                                <button id ="signup" onclick="document.location.href = './group.php'" type="button" class="rounded-pill btn btn-warning border border-dark btn-lg btn-block">Get Started</button>
                             </div>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
         <?php endif; ?>
     </body>
-
-    <script>
-        var scheds = <?= json_encode($event_array) ?>;
-
-        var calendar;
-        var Calendar = FullCalendar.Calendar;
-        var events = [];
-
-        $(document).ready(function () {
-            listComment();
-
-            if (!!scheds) {
-                Object.keys(scheds).map(k => {
-                    var row = scheds[k]
-                    events.push({ id: row.taskid, title: row.tasktitle, start: row.taskstart, end: row.taskdue });
-                })
-            }
-
-            calendar = new Calendar(document.getElementById('calendar'), {
-                selectable: true,
-                themeSystem: 'bootstrap',
-
-                events: events,
-                eventColor: '#FFD700',
-                eventBackgroundColor: '#FFD700',
-                eventTextColor: '#000000',
-                eventContent: function(event, el) {
-                    if(event.isEnd) {
-                        console.log('oh no');
-                    }
-                },
-                eventClick: function(info) {
-                    var _details = $('#task-modal');
-                    var id = info.event.id;
-                    if (!!scheds[id]) {
-                        _details.find('#title').text(scheds[id].tasktitle);
-                        _details.find('#description').text(scheds[id].taskdetail);
-                        _details.find('#start').text(scheds[id].sdate);
-                        _details.find('#end').text(scheds[id].edate);
-                        $.ajax({
-                            dataType: 'text',
-                            type: 'POST',
-                            contentType: 'application/x-www-form-urlencoded',
-                            url:"./src/retrieve_name.php",
-                            data: {'userid' : scheds[id].taskassignedto},
-                            success:function(response)
-                            {
-                                _details.find('#assignedto').text(response);
-                            }
-                        })
-                        $.ajax({
-                            dataType: 'text',
-                            type: 'POST',
-                            contentType: 'application/x-www-form-urlencoded',
-                            url:"./src/retrieve_name.php",
-                            data: {'userid' : scheds[id].taskadmin},
-                            success:function(response)
-                            {
-                                _details.find('#assignedby').text(response);
-                            }
-                        })
-
-                        _details.modal('show');
-                    }
-                },
-                editable: true
-            });
-
-            calendar.render();
-        });
-
-        function listComment() {
-            $.ajax({
-                dataType: 'text',
-                type: 'POST',
-                contentType: 'application/x-www-form-urlencoded',
-                url:"./src/dashboard_comment.php",
-                data: {'groupid' : <?php echo $groupid; ?>},
-                success:function(response)
-                {
-                    $('#view_comment').html(response);
-                }
-            })
-        }
-    </script>
 </html>

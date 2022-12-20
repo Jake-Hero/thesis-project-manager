@@ -58,13 +58,14 @@
                     $insertStmt->bindValue('expiration', $expiration);
                     $insertStmt->execute();
 
-                    $message =  '<p>Good Day!</p>';
-                    $message.=  '<p>You have requested to have your account\'s password reset. Please click the link below to reset your password</p>';
-                    $message.=  '<p><strong>If this is not you, Please ignore this email to prevent your password from getting reset!</p>';
-                    $message.=  'Copy the link provided in this email and paste in the Browser URL.';
-                    $message.=  '<p>' . $_SERVER['SERVER_NAME'] . ROOT_FOLDER . '/reset_password.php?token=' . $token . '</p>';
-                    $message.=  '<p><strong>This link is only valid for 5 minutes</strong></p>';
-
+                    $message =  "Good Day!";
+                    $message.=  "\r\n\nYou have requested to have your account's password reset. Please click the link below to reset your password";
+                    $message.=  "\r\n<strong>If this is not you, Please ignore this email to prevent your password from getting reset!</strong>";
+                    $message.=  "\r\nCopy the link provided in this email and paste in the Browser URL.";
+                    $message.=  "\r\n\nhttps://thesiscapstonemanager.com/reset_password.php?token=" . $token;
+                    $message.=  "\r\n\n<strong>This link is only valid for 5 minutes</strong>";
+                    $message = nl2br($message);
+            
                     send_mail($data_email['email'], "Forgot Password", $message);
 
                     $_SESSION['success_message'] = "An email containing the reset password link was sent, Please check your inbox or spam folder.";
@@ -81,7 +82,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('./head.php')?>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <link href="./bootstrap/css/bootstrap.min.css" rel="stylesheet" media="nope!" onload="this.media='all'">
+        <link rel="stylesheet" href="./css/style.css">
+        <link rel="shortcut icon" type="image/jpg" href="./favicon.ico"/>
+
         <title>Thesis & Capstone Manager - Forgot Password</title>
     </head>
 
@@ -91,7 +97,7 @@
                 <div class="container py-5 h-100">
                     <div class="row d-flex justify-content-sm-center justify-content-md-center justify-content-lg-center align-items-center h-100">
                         <div class="col-md-6">
-                            <form method="post" enctype="multipart/form-data" class="bg-white px-4 py-3 border border-dark" style="--bs-bg-opacity: .5;">
+                            <form method="post" enctype="multipart/form-data" class="bg-white px-4 py-3 border border-dark rounded-start rounded-end" style="--bs-bg-opacity: .5;">
                                 <h1 class="text-center mb-3">Forgot Password</h1>
 
                                 <?php if(!empty($_SESSION['success_message'])): ?>

@@ -22,7 +22,19 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <?php require('./head.php')?>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+        <link href="./bootstrap/css/bootstrap.min.css" rel="stylesheet" media="nope!" onload="this.media='all'">
+        <link rel="stylesheet" href="./css/style.css">
+        <link rel="shortcut icon" type="image/jpg" href="./favicon.ico"/>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" media="nope!" onload="this.media='all'" />
+        <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" media="nope!" onload="this.media='all'"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script type="text/javascript" src="./js/custom.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.11/dist/sweetalert2.all.js"></script>
+        <script src="./bootstrap/js/bootstrap.min.js"></script>
+
         <title>Thesis & Capstone Manager - Login</title>
     </head>
 
@@ -44,7 +56,7 @@
                         </div>
 
                         <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                            <form method="post" class="bg-white border border-dark px-5 py-4" style="--bs-bg-opacity: .5;">
+                            <form method="post" class="bg-white border border-dark rounded-start rounded-end px-5 py-4" style="--bs-bg-opacity: .5;">
                                 <div class="form-group">
                                     <?php if(!empty($errors['all'])):?>
                                         <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">

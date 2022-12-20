@@ -5,7 +5,7 @@
   require realpath(dirname(__FILE__) . '/../PHPMailer-master/src/PHPMailer.php');
   require realpath(dirname(__FILE__) . '/../PHPMailer-master/src/SMTP.php');
 
-function send_mail($recipient,$subject,$message)
+function send_mail($recipient,$subject,$message,$ishtml=false)
 {
 
   $mail = new PHPMailer();
@@ -20,7 +20,6 @@ function send_mail($recipient,$subject,$message)
   $mail->Username   = "donotreply@thesiscapstonemanager.com";
   $mail->Password   = "Thesis7415@";
 
-  $mail->IsHTML(true);
   $mail->AddAddress($recipient, $subject);
   $mail->SetFrom("donotreply@thesiscapstonemanager.com", "Thesis Capstone Manager");
   $mail->Subject = $subject;

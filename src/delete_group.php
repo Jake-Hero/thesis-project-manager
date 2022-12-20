@@ -10,12 +10,7 @@ $selectStmt->execute();
 
 if($selectStmt->rowCount() > 0)
 {
-    $query = "UPDATE users SET group_id = 0 WHERE group_id = :id";
-    $updateStmt = $con->prepare($query);
-    $updateStmt->bindValue('id', $id);
-    $updateStmt->execute();
-
-    $query = "DELETE FROM grades WHERE groupid = :id";
+    $query = "UPDATE users SET group_id = 0, advised_by = 0 WHERE group_id = :id";
     $updateStmt = $con->prepare($query);
     $updateStmt->bindValue('id', $id);
     $updateStmt->execute();

@@ -70,6 +70,16 @@ if($result->rowCount() > 0)
         $output .= get_reply_comment($row['id']);
     }    
 }
+else 
+{
+    $output .= "
+    <div class='jumbotron border-start border-3 border-danger mb-3'>
+        <div class='card-header h-auto mb-1'>
+            <i>No comment posted by a panelist or advisor yet.</i>
+        </div>
+    </div>
+    ";    
+}
 
 echo $output;
 

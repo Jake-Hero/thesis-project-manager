@@ -151,10 +151,19 @@
         <div class="grey-wrapper">
             <div class="mt-4 mb-4 container-fluid">
                 <div class="row">
+                    <div class="col mb-3">
+                        <a href="./grades.php"><button type="button" class="btn btn-warning btn-md">Go to Grading</button></a>
+                    </div>
+                </div>
+
+                <div class="row">
                     <div class="col-md-2">
                         <ul class="list-group">
+                            <?php if($_SESSION['user']['role'] >= ROLE_ADMIN): ?>
                             <a href="./index.php"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
                             <a href="./members.php"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
+                            <?php endif; ?>
+                            
                             <a href="./group.php"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
                             <a href="./grades.php"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
                         </ul>
@@ -434,7 +443,7 @@
                                             <?php endwhile; ?>
                                             <?php else: ?>
                                                 <tr class="table-light">
-                                                    <td colspan="6" class="text-center">No groups were found in the database, Create one first!</td>
+                                                    <td colspan="7" class="text-center">No groups were found in the database, Create one first!</td>
                                                 </tr>
                                             <?php endif; ?>
                                         </tbody>

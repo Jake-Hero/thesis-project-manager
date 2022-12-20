@@ -112,7 +112,7 @@
             $message.= "\r\nThis message is automated, Please do not reply to this email.";
             $message = nl2br($message);
             
-            send_mail($email, "Verify your account! - Verification Code", $message);  
+            send_mail($email, "2Verify your account! - Verification Code", $message);  
         }
     }
     else 
@@ -128,7 +128,7 @@
         $message.= "\r\nThis message is automated, Please do not reply to this email.";
         $message = nl2br($message);
 
-        send_mail($email, "Verify your account! - Verification Code", $message);  
+        send_mail($email, "1Verify your account! - Verification Code", $message);  
     }
 
     require('libs/header.php');

@@ -3,7 +3,7 @@
     is_user_valid();
     is_user_login();
 
-    if($_SESSION['user']['role'] < ROLE_ADVISOR)
+    if($_SESSION['user']['role'] < ROLE_PANELIST)
     {
         header("Location: ../dashboard.php");
         die;
@@ -31,6 +31,12 @@
             header("Location: ./grades.php");
             die;
         }
+    }
+
+    if($_SESSION['user']['role'] == ROLE_ADVISOR && $row['advised_by'] != $_SESSION['user']['id'])
+    {
+        header("Location: ./grades.php");
+        die;
     }
 
     if(!isset($_GET['grading']))

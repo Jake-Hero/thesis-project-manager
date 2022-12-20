@@ -3,7 +3,7 @@
     is_user_valid();
     is_user_login();
 
-    if($_SESSION['user']['role'] < ROLE_ADVISOR)
+    if($_SESSION['user']['role'] < ROLE_PANELIST)
     {
         header("Location: ../dashboard.php");
         die;
@@ -44,7 +44,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
         <script src="../bootstrap/js/bootstrap.min.js"></script>
 
-        <title>Thesis & Capstone Manager - Admin Panel</title>      
+        <title>Thesis & Capstone Manager - Grading Students</title>      
 
         <style>
             .list-group-item.active {
@@ -115,8 +115,11 @@
                 <div class="row">
                     <div class="col-md-2">
                         <ul class="list-group">
+                            <?php if($_SESSION['user']['role'] >= ROLE_ADMIN): ?>
                             <a href="./index.php"><li class="list-group-item bg-warning <?php if($currentPage =="admin") echo 'active'; ?>">Admin Dashboard</li></a>
                             <a href="./members.php"><li class="list-group-item bg-warning <?php if($currentPage =="members") echo 'active'; ?>">Members List</li></a>
+                            <?php endif; ?>    
+
                             <a href="./group.php"><li class="list-group-item bg-warning <?php if($currentPage =="group") echo 'active'; ?>">Group List</li></a>
                             <a href="./grades.php"><li class="list-group-item bg-warning <?php if($currentPage =="grades") echo 'active'; ?>">Grading</li></a>
                         </ul>
@@ -179,7 +182,6 @@
                                     <table class="table table-hover">
                                         <thead>
                                             <tr class="table-light text-center">
-                                                <th scope="col"></th>
                                                 <th scope="col">Name</th>
                                                 <th scope="col">Group</th>
                                                 <th scope="col">Adviser</th>
@@ -194,14 +196,14 @@
                                             {
                                                 $search = '%' . $_GET['search'] . '%';
 
-                                                if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                     $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword";
                                                 else
                                                     $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword";
                                                 
                                                 $selectStmt = $con->prepare($query);
 
-                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['user']['role'] == ROLE_ADVISOR)
                                                     $selectStmt->bindParam(':id', $_SESSION['user']['id']);
 
                                                 $selectStmt->bindValue(':keyword', $search);
@@ -213,38 +215,38 @@
                                                 switch($_GET['sort'])
                                                 {
                                                     case "a-z":
-                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                        if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');                                    
                                                         else
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "z-a":
-                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                        if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
                                                         else
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_desc":
-                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                        if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
                                                         else
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_asc":
-                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                        if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
                                                         else
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
                                                         break;
                                                     default: 
-                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                        if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records');
                                                         else
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records');
                                                         break;
                                                 }
 
-                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['user']['role'] == ROLE_ADVISOR)
                                                     $selectStmt->bindParam(':id', $_SESSION['user']['id']);
 
                                                 $selectStmt->bindParam(':keyword', $search);
@@ -253,14 +255,14 @@
                                             {
                                                 $search = '%' . $_GET['search'] . '%';
 
-                                                if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                     $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword";
                                                 else
                                                     $query = "SELECT COUNT(*) FROM users WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword";
                                                 
                                                 $selectStmt = $con->prepare($query);
 
-                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['user']['role'] == ROLE_ADVISOR)
                                                     $selectStmt->bindParam(':id', $_SESSION['user']['id']);
 
                                                 $selectStmt->bindValue(':keyword', $search);
@@ -269,26 +271,26 @@
                                                 $total_rows = $selectStmt->fetchColumn();
                                                 $total_pages = ceil($total_rows / $no_of_records_per_page);
 
-                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['user']['role'] == ROLE_ADVISOR)
                                                     $selectStmt = $con->prepare("SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by = :id LIKE :keyword LIMIT :offset, :no_of_records");
                                                 else
                                                     $selectStmt = $con->prepare("SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE CONCAT(fullname, username, email) AND advised_by >= 1 LIKE :keyword LIMIT :offset, :no_of_records");
 
-                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['user']['role'] == ROLE_ADVISOR)
                                                     $selectStmt->bindParam(':id', $_SESSION['user']['id']);
 
                                                 $selectStmt->bindParam(':keyword', $search);
                                             }
                                             else if(isset($_GET['sort']))
                                             {
-                                                if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                     $query = "SELECT COUNT(*) FROM users WHERE advised_by = :id";
                                                 else
                                                     $query = "SELECT COUNT(*) FROM users WHERE advised_by >= 1";
 
                                                 $selectStmt = $con->prepare($query);
 
-                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['user']['role'] == ROLE_ADVISOR)
                                                     $selectStmt->bindParam(':id', $_SESSION['user']['id']);
 
                                                 $selectStmt->execute();
@@ -299,31 +301,31 @@
                                                 switch($_GET['sort'])
                                                 {
                                                     case "a-z":
-                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                        if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');  
                                                         else
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "z-a":
-                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                        if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
                                                         else
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_desc":
-                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                        if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
                                                         else
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_asc":
-                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                        if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
                                                         else
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
                                                         break;
                                                     default: 
-                                                        if($_SESSION['users']['role'] <= ROLE_ADVISOR)
+                                                        if($_SESSION['users']['role'] == ROLE_ADVISOR)
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.id ASC LIMIT :offset, :no_of_records');
                                                         else
                                                             $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 ORDER BY u.id ASC LIMIT :offset, :no_of_records');
@@ -332,14 +334,14 @@
                                             }
                                             else 
                                             {
-                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['user']['role'] == ROLE_ADVISOR)
                                                     $query = "SELECT COUNT(*) FROM users WHERE advised_by = :id";
                                                 else
                                                     $query = "SELECT COUNT(*) FROM users WHERE advised_by >= 1";
 
                                                 $selectStmt = $con->prepare($query);
 
-                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['user']['role'] == ROLE_ADVISOR)
                                                     $selectStmt->bindParam(':id', $_SESSION['user']['id']);
 
                                                 $selectStmt->execute();
@@ -347,13 +349,13 @@
                                                 $total_rows = $selectStmt->fetchColumn();
                                                 $total_pages = ceil($total_rows / $no_of_records_per_page);      
 
-                                                if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                                if($_SESSION['user']['role'] == ROLE_ADVISOR)
                                                     $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id ORDER BY u.id ASC LIMIT :offset, :no_of_records');
                                                 else
                                                     $selectStmt = $con->prepare('SELECT u.id, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE u.advised_by >= 1 ORDER BY u.id ASC LIMIT :offset, :no_of_records');
                                             }
                                                 
-                                            if($_SESSION['user']['role'] <= ROLE_ADVISOR)
+                                            if($_SESSION['user']['role'] == ROLE_ADVISOR)
                                                 $selectStmt->bindValue(':id', $_SESSION['user']['id'], PDO::PARAM_INT);
 
                                             $selectStmt->bindValue(':offset', $offset, PDO::PARAM_INT);

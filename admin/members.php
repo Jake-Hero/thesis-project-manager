@@ -3,7 +3,7 @@
     is_user_valid();
     is_user_login();
 
-    if($_SESSION['user']['role'] < ROLE_ADVISOR)
+    if($_SESSION['user']['role'] < ROLE_ADMIN)
     {
         header("Location: ../dashboard.php");
         die;

@@ -115,26 +115,31 @@ function recordUserVisit()
     return true;
 }
 
+function isPasswordStrong($password)
+{
+    $uppercase = preg_match('@[A-Z]@', $password);
+    $lowercase = preg_match('@[a-z]@', $password);
+    $number    = preg_match('@[0-9]@', $password);
+    $specialChars = preg_match('@[^\w]@', $password);
+
+    return ($uppercase && $lowercase && $number && $specialChars);
+}
+
 function signup_user($data)
 {
     global $con;
     $errors = array();
 
-    $uppercase = preg_match('@[A-Z]@', $data['password']);
-    $lowercase = preg_match('@[a-z]@', $data['password']);
-    $number    = preg_match('@[0-9]@', $data['password']);
-    $specialChars = preg_match('@[^\w]@', $data['password']);
-
     // Field Errors
-    if(!preg_match('/^[a-zA-Z ]+$/', $data['fullname']))
+    if(!preg_match('/^[a-zA-Z \.]+$/', $data['fullname']))
         $errors['fullname'] = "Enter a valid full name!";
-    if(!preg_match('/^[a-zA-Z]+$/', $data['username']))
+    if(!preg_match('/^[a-zA-Z0-9\.\-]+$/', $data['username']))
         $errors['username'] = "Enter a valid username!";
     if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL))
         $errors['email'] = "Enter a valid email address!";
     if(strlen(trim($data['password'])) < 8)
         $errors['password'] = "Your password must be longer than 4 characters.";
-    if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($data['password']) < 8) 
+    if(!isPassowrdStrong($data['password'])) 
         $errors['password'] = "Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character.";
 
     if(isset($data['username']) && isset($data['email']) && !empty($data['username']) && !empty($data['email']))
@@ -412,11 +417,6 @@ function profileSave()
     $username = $_SESSION['user']['username'];
     $password = $_POST['verifypassword'];        
 
-    $uppercase = preg_match('@[A-Z]@', $_POST['password']);
-    $lowercase = preg_match('@[a-z]@', $_POST['password']);
-    $number    = preg_match('@[0-9]@', $_POST['password']);
-    $specialChars = preg_match('@[^\w]@', $_POST['password']);
-
     $query = "SELECT id, email, password FROM users WHERE username = :username limit 1;";
     $select_stm = $con->prepare($query);
     $select_stm->execute(['username' => $username]);
@@ -424,11 +424,7 @@ function profileSave()
 
     if(password_verify($password, $row['password']))
     { // if verify password matches the password
-        if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($password) < 8) 
-        {
-            $_SESSION['error_message'] = "Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character.";
-        }
-        else if(!empty($_POST['email']) > 0 && $_POST['email'] == $row['email'])
+        if(!empty($_POST['email']) > 0 && $_POST['email'] == $row['email'])
         {
             $_SESSION['error_message'] = "Your new email cannot be the same as your old one!";
         }        
@@ -436,13 +432,17 @@ function profileSave()
         {
             $_SESSION['error_message'] = "Your new password cannot be the same as your old one!";
         }
-        else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z ]+$/', $_POST['fullname']))
+        else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z \.]+$/', $_POST['fullname']))
         {
             $_SESSION['error_message'] = "Enter a valid full name!";
         }
-        else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z]+$/', $_POST['username']))
+        else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z0-9\.\-]+$/', $_POST['username']))
         {
             $_SESSION['error_message'] = "Enter a valid username!";
+        }
+        else if(!empty($_POST['password']) && !isPasswordStrong($_POST['password'])) 
+        {
+            $_SESSION['error_message'] = "Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character.";
         }
         else 
         {
@@ -499,7 +499,11 @@ function profileSave()
                 {
                     $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-                    $message = "Your password was changed;";
+                    $message = "Your password was changed.";
+                    $message.= "\r\n\nPlease ignore this E-Mail if you aren't the one who made this changes.";
+                    $message.= "\r\nOtherwise, <strong>contact the Site Administrator immediately</strong>!";
+                    $message.= "\r\nThis message is automated, Please do not reply to this email.";
+
                     send_mail($_SESSION['user']['email'], "Changed password", $message);
                 }
 
@@ -574,11 +578,11 @@ function createUserProfile()
     if($_POST['role'] < 0)
         $_SESSION['error_message'] = "Assign a role!";
 
-    if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z ]+$/', $_POST['fullname']))
+    if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z \.]+$/', $_POST['fullname']))
     {
         $_SESSION['error_message'] = "Enter a valid full name!";
     }
-    else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z]+$/', $_POST['username']))
+    else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z0-9\.\-]+$/', $_POST['username']))
     {
         $_SESSION['error_message'] = "Enter a valid username!";
     }
@@ -863,7 +867,11 @@ function adminEditProfile($str)
     {
         $row = $select_stm->fetch(PDO::FETCH_ASSOC);
 
-        if(!empty($_POST['email']) && $_POST['email'] == $row['email'])
+        if(!empty($_POST['password']) && !isPasswordStrong($_POST['password'])) 
+        {
+            $_SESSION['error_message'] = "Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character.";
+        }
+        else if(!empty($_POST['email']) && $_POST['email'] == $row['email'])
         {
             $_SESSION['error_message'] = "Your new email cannot be the same as your old one!";
         }        
@@ -871,11 +879,11 @@ function adminEditProfile($str)
         {
             $_SESSION['error_message'] = "Your new password cannot be the same as your old one!";
         }
-        else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z ]+$/', $_POST['fullname']))
+        else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z \.]+$/', $_POST['fullname']))
         {
             $_SESSION['error_message'] = "Enter a valid full name!";
         }
-        else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z]+$/', $_POST['username']))
+        else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z0-9\.\-]+$/', $_POST['username']))
         {
             $_SESSION['error_message'] = "Enter a valid username!";
         }
@@ -918,7 +926,11 @@ function adminEditProfile($str)
                 {
                     $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-                    $message = "Your password was changed;";
+                    $message = "Your password was changed.";
+                    $message.= "\r\n\nPlease ignore this E-Mail if you aren't the one who made this changes.";
+                    $message.= "\r\nOtherwise, <strong>contact the Site Administrator immediately</strong>!";
+                    $message.= "\r\nThis message is automated, Please do not reply to this email.";
+
                     send_mail($row['email'], "Changed password", $message);
                 }
 

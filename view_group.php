@@ -122,8 +122,14 @@
 
             <div class="grey-wrapper">
                 <div class="container-fluid header mt-4 mb-3">    
+                    <div class="row">
+                        <div class="col mb-3">
+                            <a href="../admin/grades.php"><button type="button" class="btn btn-warning btn-md">Go to Grading</button></a>
+                        </div>
+                    </div>
+
                     <div class="row mx-auto d-flex justify-content-evenly mb-4">
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             <?php if(!empty($_SESSION['success_message'])):?>
                             <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
                                 <i class="fas fa-check-circle"></i>
@@ -186,24 +192,6 @@
                                             <?php endif; ?>
                                         </tbody>
                                     </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <?php
-                                $selectStmt = $con->prepare('SELECT * FROM grades WHERE semester = 1 AND groupid = :groupid');
-                                $selectStmt->bindValue(':groupid', $groupid, PDO::PARAM_INT);
-                                $selectStmt->execute();
-                            ?>
-
-                            <div class="card">                            
-                                <div class="card-header text-black-50" style="background-color: #A020F0; font-family: 'Lemon/Milk', sans-serif;">View Grades</div>
-                                <select id="semester" class="form-select me-2">
-                                    <option value="1">First Semester</option>
-                                    <option value="2">Second Semester</option>
-                                </select>
-                                <div id="grades" class="card-body">
                                 </div>
                             </div>
                         </div>

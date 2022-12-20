@@ -439,71 +439,6 @@
         $(AlertMsg).show();
     }
 
-    function deleteReply(commentId) {
-        swal({
-                title: 'Are you sure?',
-                text: "You won't be able to undo this action.",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Delete'
-            }).then((result) => {
-                if (result.value) {
-                    $.ajax({
-                        dataType: 'text',
-                        type: 'POST',
-                        contentType: 'application/x-www-form-urlencoded',
-                        url: './src/comment_delete.php',
-                        data: {'comment_id' : commentId},
-                        success: function(response) {
-                            if(response=="success") {
-                                listComment();
-                                Swal.fire(
-                                    'Deleted',
-                                    'Comment Deleted.',
-                                    'success'
-                                )
-                            } else {
-                                Swal.fire(
-                                    'Error',
-                                    'Something went wrong.',
-                                    'error'
-                                )
-                            }
-                        }
-                    });
-                }
-            });
-    }
-
-    $("#publishBtn").click(function () {
-        var str = $("#form_comment").serialize();
-        if($("#comment").val()) {
-            $.ajax({
-                dataType: 'text',
-                type: 'POST',
-                contentType: 'application/x-www-form-urlencoded',
-                url: "./src/comment_add.php",
-                data: str,
-                success: function (response)
-                {
-                    var result = eval('(' + response + ')');
-                    if (response)
-                    {
-                        if($("#comment").val()) {
-                            $("#comment").val("");
-                            $("#commentId").val("");
-                            
-                            listComment();
-                            $('html, body').animate({ scrollTop: $("#comment").offset().top }, 0);
-                        }
-                    } 
-                }
-            });
-        }
-    });
-
     $(document).ready(function () {
         listComment();
         listGrades(1);
@@ -517,7 +452,7 @@
             dataType: 'text',
             type: 'POST',
             contentType: 'application/x-www-form-urlencoded',
-            url:"./src/comment_list.php",
+            url:"./src/user_comment_list.php",
             data: {'groupid' : <?php echo $groupid; ?>},
             success:function(response)
             {

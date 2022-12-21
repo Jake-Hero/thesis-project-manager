@@ -21,7 +21,7 @@
 	{
 		$userid = $_GET['id'];
 
-        $query = "SELECT g.*, u.id, u.email_verified FROM grades AS g INNER JOIN users AS u ON u.id = g.userid WHERE g.userid = :id LIMIT 1;";
+        $query = "SELECT g.*, u.id, u.email_verified, u.advised_by FROM grades AS g INNER JOIN users AS u ON u.id = g.userid WHERE g.userid = :id LIMIT 1;";
         $selectStmt = $con->prepare($query);
         $selectStmt->execute(['id' => $userid]);
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);

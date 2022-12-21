@@ -15,6 +15,12 @@
         die;
     }
 
+    $groupid = $_SESSION['user']['group_id'];
+    $query = "SELECT * FROM groups WHERE groupid = :id";
+    $selectStmt = $con->prepare($query);
+    $selectStmt->bindValue('id', $groupid, PDO::PARAM_INT);
+    $selectStmt->execute();
+
     if($_SERVER['REQUEST_METHOD'] == "POST")
     {
         if(isset($_POST['joinBtn'])) {
@@ -36,9 +42,14 @@
                     if($selectStmt->fetchColumn() >= 5) {
                         $_SESSION['error_message'] = "That research group is already full, Please contact your adviser as soon as possible!";
                     } else {
-                        $query = "UPDATE users SET group_id = :id WHERE id = :uid";
+                        $query = "SELECT created_by FROM groups WHERE groupid = :id";
+                        $fetchAdviser = $con->prepare($query);
+                        $fetchAdviser->bindValue('id', $groupid, PDO::PARAM_INT);
+                        $fetchAdviser->execute();
+
+                        $query = "UPDATE users SET group_id = :id, advised_by = :adviser WHERE id = :uid";
                         $updateStmt = $con->prepare($query);
-                        $updateStmt->execute(['id' => $rows['groupid'], 'uid' => $_SESSION['user']['id']]);
+                        $updateStmt->execute(['id' => $rows['groupid'], 'adviser' => $fetchAdviser->fetchColumn(), 'uid' => $_SESSION['user']['id']]);
                         
                         log_group($rows['groupid'], $_SESSION['user']['fullname'] . " has joined the group via Group Code.");
 
@@ -59,12 +70,6 @@
             }
         }
     }
-
-    $groupid = $_SESSION['user']['group_id'];
-    $query = "SELECT * FROM groups WHERE groupid = :id";
-    $selectStmt = $con->prepare($query);
-    $selectStmt->bindValue('id', $groupid, PDO::PARAM_INT);
-    $selectStmt->execute();
 
     $currentPage = 'group';
     require('libs/header.php');

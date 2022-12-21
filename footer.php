@@ -13,41 +13,41 @@
             <!--Grid row-->
             <div class="row">
                 <!--Grid column-->
-                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <img src="./assets/images/dimaano.jpg" class="rounded-circle" alt="Mervin" width="230" height="230">
+                <div class="col-lg-3 mb-4 mb-md-0">
+                    <img src="./assets/images/dimaano.jpg" alt="Mervin" width="230" height="230">
 
                     <div class="row-lg-3">
-                        <p style="margin-top: 5vh;">Mervin Jesse S. Dimaano</p>
+                        <p style="margin-top: 3vh;">Mervin Jesse S. Dimaano</p>
                     </div>
                 </div>
                 <!--Grid column-->
 
                 <!--Grid column-->
-                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <img src="./assets/images/mayuga.png" class="rounded-circle" alt="RV Angel" width="230" height="230">
+                <div class="col-lg-3 mb-4 mb-md-0">
+                    <img src="./assets/images/mayuga.png" alt="RV Angel" width="230" height="230">
 
                     <div class="row-lg-3">
-                        <p style="margin-top: 5vh;">RV Angel B. Mayuga</p>
+                        <p style="margin-top: 3vh;">RV Angel B. Mayuga</p>
                     </div>
                 </div>
                 <!--Grid column-->
 
                 <!--Grid column-->
-                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <img src="./assets/images/pureza.png" class="rounded-circle" alt="Alliah" width="230" height="230">
+                <div class="col-lg-3 mb-4 mb-md-0">
+                    <img src="./assets/images/pureza.png" alt="Alliah" width="230" height="230">
 
                     <div class="row-lg-3">
-                        <p style="margin-top: 5vh;">Alliah J. Pureza</p>
+                        <p style="margin-top: 3vh;">Alliah J. Pureza</p>
                     </div>
                 </div>
                 <!--Grid column-->
 
                 <!--Grid column-->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <img src="./assets/images/ramos.png" class="rounded-circle" alt="Justine" width="230" height="230">
+                <div class="col-lg-3 mb-4">
+                    <img src="./assets/images/ramos.png" alt="Justine" width="230" height="230">
 
                     <div class="row-lg-3">
-                        <p style="margin-top: 5vh;">Justine Rainiel A. Ramos</p>
+                        <p style="margin-top: 3vh;">Justine Rainiel A. Ramos</p>
                     </div>
                 </div>
                 <!--Grid column-->

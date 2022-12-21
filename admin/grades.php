@@ -197,9 +197,9 @@
                                                 $search = '%' . $_GET['search'] . '%';
 
                                                 if($_SESSION['user']['role'] == ROLE_ADVISOR)
-                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by = :id AND CONCAT(fullname, username, email, advised_by) LIKE :keyword";
+                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by = :id AND CONCAT(fullname, username, email) LIKE :keyword";
                                                 else
-                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by >= 1 AND CONCAT(fullname, username, email, advised_by) LIKE :keyword";
+                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by >= 1 AND CONCAT(fullname, username, email) LIKE :keyword";
                                                 
                                                 $selectStmt = $con->prepare($query);
 
@@ -216,33 +216,33 @@
                                                 {
                                                     case "a-z":
                                                         if($_SESSION['user']['role'] == ROLE_ADVISOR)
-                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id AND CONCAT(fullname, username, email, advised_by) LIKE :keyword ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');                                    
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id AND CONCAT(fullname, username, email) LIKE :keyword ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');                                    
                                                         else
-                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 AND CONCAT(fullname, username, email, advised_by) LIKE :keyword ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');                                    
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 AND CONCAT(fullname, username, email) LIKE :keyword ORDER BY u.fullname ASC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "z-a":
                                                         if($_SESSION['user']['role'] == ROLE_ADVISOR)
-                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id AND CONCAT(fullname, username, email, advised_by) LIKE :keyword ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id AND CONCAT(fullname, username, email) LIKE :keyword ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
                                                         else
-                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 AND CONCAT(fullname, username, email, advised_by) LIKE :keyword ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 AND CONCAT(fullname, username, email) LIKE :keyword ORDER BY u.fullname DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_desc":
                                                         if($_SESSION['user']['role'] == ROLE_ADVISOR)
-                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id AND CONCAT(fullname, username, email, advised_by) LIKE :keyword ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id AND CONCAT(fullname, username, email) LIKE :keyword ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
                                                         else
-                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 AND CONCAT(fullname, username, email, advised_by) LIKE :keyword ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 AND CONCAT(fullname, username, email) LIKE :keyword ORDER BY u.id DESC LIMIT :offset, :no_of_records');                                    
                                                         break;
                                                     case "id_asc":
                                                         if($_SESSION['user']['role'] == ROLE_ADVISOR)
-                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id AND CONCAT(fullname, username, email, advised_by) LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id AND CONCAT(fullname, username, email) LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
                                                         else
-                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 AND CONCAT(fullname, username, email, advised_by) LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 AND CONCAT(fullname, username, email) LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records'); 
                                                         break;
                                                     default: 
                                                         if($_SESSION['user']['role'] == ROLE_ADVISOR)
-                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id AND CONCAT(fullname, username, email, advised_by) LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records');
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by = :id AND CONCAT(fullname, username, email) LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records');
                                                         else
-                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 AND CONCAT(fullname, username, email, advised_by) LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records');
+                                                            $selectStmt = $con->prepare('SELECT u.id, u.email, u.username, u.fullname, u.image, u.advised_by, g.group_title, gr.* FROM users AS u INNER JOIN groups AS g ON g.groupid = u.group_id INNER JOIN grades AS gr ON gr.userid = u.id WHERE advised_by >= 1 AND CONCAT(fullname, username, email) LIKE :keyword ORDER BY u.id ASC LIMIT :offset, :no_of_records');
                                                         break;
                                                 }
 
@@ -253,9 +253,9 @@
                                                 $search = '%' . $_GET['search'] . '%';
 
                                                 if($_SESSION['user']['role'] == ROLE_ADVISOR)
-                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by = :id AND CONCAT(fullname, username, email, advised_by) LIKE :keyword";
+                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by = :id AND CONCAT(fullname, username, email) LIKE :keyword";
                                                 else
-                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by >= 1 AND CONCAT(fullname, username, email, advised_by) LIKE :keyword";
+                                                    $query = "SELECT COUNT(*) FROM users WHERE advised_by >= 1 AND CONCAT(fullname, username, email) LIKE :keyword";
                                                 
                                                 $selectStmt = $con->prepare($query);
 

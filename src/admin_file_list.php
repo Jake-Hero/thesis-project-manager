@@ -31,7 +31,7 @@ if($selectStmt->rowCount() > 0)
             <td>'.$row['file_name'].'</td>
             <td>'.getFullName($row['file_uploaded_by']).'</td>
             <td colspan="2">
-                <a href="./download.php?file='.$row['file_name'].'"><span class="badge bg-primary text-white">Download</span></a>
+                <a href="../download.php?groupid='.$_POST['groupid'].'&file='.$row['file_name'].'"><span class="badge bg-primary text-white">Download</span></a>
                 <a href="../admin/admin_delete_file.php?file='.$row['file_name'].'"><span class="badge bg-danger text-white">Delete</span></a>
             </td>
         </tr>

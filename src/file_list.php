@@ -34,7 +34,7 @@ if($selectStmt->rowCount() > 0)
                 <td>'.getFullName($row["file_uploaded_by"]).'</td>
                 <td>'.getweekDay($row["file_date"]) . ' , ' . date("F j g:i a", strtotime($row["file_date"])) .'</td>
                 <td colspan="2">
-                    <a href="./download.php?file='.$row['file_name'].'"><span class="badge bg-primary text-white">Download</span></a>
+                    <a href="./download.php?groupid='.$_POST['groupid'].'&file='.$row['file_name'].'"><span class="badge bg-primary text-white">Download</span></a>
                     <a href="./delete_file.php?file='.$row['file_name'].'"><span class="badge bg-danger text-white">Delete</span></a>
                 </td>
             </tr>   

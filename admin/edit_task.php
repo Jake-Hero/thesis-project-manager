@@ -146,7 +146,6 @@
 
                                 <div class="p-3">
                                     <form method="post" enctype="multipart/form-data">
-
                                         <div class="form-group has-error md-form mb-4">
                                             <label data-error="wrong" data-success="right" for="">Assign to</label>
                                             <select id="assigned_to" name="assigned_to" class="form-select" aria-label="">
@@ -249,10 +248,15 @@
                 e.preventDefault();
 
                 var formData = new FormData();
+
                 var files = e.originalEvent.dataTransfer.files;
                 for (var i = 0; i < files.length; i++) {
+                    console.log(i);
                     formData.append("file[]", files[i]);
                 }
+
+                formData.append("groupid", <?php echo $groupid; ?>);
+
                 uploadFormData(formData);
             });
         });
@@ -325,8 +329,10 @@
                 var formData = new FormData();
 
                 for (var i = 0; i < files.length; i++) {
-                formData.append("file[]", files[i]);
+                    formData.append("file[]", files[i]);
                 }
+
+                formData.append("groupid", <?php echo $groupid; ?>);
                 uploadFormData(formData);
             };
         }
@@ -335,7 +341,12 @@
             document.getElementById('progress_bar').style.display = 'block';
 
             var ajax_request = new XMLHttpRequest();
-            ajax_request.open("POST", "../src/file_upload.php");
+
+            ajax_request.onreadystatechange = function() {
+                if( ajax_request.readyState==4 && ajax_request.status==200 ){
+                    console.log( ajax_request.responseText );
+                }
+            };
 
             ajax_request.upload.addEventListener('progress', function(event){
                 var percent_completed = Math.round((event.loaded / event.total) * 100);
@@ -347,6 +358,8 @@
                     listFiles();
                 }
             });
+
+            ajax_request.open("POST", "../src/file_upload.php");
 
             ajax_request.addEventListener('load', function(event){
                 document.getElementById('selectfile').value = '';

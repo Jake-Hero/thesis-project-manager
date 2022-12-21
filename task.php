@@ -18,6 +18,8 @@
         $selectStm->execute(['id' => $taskid]);
         $row = $selectStm->fetch(PDO::FETCH_ASSOC);
 
+        $groupid = $row['taskgroup'];
+
         if(!$row)
         {
             header("Location: ./group.php");
@@ -319,6 +321,7 @@
                 for (var i = 0; i < files.length; i++) {
                     formData.append("file[]", files[i]);
                 }
+                formData.append("groupid", <?php echo $groupid; ?>);
                 uploadFormData(formData);
             });
 
@@ -331,6 +334,7 @@
                     for (var i = 0; i < files.length; i++) {
                     formData.append("file[]", files[i]);
                     }
+                    formData.append("groupid", <?php echo $groupid; ?>);
                     uploadFormData(formData);
                 };
             }

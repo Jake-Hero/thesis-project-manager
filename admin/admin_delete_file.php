@@ -15,17 +15,15 @@ if(isset($_GET['file']))
 
     if($selectStmt->rowCount() > 0)
     {
-        if(!empty($file_name) && file_exists($filePath)) {
-            $query = "DELETE FROM uploads WHERE file_name = :name";
-            $updateStmt = $con->prepare($query);
-            $updateStmt->bindValue('name', $file_name);
-            $updateStmt->execute();
+        $query = "DELETE FROM uploads WHERE file_name = :name";
+        $updateStmt = $con->prepare($query);
+        $updateStmt->bindValue('name', $file_name);
+        $updateStmt->execute();
 
-            unlink($filePath);
+        unlink($filePath);
 
-            header("Location: ./edit_task.php?id=" . $_SESSION['taskid']);
-            die;
-        }
+        header("Location: ./edit_task.php?id=" . $_SESSION['taskid']);
+        die;
     }
     else {
         die;

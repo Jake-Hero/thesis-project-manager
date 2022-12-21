@@ -41,6 +41,10 @@
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="../profile.php">Edit My Profile</a>
 
+                        <?php if($_SESSION['user']['role'] == ROLE_PANELIST): ?>
+                            <a class="dropdown-item" href="../panelist_group.php">Group & Grading</a>
+                        <?php endif; ?>
+
                         <?php if($_SESSION['user']['role'] == ROLE_ADVISOR): ?>
                             <a class="dropdown-item" href="./group.php">Group & Grading</a>
                         <?php endif; ?>

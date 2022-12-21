@@ -120,7 +120,7 @@ function isPasswordStrong($password)
     $uppercase = preg_match('@[A-Z]@', $password);
     $lowercase = preg_match('@[a-z]@', $password);
     $number    = preg_match('@[0-9]@', $password);
-    $specialChars = preg_match('@[^\w]@', $password);
+    $specialChars = preg_match('@[^\w\_]@', $password);
 
     return ($uppercase && $lowercase && $number && $specialChars);
 }
@@ -133,13 +133,13 @@ function signup_user($data)
     // Field Errors
     if(!preg_match('/^[a-zA-Z \.]+$/', $data['fullname']))
         $errors['fullname'] = "Enter a valid full name!";
-    if(!preg_match('/^[a-zA-Z0-9\.\-]+$/', $data['username']))
+    if(!preg_match('/^[a-zA-Z0-9\_\.\-]+$/', $data['username']))
         $errors['username'] = "Enter a valid username!";
     if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL))
         $errors['email'] = "Enter a valid email address!";
     if(strlen(trim($data['password'])) < 8)
         $errors['password'] = "Your password must be longer than 4 characters.";
-    if(!isPassowrdStrong($data['password'])) 
+    if(!isPasswordStrong($data['password'])) 
         $errors['password'] = "Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character.";
 
     if(isset($data['username']) && isset($data['email']) && !empty($data['username']) && !empty($data['email']))
@@ -436,7 +436,7 @@ function profileSave()
         {
             $_SESSION['error_message'] = "Enter a valid full name!";
         }
-        else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z0-9\.\-]+$/', $_POST['username']))
+        else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z0-9\_\.\-]+$/', $_POST['username']))
         {
             $_SESSION['error_message'] = "Enter a valid username!";
         }
@@ -582,7 +582,7 @@ function createUserProfile()
     {
         $_SESSION['error_message'] = "Enter a valid full name!";
     }
-    else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z0-9\.\-]+$/', $_POST['username']))
+    else if(!empty($_POST['username']) && !preg_match('/^[a-zA-Z0-9\_\.\-]+$/', $_POST['username']))
     {
         $_SESSION['error_message'] = "Enter a valid username!";
     }

@@ -51,7 +51,7 @@
                             <a class="dropdown-item" href="./admin/group.php">Group & Grading</a>
                         <?php endif; ?>
 
-                        <?php if($_SESSION['user']['role'] >= ROLE_ADVISOR): ?>
+                        <?php if($_SESSION['user']['role'] >= ROLE_ADMIN): ?>
                             <a class="dropdown-item" href="./admin/index.php">Administrative Panel</a>
                         <?php endif; ?>
 

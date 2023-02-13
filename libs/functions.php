@@ -565,6 +565,72 @@ function profileSave()
     return true;
 }
 
+function createArchive()
+{
+    global $con;
+
+    $hashed_password = NULL;
+
+    if(empty($_POST['title']) || empty($_POST['leader']))
+        $_SESSION['error_message'] = "Make sure to fill out all the fields!";
+
+    if(!empty($_POST['title']) && !preg_match('/^[a-zA-Z]+$/', $_POST['title']))
+    {
+        $_SESSION['error_message'] = "Enter a valid research title name!";
+    }
+    else if(!empty($_POST['leader']) && !preg_match('/^[a-zA-Z]+$/', $_POST['leader']))
+    {
+        $_SESSION['error_message'] = "Enter a valid full name!";
+    }
+    else 
+    {
+        if($_FILES['document']['error'] != UPLOAD_ERR_NO_FILE)
+        {
+            global $con;
+            $arr = array();
+        
+            $fileName = $_FILES['document']['name'];
+            $fileSize = $_FILES['document']['size'];
+            $tmpName = $_FILES['document']['tmp_name'];
+        
+            $fileExt = explode('.', $fileName);
+            $fileExt = strtolower(end($fileExt));
+        
+            if ($_FILES['document']['type'] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            {
+                echo '<script>alert("Invalid file extension (doc, docx is only allowed!)");';
+            }
+            else if($fileSize > 1200000)
+            {
+                echo '<script>alert("File size is too large!");</script>';
+            }
+            else 
+            {
+                $fileName = $_POST['title'];
+                $fileName .= '.' . $fileExt;
+        
+                $tmp_path = "../assets/archives/tmp_" . $_FILES['document']['name'] . "." .$fileExt;
+                $real_path = "../assets/archives/" .$fileName;
+        
+                move_uploaded_file($tmpName, $real_path);
+            }
+
+            $query = "INSERT INTO archives (date, title, leader, file) VALUES(:added, :title, :leader, :file)";
+            $insert_stm = $con->prepare($query);
+            $insert_stm->bindValue('added', date("Y-m-d H:i:s")); 
+            $insert_stm->bindValue('title', $_POST['title']);
+            $insert_stm->bindValue('leader', $_POST['leader']); 
+            $insert_stm->bindValue('file', $fileName);
+            $insert_stm->execute();
+        }    
+        else 
+        {
+            $_SESSION['error_message'] = "An error occured while trying to upload the file!";
+        }
+    }
+    return true;
+}
+
 function createUserProfile()
 {
     global $con;

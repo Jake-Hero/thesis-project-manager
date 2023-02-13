@@ -29,6 +29,10 @@
                 <?php endif; ?>
                 </li>
 
+                <li class="nav-item <?php if($currentPage == 'archives') echo 'fw-bold'; ?>">
+                    <a class="nav-link active" href="../archive.php">Archives</a>
+                </li>
+
                 <li class="nav-item <?php if($currentPage == 'about') echo 'fw-bold'; ?>">
                     <a class="nav-link active" href="../about.php">About</a>                    
                 </li>

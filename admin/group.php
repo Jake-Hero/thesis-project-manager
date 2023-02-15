@@ -557,7 +557,6 @@
                         query: searchText,
                     },
                     success: function (response) {
-                        console.log(response);
                         $("#show-list").html(response);
                     },
                 });

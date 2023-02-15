@@ -198,7 +198,7 @@
 
                                     <label for="" class="mt-4">Change Avatar</label>
                                     
-                                    <input type="file" name="image" id="image" class="col-sm-10 form-control" onchange="preview(this);">
+                                    <input type="file" name="image" id="image" class="col-sm-10 form-control" accept="image/png, image/jpg, image/jpeg" onchange="preview(this);">
 
                                     <div class="row mt-5 mx-auto">
                                         <div class="col">

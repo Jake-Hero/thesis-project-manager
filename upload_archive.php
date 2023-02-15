@@ -9,12 +9,10 @@
 
     if($_SERVER['REQUEST_METHOD'] == 'POST')
     {
-        /*if(isset($_POST['createarchive']))
+        if(isset($_POST['createarchive']))
         {
             createArchive();
-        }*/
-
-        var_dump($_FILES, $_POST);
+        }
     }
 
 ?>
@@ -46,13 +44,23 @@
             <div class="container mt-3 mb-3 bg-white border border-dark rounded-start rounded-end px-5 py-4" style="--bs-bg-opacity: .5;">
             
                 <div class="col-lg-12">
-                    <div class="text-center">
-                        <h1 style="font-size: 35px; font-family: 'Lemon/Milk', sans-serif; color: white; -webkit-text-stroke: 1px black;">Create a new Archive Document.</h1>
-                        <h5 style="font-size: 14px;">Please specify the details about the document before we display it in The Archives.</h5>
-                    
-                        <div class="mx-auto col-10 col-md-8 col-lg-6">
-                            <form enctype="multipart/form-data" method = "POST">
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="text-center">
+                            <h1 style="font-size: 35px; font-family: 'Lemon/Milk', sans-serif; color: white; -webkit-text-stroke: 1px black;">Create a new Archive Document.</h1>
+                            <h5 style="font-size: 14px;">Please specify the details about the document before we display it in The Archives.</h5>
+                        
+                            <div class="mx-auto col-10 col-md-8 col-lg-6">
                                 
+                                <?php if(!empty($_SESSION['error_message'])):?>
+                                <div class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
+                                    <i class='fas fa-exclamation-triangle'></i>
+                                    <div class ="mx-3">
+                                        <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']) ?>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                                <?php endif; ?>
+
                                 <div class="form-group">
                                     <label for="" class="mt-4">Research Title</label>
                                     <div class="input-group"> 
@@ -61,25 +69,42 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="" class="mt-4">Group Leader</label>
+                                    <label for="" class="mt-4">Published Year</label>
                                     <div class="input-group"> 
-                                        <input type="text" name="leader" class="col-sm-10 form-control" placeholder="Research Leader">
+                                        <select name="year" class="form-select">
+                                            <?php 
+                                                for($i = date('Y'); $i >= 2000; $i--){
+                                                    echo "<option value='". $i ."'>$i</option>";
+                                                }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="" class="mt-4">Department</label>
+                                    <div class="input-group"> 
+                                        <select name="department" class="form-select">
+                                            <option value="<?php echo DEPT_IT; ?>">Information Technology (IT)</option>
+                                            <option value="<?php echo DEPT_CS; ?>">Computer Science (CS)</option>
+                                        </select>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="" class="mt-4">Upload Document</label>
-                                    <input type="file" name="document" id="document" class="col-sm-10 form-control">
+                                    <input type="file" name="document" id="document" class="col-sm-10 form-control" accept="application/pdf,application">
                                 </div>
-
+               
                                 <div class="row mt-5 mx-auto">
                                     <div class="col text-center">
-                                        <button type="submit" name="createarchive" class="btn btn-lg btn-primary">Create Archive</button>
+                                        <input type="submit" name="createarchive" class="btn btn-lg btn-primary" value="Create Archive">
                                     </div>
                                 </div>
-                            </form>
+                                
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>

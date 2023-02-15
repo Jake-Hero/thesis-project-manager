@@ -12,6 +12,11 @@ require_once realpath(dirname(__FILE__) . '/../config/mail.php');
 require_once "mobile_detection.php";
 require_once "browser_detection.php";
 
+// Department (Archive)
+define("DEPT_IT", 1);
+define("DEPT_CS", 2);
+
+// Roles
 define("ROLE_STUDENT", 0);
 define("ROLE_PANELIST", 1);
 define("ROLE_ADVISOR", 2);
@@ -417,6 +422,18 @@ function profileSave()
     $username = $_SESSION['user']['username'];
     $password = $_POST['verifypassword'];        
 
+    $arr = array();
+                
+    $arr['id'] = $_SESSION['user']['id'];
+    $name = $_SESSION['user']['username'];
+
+    $imgName = $_FILES['image']['name'];
+    $imgSize = $_FILES['image']['size'];
+    $tmpName = $_FILES['image']['tmp_name'];
+
+    $imgExt = explode('.', $imgName);
+    $imgExt = strtolower(end($imgExt));
+
     $query = "SELECT id, email, password FROM users WHERE username = :username limit 1;";
     $select_stm = $con->prepare($query);
     $select_stm->execute(['username' => $username]);
@@ -444,6 +461,14 @@ function profileSave()
         {
             $_SESSION['error_message'] = "Password should be at least 8 characters in length and should include at least one upper case letter, one number, and one special character.";
         }
+        else if ($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE && $_FILES['image']['type'] != "image/jpg" && $_FILES['image']['type'] != "image/jpeg" && $_FILES['image']['type'] != "image/png")
+        {
+            $_SESSION['error_message'] = "You can only upload (jpg, jpeg, png is only allowed!) files!";
+        }
+        else if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE && $imgSize > 5242880)
+        {
+            $_SESSION['error_message'] = "You cannot upload an image with over 5MB+ file size!";
+        }
         else 
         {
             if(!empty($_POST['username']))
@@ -470,10 +495,7 @@ function profileSave()
                 $_SESSION['error_message'] = "Choose another email, A user is already using that email!";
             }
             else 
-            {
-                if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
-                    uploadImages();
-               
+            {            
                 if(!empty($_POST['email']))
                 {
                     $message = "Your email address " .$_SESSION['user']['email']. " was replaced by a new email address.";
@@ -542,7 +564,7 @@ function profileSave()
                             username = COALESCE(:username, username),
                             email = COALESCE(:email, email),
                             password = COALESCE(:password, password) 
-                          WHERE id = :id";
+                        WHERE id = :id";
 
                 $updateStmt = $con->prepare($query);
                 $updateStmt->bindValue(':fullname', $fullname, PDO::PARAM_STR);
@@ -554,6 +576,26 @@ function profileSave()
             
                 $_SESSION['success_message'] = "Changes to your profile has been saved!";
             
+                if($_FILES['image']['error'] != UPLOAD_ERR_NO_FILE)
+                {    
+                    $imgName = explode('.', $imgName);
+            
+                    $arr['newImgName'] = $name . " - " . date("m.d.y H.i.s");
+                    $arr['newImgName'] .= '.' . $imgExt;
+            
+                    $query = "UPDATE users SET image = :newImgName WHERE id = :id";
+                    $q = $con->prepare($query);
+                    $q->execute($arr);
+            
+                    $tmp_path = "./assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
+                    $real_path = "./assets/profile_pictures/" .$arr['newImgName'];
+            
+                    move_uploaded_file($tmpName, $tmp_path);
+                    resize_image($tmp_path, $real_path);
+            
+                    unlink($tmp_path);
+                }
+
                 header("Refresh:0");
             }
         }
@@ -565,28 +607,46 @@ function profileSave()
     return true;
 }
 
+function categorizedDepartment($val)
+{
+    switch($val)
+    {
+        case DEPT_IT:
+            $dept = 'Information Technology';
+            break;
+        case DEPT_CS:
+            $dept = 'Computer Science';
+            break;                    
+        default:
+            $dept = 'Unspecified';
+            break;
+    }
+    return $dept;
+}
+
 function createArchive()
 {
     global $con;
+    $query = "SELECT * FROM archives WHERE title = :title";
+    $selectStmt = $con->prepare($query);
+    $selectStmt->execute(['title' => $_POST['title']]);
 
-    $hashed_password = NULL;
-
-    if(empty($_POST['title']) || empty($_POST['leader']))
+    if(empty($_POST['title']))
+    {
         $_SESSION['error_message'] = "Make sure to fill out all the fields!";
-
-    if(!empty($_POST['title']) && !preg_match('/^[a-zA-Z]+$/', $_POST['title']))
+    }
+    else if(!empty($_POST['title']) && !preg_match('/[a-zA-Z \']*\S[a-zA-Z \']/', $_POST['title']))
     {
         $_SESSION['error_message'] = "Enter a valid research title name!";
     }
-    else if(!empty($_POST['leader']) && !preg_match('/^[a-zA-Z]+$/', $_POST['leader']))
+    else if($selectStmt->rowCount() > 0)
     {
-        $_SESSION['error_message'] = "Enter a valid full name!";
+        $_SESSION['error_message'] = "Title is already taken!";
     }
     else 
     {
         if($_FILES['document']['error'] != UPLOAD_ERR_NO_FILE)
         {
-            global $con;
             $arr = array();
         
             $fileName = $_FILES['document']['name'];
@@ -596,32 +656,36 @@ function createArchive()
             $fileExt = explode('.', $fileName);
             $fileExt = strtolower(end($fileExt));
         
-            if ($_FILES['document']['type'] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            if ($_FILES['document']['type'] != "application/pdf")
             {
-                echo '<script>alert("Invalid file extension (doc, docx is only allowed!)");';
+                $_SESSION['error_message'] = "You can only upload PDF files!";
             }
-            else if($fileSize > 1200000)
+            else if($fileSize > 15728640)
             {
-                echo '<script>alert("File size is too large!");</script>';
+                $_SESSION['error_message'] = "File size is too large!";
             }
             else 
             {
                 $fileName = $_POST['title'];
                 $fileName .= '.' . $fileExt;
         
-                $tmp_path = "../assets/archives/tmp_" . $_FILES['document']['name'] . "." .$fileExt;
-                $real_path = "../assets/archives/" .$fileName;
+                $path = "./assets/archives/" .$fileName;
         
-                move_uploaded_file($tmpName, $real_path);
-            }
+                move_uploaded_file($tmpName, $path);
 
-            $query = "INSERT INTO archives (date, title, leader, file) VALUES(:added, :title, :leader, :file)";
-            $insert_stm = $con->prepare($query);
-            $insert_stm->bindValue('added', date("Y-m-d H:i:s")); 
-            $insert_stm->bindValue('title', $_POST['title']);
-            $insert_stm->bindValue('leader', $_POST['leader']); 
-            $insert_stm->bindValue('file', $fileName);
-            $insert_stm->execute();
+                $query = "INSERT INTO archives (date, title, file, publishedyear, department) VALUES(:added, :title, :file, :year, :department)";
+                $insert_stm = $con->prepare($query);
+                $insert_stm->bindValue('added', date("Y-m-d H:i:s")); 
+                $insert_stm->bindValue('title', $_POST['title']);
+                $insert_stm->bindValue('file', $fileName);
+                $insert_stm->bindValue('year', $_POST['year']);
+                $insert_stm->bindValue('department', $_POST['department']);
+                $insert_stm->execute();
+
+                $_SESSION['success_message'] = "You have successfully added a new archived document!";
+
+                header("Location: ./archive.php");
+            }
         }    
         else 
         {
@@ -639,12 +703,14 @@ function createUserProfile()
     $image_name = "default_profile.jpg";
 
     if(empty($_POST['fullname']) || empty($_POST['username']) || empty($_POST['email']) || empty($_POST['password']))
+    {
         $_SESSION['error_message'] = "Make sure to fill out all the fields!";
-
-    if($_POST['role'] < 0)
+    }
+    else if($_POST['role'] < 0)
+    {
         $_SESSION['error_message'] = "Assign a role!";
-
-    if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z \.]+$/', $_POST['fullname']))
+    }
+    else if(!empty($_POST['fullname']) && !preg_match('/^[a-zA-Z \.]+$/', $_POST['fullname']))
     {
         $_SESSION['error_message'] = "Enter a valid full name!";
     }
@@ -1085,65 +1151,16 @@ function adminuploadImages(array $row)
     $imgSize = $_FILES['image']['size'];
     $tmpName = $_FILES['image']['tmp_name'];
 
-    $validExt = ['jpg', 'jpeg', 'png'];
     $imgExt = explode('.', $imgName);
     $imgExt = strtolower(end($imgExt));
 
-    if(!in_array($imgExt, $validExt))
+    if ($_FILES['image']['type'] != "image/jpg" && $_FILES['image']['type'] != "image/jpeg" && $_FILES['image']['type'] != "image/png")
     {
-        echo '<script>alert("Invalid file extension (jpg, jpeg, png is only allowed!)");';
+        echo '<script>alert("You can only upload (jpg, jpeg, png is only allowed!) files!");';
     }
-    else if($imgSize > 5000000)
+    else if($imgSize > 5242880)
     {
-        echo '<script>alert("File size is too large!");';
-    }
-    else 
-    {
-        $imgName = explode('.', $imgName);
-
-        $arr['newImgName'] = $name . " - " . date("m.d.y H.i.s");
-        $arr['newImgName'] .= '.' . $imgExt;
-
-        $query = "UPDATE users SET image = :newImgName WHERE id = :id";
-        $q = $con->prepare($query);
-        $q->execute($arr);
-
-        $tmp_path = "./assets/profile_pictures/tmp_" . $_FILES['image']['name'] . "." .$imgExt;
-        $real_path = "./assets/profile_pictures/" .$arr['newImgName'];
-
-        move_uploaded_file($tmpName, $tmp_path);
-        resize_image($tmp_path, $real_path);
-
-        unlink($tmp_path);
-
-        header("Refresh:0");
-    }
-    return true;
-}
-
-function uploadImages()
-{
-    global $con;
-    $arr = array();
-
-    $arr['id'] = $_SESSION['user']['id'];
-    $name = $_SESSION['user']['username'];
-
-    $imgName = $_FILES['image']['name'];
-    $imgSize = $_FILES['image']['size'];
-    $tmpName = $_FILES['image']['tmp_name'];
-
-    $validExt = ['jpg', 'jpeg', 'png'];
-    $imgExt = explode('.', $imgName);
-    $imgExt = strtolower(end($imgExt));
-
-    if(!in_array($imgExt, $validExt))
-    {
-        echo '<script>alert("Invalid file extension (jpg, jpeg, png is only allowed!)");</script>';
-    }
-    else if($imgSize > 1200000)
-    {
-        echo '<script>alert("File size is too large!");</script>';
+        echo '<script>alert("You cannot upload an image with over 5MB+ file size!");';
     }
     else 
     {

@@ -1,0 +1,12 @@
+{
+    "name": "justi/thesis-project-manager",
+    "authors": [
+        {
+            "name": "Cipher",
+            "email": "justinerainielramos@gmail.com"
+        }
+    ],
+    "require": {
+        "tecnickcom/tcpdf": "^6.6"
+    }
+}

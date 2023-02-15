@@ -194,7 +194,7 @@
                                 <label for="" class="mt-4">Change Avatar</label>
                                 
                                 <?php if(is_user_verified()): ?>
-                                    <input type="file" name="image" id="imageFile" class="col-sm-10 form-control" onchange="preview(this);">
+                                    <input type="file" name="image" id="imageFile" class="col-sm-10 form-control" accept="image/png, image/jpg, image/jpeg" onchange="preview(this);">
                                 <?php else: ?>
                                     <input type="text" id="disabledTextInput" class="form-control" placeholder="You need to verify your account first." disabled>
                                 <?php endif; ?>

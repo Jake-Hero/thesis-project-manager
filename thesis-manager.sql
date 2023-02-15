@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.0.4
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Jan 25, 2023 at 12:05 PM
--- Server version: 10.6.10-MariaDB-cll-lve
--- PHP Version: 7.2.34
+-- Host: 127.0.0.1
+-- Generation Time: Feb 15, 2023 at 09:48 AM
+-- Server version: 10.4.16-MariaDB
+-- PHP Version: 7.4.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,8 +18,71 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `u811891609_thesismanager`
+-- Database: `thesis-manager`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `archives`
+--
+
+CREATE TABLE `archives` (
+  `id` int(11) NOT NULL,
+  `date` datetime NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `file` text NOT NULL,
+  `publishedyear` int(11) NOT NULL,
+  `department` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `archives`
+--
+
+INSERT INTO `archives` (`id`, `date`, `title`, `file`, `publishedyear`, `department`) VALUES
+(1, '2023-02-14 14:44:38', 'Cove - A Local Event Provider and Way Finder Application for Android Devices', 'Cove - A Local Event Provider and Way Finder Application for Android Devices.pdf', 2020, 1),
+(2, '2023-02-14 14:50:45', 'Search Eat - A Mobile Recipe Finder', 'Search Eat - A Mobile Recipe Finder.pdf', 2019, 1),
+(3, '2023-02-14 15:26:44', 'ANG ASO AT ANG ANINO - AN ANIMATED SHORT FILM', 'ANG ASO AT ANG ANINO - AN ANIMATED SHORT FILM.pdf', 2017, 1),
+(4, '2023-02-14 15:27:15', 'Solar Walk - A 3D Solar System Exploration', 'Solar Walk - A 3D Solar System Exploration.pdf', 2017, 1),
+(5, '2023-02-14 15:29:01', 'E-LEARNING DISASTER PREPAREDNESS', 'E-LEARNING DISASTER PREPAREDNESS.pdf', 2017, 1),
+(6, '2023-02-14 15:34:38', 'AGAPP - A Mobile Awareness Application ', 'AGAPP - A Mobile Awareness Application.pdf', 2017, 1),
+(7, '2023-02-14 15:39:25', 'PEFA - A Disaster Preparedness and First Aid Guide Mobile Application', 'PEFA - A Disaster Preparedness and First Aid Guide Mobile Application.pdf', 2017, 1),
+(8, '2023-02-14 15:41:50', 'Downfall - A Computer game incorporating A Pathfinding Algorithm', 'Downfall - A Computer game incorporating A Pathfinding Algorithm.pdf', 2018, 1),
+(9, '2023-02-14 15:45:18', 'Mutual - A Voice for the Voiceless Using Naive Bayes Classifier Algorithm', 'Mutual - A Voice for the Voiceless Using Naive Bayes Classifier Algorithm.pdf', 2018, 1),
+(10, '2023-02-14 15:48:57', 'RoadWyze - A Game Development using Dijkstra Algorithm', 'RoadWyze - A Game Development using Dijkstra Algorithm.pdf', 2018, 2),
+(11, '2023-02-14 15:54:01', 'Apart2Go - A Mobile Application for Finding Apartments Boarding House', 'Apart2Go - A Mobile Application for Finding Apartments Boarding House.pdf', 2018, 1),
+(12, '2023-02-14 15:56:17', 'ArchiveIT - A Mobile Application Storage for Thesis and Capstone Projects', 'ArchiveIT - A Mobile Application Storage for Thesis and Capstone Projects.pdf', 2018, 1),
+(13, '2023-02-14 15:58:33', 'MyLPU e-Training', 'MyLPU e-Training.pdf', 2018, 1),
+(14, '2023-02-14 16:09:11', 'TE-KER - Student Attendance Checker Mobile Application Using Face Recognition', 'TE-KER - Student Attendance Checker Mobile Application Using Face Recognition.pdf', 2018, 1),
+(15, '2023-02-14 16:13:05', 'RoadAR - An Augmented Reality  Mobile Application', 'RoadAR - An Augmented Reality  Mobile Application.pdf', 2019, 1),
+(16, '2023-02-14 16:16:39', 'SeAPorts - An Online Reservation System for Ships', 'SeAPorts - An Online Reservation System for Ships.pdf', 2018, 1),
+(17, '2023-02-14 16:20:23', 'Melodroid - A 2D Short Film Animation', 'Melodroid - A 2D Short Film Animation.pdf', 2018, 1),
+(18, '2023-02-14 16:22:37', 'THE SPELL OF ENHANCEMENT - A 2-D SHORT FILM ANIMATION', 'THE SPELL OF ENHANCEMENT - A 2-D SHORT FILM ANIMATION.pdf', 2018, 1),
+(19, '2023-02-14 16:25:44', 'ASL Tutorial - American Sign Language Mobile Application', 'ASL Tutorial - American Sign Language Mobile Application.pdf', 2018, 2),
+(20, '2023-02-14 16:29:06', 'AR FURNICAM - A MOBILE AUGMENTED REALITY APPLICATION OF R.C. GAMBOA FURNITURE', 'AR FURNICAM - A MOBILE AUGMENTED REALITY APPLICATION OF R.C. GAMBOA FURNITURE.pdf', 2019, 2),
+(21, '2023-02-14 16:30:21', 'CHECKit - A Mobile Exam Checker ', 'CHECKit - A Mobile Exam Checker .pdf', 2019, 2),
+(22, '2023-02-14 16:31:23', 'Dinos World - A Mobile Application Using Augmented Reality', 'Dinos World - A Mobile Application Using Augmented Reality.pdf', 2019, 2),
+(23, '2023-02-14 16:32:47', 'Apprize - A Social Platform for Self-Wellness Using Decision Tree Algorithm', 'Apprize - A Social Platform for Self-Wellness Using Decision Tree Algorithm.pdf', 2020, 2),
+(24, '2023-02-14 16:34:37', 'ARGYM - AN AUGMENTED REALITY OF GYM EQUIPMENT', 'ARGYM - AN AUGMENTED REALITY OF GYM EQUIPMENT.pdf', 2019, 1),
+(25, '2023-02-15 14:16:16', 'Bid & Hit An Online Auction Site', 'Bid & Hit An Online Auction Site.pdf', 2018, 1),
+(26, '2023-02-15 14:17:47', 'Dr. Pepe - A 2D Mobile Game on Jose Rizal s Life and Works', 'Dr. Pepe - A 2D Mobile Game on Jose Rizal s Life and Works.pdf', 2018, 1),
+(27, '2023-02-15 14:18:11', 'iCurrency Converter - A MOBILE APPLICATION ', 'iCurrency Converter - A MOBILE APPLICATION .pdf', 2018, 1),
+(28, '2023-02-15 14:18:34', 'm-Dental Assistant - A Mobile Application ', 'm-Dental Assistant - A Mobile Application .pdf', 2018, 1),
+(29, '2023-02-15 14:18:50', 'Online Multimedia Systems of Golden Key Integrated School of St. Joseph', 'Online Multimedia Systems of Golden Key Integrated School of St. Joseph.pdf', 2018, 1),
+(30, '2023-02-15 14:31:52', 'AIDentures - Dental Appointment Mobile Application', 'AIDentures - Dental Appointment Mobile Application.pdf', 2018, 1),
+(31, '2023-02-15 14:32:09', 'AN ONLINE MULTIMEDIA SYSTEM FOR INTEGRATED SOUTHERN TAGALOG ASSOCIATION OF INFORMATION ', 'AN ONLINE MULTIMEDIA SYSTEM FOR INTEGRATED SOUTHERN TAGALOG ASSOCIATION OF INFORMATION .pdf', 2018, 1),
+(32, '2023-02-15 15:19:10', 'Baby’s Book - A Multimedia Mobile Application for Keeping Baby’s Health Records with Appointment Scheduling', 'Baby’s Book - A Multimedia Mobile Application for Keeping Baby’s Health Records with Appointment Scheduling.pdf', 2018, 1),
+(33, '2023-02-15 15:20:27', 'Augmented Reality of Laboratory Apparatus - Mobile Application', 'Augmented Reality of Laboratory Apparatus - Mobile Application.pdf', 2018, 1),
+(34, '2023-02-15 15:26:15', 'SnapSearch - A Mobile Application', 'SnapSearch - A Mobile Application.pdf', 2018, 2),
+(35, '2023-02-15 15:26:49', 'eX-Ray - A Mobile Application using Pattern Recognition Algorithm', 'eX-Ray - A Mobile Application using Pattern Recognition Algorithm.pdf', 2018, 2),
+(36, '2023-02-15 15:27:08', 'Cave Man - A PC Game Using Dijkstra’s Algorithm', 'Cave Man - A PC Game Using Dijkstra’s Algorithm.pdf', 2018, 2),
+(37, '2023-02-15 15:35:01', 'AppRhythm Generation - A Game using Binary Space Partitioning Algorithm', 'AppRhythm Generation - A Game using Binary Space Partitioning Algorithm.pdf', 2017, 2),
+(38, '2023-02-15 15:45:06', 'Textor - A Mobile Application that', 'Textor - A Mobile Application that.pdf', 2017, 2),
+(39, '2023-02-15 15:45:30', 'Find Me - A Mobile Application for Locating Misplaced Smartphones', 'Find Me - A Mobile Application for Locating Misplaced Smartphones.pdf', 2017, 2),
+(40, '2023-02-15 15:45:44', 'AZURITE - A MOBILE GAME USING SPATIAL HASHING ALGORITHM', 'AZURITE - A MOBILE GAME USING SPATIAL HASHING ALGORITHM.pdf', 2017, 2),
+(41, '2023-02-15 15:45:59', 'eFingerMatch - A Mobile Application for Fingerprint Matching', 'eFingerMatch - A Mobile Application for Fingerprint Matching.pdf', 2017, 2),
+(42, '2023-02-15 15:46:13', 'EspyDynami - Power Monitoring Mobile Application', 'EspyDynami - Power Monitoring Mobile Application.pdf', 2017, 2);
 
 -- --------------------------------------------------------
 
@@ -244,7 +307,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `date`, `last_seen`, `ip_addr`, `fullname`, `username`, `group_id`, `email`, `email_verified`, `password`, `image`, `role`, `advised_by`) VALUES
-(1, '2022-12-20 07:51:42', '2022-12-27 12:15:35', '112.198.213.170', 'Justine Rainiel Ramos', 'Cipher', 54, 'justinerainielramos@gmail.com', 'justinerainielramos@gmail.com', '$2y$10$EHQzXzLRGIA8dO60XqepnuSWcityaEmu/r3FodIO3r9oshprJAgce', 'Cipher - 12.20.22 23.56.08.jpg', 0, 11),
+(1, '2022-12-20 07:51:42', '2023-02-15 08:48:21', '::1', 'Justine Rainiel Ramos', 'Cipher', 54, 'justinerainielramos@gmail.com', 'justinerainielramos@gmail.com', '$2y$10$EHQzXzLRGIA8dO60XqepnuSWcityaEmu/r3FodIO3r9oshprJAgce', 'Cipher - 02.15.23 11.17.35.png', 0, 11),
 (2, '2022-12-20 07:51:42', '2022-12-27 12:15:58', '112.198.213.170', 'Administrator', 'Admin', 0, 'admin@thesiscapstonemanager.com', 'admin@thesiscapstonemanager.com', '$2y$10$lhuNzElezEWcSt0twRiKc.FzZXvcNcxBlxCEry5s9XP8QNnIGGBq.', 'default_profile.jpg', 3, 0),
 (3, '2022-12-20 19:28:38', '2022-12-20 11:39:30', '112.206.241.182', 'Suzette ', 'suzettec', 0, 'suzetteeec@gmail.com', 'suzetteeec@gmail.com', '$2y$10$/VV5dEztWwxk0E8A6IAb9.eb4sZkcL4EOGVxrmTzRcP8sSLe9LkxC', 'default_profile.jpg', 0, 0),
 (4, '2022-12-20 19:36:07', '2022-12-22 01:19:56', '180.195.207.95', 'RV Angel Mayuga', 'rvangel', 54, 'mayugarv07@gmail.com', 'mayugarv07@gmail.com', '$2y$10$Ib1iXztbTmTg4yoiObSRZu/n/Y.h0dksQRLTiVdRSzatwTELw0UHC', 'rvangel - 12.21.22 21.08.30.png', 0, 0),
@@ -2475,11 +2538,36 @@ INSERT INTO `visitor_data` (`id`, `browser_name`, `browser_version`, `device_typ
 (4109, 'Chrome', '66.0.3359.181', 'PC', 'Window', 'https//thesiscapstonemanager.com/', '', '2023-01-25 07:17:39'),
 (4110, 'Chrome', '66.0.3359.181', 'PC', 'Window', 'https//thesiscapstonemanager.com/', '', '2023-01-25 07:17:45'),
 (4111, 'Chrome', '109.0.0.0', 'PC', 'Window', 'https//thesiscapstonemanager.com/', '', '2023-01-25 07:55:57'),
-(4112, 'unknown', 'unknown', 'PC', 'Window', 'https//thesiscapstonemanager.com.:443/', '', '2023-01-25 11:29:14');
+(4112, 'unknown', 'unknown', 'PC', 'Window', 'https//thesiscapstonemanager.com.:443/', '', '2023-01-25 11:29:14'),
+(4113, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/', '', '2023-02-14 01:31:26'),
+(4114, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/', '', '2023-02-14 01:43:57'),
+(4115, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/login.php', '2023-02-14 01:44:43'),
+(4116, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', '', '2023-02-14 06:02:04'),
+(4117, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/', '', '2023-02-14 23:59:59'),
+(4118, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/login.php', '2023-02-15 00:00:38'),
+(4119, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/archive.php', '2023-02-15 00:51:15'),
+(4120, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/archive.php', '2023-02-15 01:28:04'),
+(4121, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/archive.php', '2023-02-15 01:35:14'),
+(4122, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/view_archive.php?id=24', '2023-02-15 02:54:01'),
+(4123, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', '', '2023-02-15 03:16:00'),
+(4124, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/', '', '2023-02-15 04:59:22'),
+(4125, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/login.php', '2023-02-15 04:59:28'),
+(4126, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/view_archive.php?id=42', '2023-02-15 08:08:52'),
+(4127, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/about.php', '2023-02-15 08:23:41'),
+(4128, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/about.php', '2023-02-15 08:33:13'),
+(4129, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/dashboard.php', '2023-02-15 08:33:14'),
+(4130, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/group.php', '2023-02-15 08:37:28'),
+(4131, 'Chrome', '110.0.0.0', 'PC', 'Window', 'http//localhost/thesis-project-manager/dashboard.php', 'http://localhost/thesis-project-manager/profile.php', '2023-02-15 08:48:20');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `archives`
+--
+ALTER TABLE `archives`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `comments`
@@ -2555,6 +2643,12 @@ ALTER TABLE `visitor_data`
 --
 
 --
+-- AUTO_INCREMENT for table `archives`
+--
+ALTER TABLE `archives`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+
+--
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
@@ -2606,7 +2700,7 @@ ALTER TABLE `verified`
 -- AUTO_INCREMENT for table `visitor_data`
 --
 ALTER TABLE `visitor_data`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4113;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4132;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

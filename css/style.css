@@ -30,6 +30,20 @@ a:visited { text-decoration: none; }
 a:hover { text-decoration: none; }
 a:active { text-decoration: none; }
 
+.wrapper-follow 
+{
+    overflow: auto;
+
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    background-image: url("../assets/images/thesis-background.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: block;
+    background-attachment: fixed;
+}
+
 .wrapper 
 {
     overflow: auto;

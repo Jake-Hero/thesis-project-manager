@@ -32,7 +32,7 @@ This project was picked up later on by the Golden Key Integrated School of St. J
 2. Open XAMPP after installation, run both **Apache** and **MySQL**
 3. Download this project, or Clone the Project via Git (cd C:\xampp\htdocs\ -> git clone https://github.com/Jake-Hero/thesis-project-manager)
 4. After cloning the project, head over to phpMyAdmin (**localhost/phpmyadmin**)
-5. In the left side, create New (New Database)
+5. On the left side, create New (New Database)
 6. Name the database '**thesis-manager**' and click Create.
 7. At the top, click '**Import**'.
 8. Click choose file and navigate to the project's folder, select the **thesis-manager.sql**

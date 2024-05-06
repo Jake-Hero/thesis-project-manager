@@ -15,4 +15,10 @@ This system aims aid the Lycean Students on their capstone and thesis research, 
 
 This project was picked up later on by the Golden Key Integrated School of St. Joseph, when Justine & RV entered the internship for them.
 
+### Tech Stacks
+* PHP Vanilla was used for back-end.
+* Javascript jQuery was used to handle dynamic changes in the front-end.
+* Bootstrap Framework was used to aid on designing the front-end.
+* The database is done via MySQL (PhpMyAdmin)
+
 #### The project was last updated on 2023. 

@@ -11,7 +11,7 @@
 
 
 #### Brief Description:
-This system aims aid the Lycean Students on their capstone and thesis research, to make their lives easier in terms of collaborating, interacting and exchanging files.
+This system aims to aid the Lycean Students on their capstone and thesis research, to make their lives easier in terms of collaborating, interacting and exchanging files.
 
 This project was picked up later on by the Golden Key Integrated School of St. Joseph, when Justine & RV entered the internship for them.
 

@@ -7,7 +7,7 @@
 * Justine Rainiel A. Ramos
 * Rv Angel Mayuga
 * Alliah Pureza
-* Marvin DImaano
+* Mervin DImaano
 
 
 #### Brief Description:
